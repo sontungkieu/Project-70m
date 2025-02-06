@@ -3,10 +3,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 import time
-import re
 import csv
 
-def travel_distance(origin, destination, filename="travel_distance.csv"):
+def travel_distance(origin, destination, filename):
     service = Service(executable_path="chromedriver.exe")
     driver = webdriver.Chrome(service=service)
     
@@ -31,10 +30,6 @@ def travel_distance(origin, destination, filename="travel_distance.csv"):
         writer = csv.writer(file)
         writer.writerow([origin, destination, distance_text])
 
-  
 
-start = "136 Ho Tung Mau"
-destination = "Truong Dai hoc Cong Nghe"
-travel_distance(start, destination)
     
     
