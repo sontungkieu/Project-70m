@@ -6,3 +6,7 @@
 #   2. biết đơn hàng rồi mới chia: tạo ra ma trận mới mỗi lần chạy 
 # nếu chia 1 đơn hàng ra nhiều xe, xe sẽ không tối ưu, nên đánh penalty cho 1 đơn hàng spread nhiều xe
 # về chia ra các pack 0.5m3 kia xe, trong danh sách đơn hàng, có lẻ 0.6, 0.3, 0.2, 0.9 thì sẽ tính tròn 0.5 hoặc 1.0 rồi trừ sau khi chạy thuật toán
+
+#########Idea Chí Bằng###########
+# chia đơn hàng ra bằng với capacity của xe nhỏ nhất (97 -> 95) -> bị lẻ, chưa xem code Bằng giải thế nào.
+# chưa handle trường hợp tổng đơn hàng> tổng capacity các xe

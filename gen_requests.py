@@ -4,7 +4,7 @@ import csv
 
 random.seed(42)
 
-def gen_request(single_start = True, small_weihgt = True):
+def gen_request(NUM_OF_NODES = 55,start_from_0=True,single_start = True, small_weihgt = True):
     """
     Tạo một yêu cầu giao hàng ngẫu nhiên với thông tin về điểm lấy hàng, điểm giao hàng,
     trọng lượng, ngày giao, và khung giờ giao hàng.
@@ -35,16 +35,16 @@ def gen_request(single_start = True, small_weihgt = True):
     [[1, 2], [10], 15.3, 2, [3, 20]]
     """
     #số điểm lấy hàng tuỳ ý 
-    start_place = random.sample([0, 1, 2, 3], k=random.randint(1, 1 if single_start else 4))
+    start_place = [0] if start_from_0 else random.sample([0, 1, 2, 3], k=random.randint(1, 1 if single_start else 4))
     #chỉ 1 điểm giao hàng cho mỗi đơn
-    end_place = random.sample(list(range(4,54)), k=1)
-    weight = random.randint(0*100, 3*100)/100 if small_weihgt==True else random.randint(12*100, 30*100)/100 if small_weihgt==False else random.randint(7*100, 20*100)/100
+    end_place = random.sample(list(range(1,NUM_OF_NODES)), k=1)
+    weight = random.randint(0*10, int(9.7*10))/10 if small_weihgt==True else random.randint(54*10, 300*10)/10 if small_weihgt==False else random.randint(24*10, 150*10)/10
     gen_day = random.randint(0, 3)
     gen_timeframe = sorted(random.sample(list(range(0,24)), k=2))
     return [start_place,end_place,weight,gen_day,gen_timeframe]
 
 
-def gen_requests_and_save(num_requests = 10, file_sufices = "",seed=42):
+def gen_requests_and_save(num_requests = 10, file_sufices = "", NUM_OF_NODES = 55, start_from_0 = True, seed=42):
     """
     Tạo một số lượng yêu cầu giao hàng ngẫu nhiên và lưu vào tệp CSV.
 
@@ -79,7 +79,16 @@ def gen_requests_and_save(num_requests = 10, file_sufices = "",seed=42):
     - File CSV được tạo sẽ có tên "requests_test.csv".
     """
     random.seed(seed)
-    requests = [gen_request() for i in range(10)]
+
+    requests = [gen_request(NUM_OF_NODES) for i in range(num_requests*2)]
+    have_request = [0 for i in range(NUM_OF_NODES)]
+    filtered_requests = []
+    for u in requests:
+        if have_request[u[1][0]]:
+            continue
+        have_request[u[1][0]]=1
+        filtered_requests.append(u)
+    requests = filtered_requests[:num_requests]
     with open(f'requests{file_sufices}.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['Start Place', 'End Place', 'Weight', 'Gen Day', 'Gen Timeframe'])
@@ -88,4 +97,4 @@ def gen_requests_and_save(num_requests = 10, file_sufices = "",seed=42):
     return requests
 
 
-gen_requests_and_save(file_sufices="0")
+gen_requests_and_save(file_sufices="0",NUM_OF_NODES=10)
