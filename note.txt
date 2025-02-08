@@ -1,0 +1,8 @@
+# chia đơn hàng nhỏ ra thành các pack 0.5m3 -> 5 0.1m3 sẽ tận dụng hầu hết các xe, đồng thời không chia đơn quá nhỏ
+# không có đơn nào quá 50m3 -> 500 0.1m3 -> 100 pack cho mỗi điểm, mỗi điểm 
+# 50 điểm -> quá lớn
+# giải pháp:
+#   1. thống kê đơn hàng max các điểm, rồi chia: có thể sinh ra lỗi nếu đột nhiên có đơn lớn hơn
+#   2. biết đơn hàng rồi mới chia: tạo ra ma trận mới mỗi lần chạy 
+# nếu chia 1 đơn hàng ra nhiều xe, xe sẽ không tối ưu, nên đánh penalty cho 1 đơn hàng spread nhiều xe
+# về chia ra các pack 0.5m3 kia xe, trong danh sách đơn hàng, có lẻ 0.6, 0.3, 0.2, 0.9 thì sẽ tính tròn 0.5 hoặc 1.0 rồi trừ sau khi chạy thuật toán
