@@ -5,8 +5,8 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 # chuyển hết sang đơn vị (0.1m3)
 # xe 9.7 m3 thành 97 0.1m3
 
-NUM_OF_VEHICLES = 55
-NUM_OF_NODES = 54
+NUM_OF_VEHICLES = 3
+NUM_OF_NODES = 7
 # ------------------------------
 # Phần "daily": tạo dữ liệu và mô hình định tuyến cho một ngày giao hàng
 
@@ -45,7 +45,7 @@ def load_data(distance_file='distance.csv',request_file = 'requests.csv', vehicl
         weight = row['Weight']
         demands[end_place] += int(weight*10)
         time_windows[end_place] = tuple(int(u) for u in row['Gen Timeframe'][1:-1].split(','))
-    # print(demands, vehicle_capacities)
+    print(demands)
     return distance_matrix,demands,vehicle_capacities, time_windows
     
 
@@ -60,6 +60,7 @@ def create_data_model(*,distance_matrix=None,demands = None, vehicles = None, ti
          • Khách hàng 4 có đơn hàng 6 đơn vị sẽ chia thành 2 node: 4a (5 đơn vị) và 4b (1 đơn vị).
     - Các node này đều có cùng vị trí (vì cùng là của khách hàng đó) nên khoảng cách giữa chúng bằng 0.
     """
+    global NUM_OF_VEHICLES
     data = {}
     # Định nghĩa 7 node:
     # 0: depot
@@ -95,8 +96,9 @@ def create_data_model(*,distance_matrix=None,demands = None, vehicles = None, ti
 
     # Với trọng tải của xe là 5 đơn vị, những node với demand <= 5 đảm bảo không vượt quá.
     # Tổng demand của các khách hàng là 5+3+1+2+5+1 = 17, nên sử dụng 4 xe với tải trọng 5 (tổng tải = 20).
-    data['vehicle_capacities'] = [10, 9, 8, 5] if not vehicles  else vehicles
+    data['vehicle_capacities'] = [10, 9, 8, 5] if not vehicles else vehicles
     data['num_vehicles'] = 4 if not vehicles else len(vehicles)
+    NUM_OF_VEHICLES = data['num_vehicles']
     data['depot'] = 0
 
     # Thiết lập khung thời gian cho từng node:
@@ -219,6 +221,7 @@ def solve_daily_routing(data, historical_km, lambda_penalty, mu_penalty,distance
     min_capacity = min(data['vehicle_capacities'])
     avg_capacity = tinh_trung_binh_co_ban(data['vehicle_capacities'])
     # Gán fixed cost cho từng xe theo historical_km và tải trọng.
+    print(data['num_vehicles'],"#"*10,historical_km)
     for v in range(data['num_vehicles']):
         fixed_cost = int(lambda_penalty * historical_km[v] + mu_penalty * (
             data['vehicle_capacities'][v] - 0))
@@ -296,12 +299,14 @@ def multi_day_routing(num_days, lambda_penalty, mu_penalty):
     Điều này giúp ưu tiên xe có số km tích lũy thấp và có tải trọng nhỏ hơn.
     """
     # Khởi tạo historical_km cho 4 xe (trong thực tế có thể là 47 xe)
-    historical_km = [0 for _ in range(4)]
+    historical_km = None
     for day in range(num_days):
         print(f"\n--- Day {day+1} ---")
         # Trong thực tế, dữ liệu đơn hàng có thể khác mỗi ngày.
         # data = create_daily_data_model()
         data = create_data_model()
+        if not historical_km:
+            historical_km = [0 for _ in range(NUM_OF_VEHICLES)]
         solution, manager, daily_distances, routing = solve_daily_routing(
             data, historical_km, lambda_penalty, mu_penalty)
         if solution is None:
@@ -322,7 +327,7 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
     Điều này giúp ưu tiên xe có số km tích lũy thấp và có tải trọng nhỏ hơn.
     """
     # Khởi tạo historical_km cho 4 xe (trong thực tế có thể là 47 xe)
-    historical_km = [0 for _ in range(NUM_OF_VEHICLE)]
+    historical_km = None
     for day in range(num_days):
 
         print(f"\n--- Day {day+1} ---")
@@ -330,10 +335,10 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
         import random
         seed = random.randint(10,100)
 
-        gen_requests.gen_requests_and_save(10,file_sufices=str(day),seed=seed)
-        print("fsdhjkhsflfkshd")
+        gen_requests.gen_requests_and_save(5,file_sufices=str(day),NUM_OF_NODES=NUM_OF_NODES,seed=seed)
         distance_matrix,demands,vehicle_capacities, time_windows = load_data(request_file=f"requests{day}.csv")
-        
+        if not historical_km:
+            historical_km = [0 for _ in range(NUM_OF_VEHICLES)]
         # Trong thực tế, dữ liệu đơn hàng có thể khác mỗi ngày.
         # data = create_daily_data_model()
         data = create_data_model(distance_matrix=distance_matrix,demands=demands,vehicles=vehicle_capacities, time_window=time_windows)
@@ -350,6 +355,9 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
 
 
 if __name__ == '__main__':
+    #gen map
+    
     # Ví dụ: chạy cho 30 ngày, với lambda_penalty = 1000 và mu_penalty = 50 (điều chỉnh dựa trên dữ liệu thực tế)
-    multi_day_routing_gen_request(num_days=2, lambda_penalty=1, mu_penalty=1)
+    multi_day_routing(num_days=2, lambda_penalty=1, mu_penalty=1)
+    # multi_day_routing_gen_request(num_days=2, lambda_penalty=1, mu_penalty=1)
 
