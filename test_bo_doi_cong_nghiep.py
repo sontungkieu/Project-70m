@@ -13,7 +13,7 @@ AVG_VELOCITY = DISTANCE_SCALE * 45
 # ------------------------------
 # Phần "daily": tạo dữ liệu và mô hình định tuyến cho một ngày giao hàng
 
-def load_data(distance_file='distance.csv',request_file = 'requests.csv', vehicle_file = 'vehicle.csv'):
+def load_data(distance_file='data/distance.csv',request_file = 'data/requests.csv', vehicle_file = 'data/vehicle.csv'):
     global NUM_OF_VEHICLES, NUM_OF_NODES
     import numpy as np
     import pandas as pd
@@ -333,15 +333,16 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
     """
     # Khởi tạo historical_km cho 4 xe (trong thực tế có thể là 47 xe)
     historical_km = None
+    list_of_seed = []
     for day in range(num_days):
 
         print(f"\n--- Day {day+1} ---")
         import gen_requests
         import random
-        seed = random.randint(10,100)
-
+        seed = random.randint(10,1000)
+        list_of_seed.append(seed)
         gen_requests.gen_requests_and_save(5,file_sufices=str(day),NUM_OF_NODES=NUM_OF_NODES,seed=seed)
-        distance_matrix,demands,vehicle_capacities, time_windows = load_data(request_file=f"requests{day}.csv")
+        distance_matrix,demands,vehicle_capacities, time_windows = load_data(request_file=f"data/requests{day}.csv")
         if not historical_km:
             historical_km = [0 for _ in range(NUM_OF_VEHICLES)]
         # Trong thực tế, dữ liệu đơn hàng có thể khác mỗi ngày.
@@ -357,12 +358,11 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
         for v in range(data['num_vehicles']):
             historical_km[v] += daily_distances[v]
         print("Updated historical km:", historical_km)
-
+    print(list_of_seed)
 
 if __name__ == '__main__':
     #gen map
-    
     # Ví dụ: chạy cho 30 ngày, với lambda_penalty = 1000 và mu_penalty = 50 (điều chỉnh dựa trên dữ liệu thực tế)
     # multi_day_routing(num_days=2, lambda_penalty=1, mu_penalty=1)
-    multi_day_routing_gen_request(num_days=2, lambda_penalty=1, mu_penalty=1)
+    multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=1)
 

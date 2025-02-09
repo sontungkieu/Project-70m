@@ -1,5 +1,6 @@
 import random
 import csv
+import os
 
 def gen_request(NUM_OF_NODES = 55,start_from_0=True,single_start = True, small_weihgt = True):
     """
@@ -77,7 +78,7 @@ def gen_requests_and_save(num_requests = 10, file_sufices = "", NUM_OF_NODES = 5
     """
     random.seed(seed)
 
-    requests = [gen_request(NUM_OF_NODES) for i in range(num_requests*2)]
+    requests = [gen_request(NUM_OF_NODES=NUM_OF_NODES,start_from_0=start_from_0) for i in range(num_requests*2)]
     have_request = [0 for i in range(NUM_OF_NODES)]
     filtered_requests = []
     for u in requests:
@@ -86,7 +87,10 @@ def gen_requests_and_save(num_requests = 10, file_sufices = "", NUM_OF_NODES = 5
         have_request[u[1][0]]=1
         filtered_requests.append(u)
     requests = filtered_requests[:num_requests]
-    with open(f'requests{file_sufices}.csv', 'w', newline='') as file:
+    # Ensure the 'data' folder exists
+    if not os.path.exists('data'):
+        os.makedirs('data')
+    with open(f'data/requests{file_sufices}.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['Start Place', 'End Place', 'Weight', 'Gen Day', 'Gen Timeframe'])
         for request in requests:

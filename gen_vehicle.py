@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 def gen_list_vehicle(NUM_OF_VEHICLES, seed = 42):
     # Given value
@@ -11,6 +12,9 @@ def gen_list_vehicle(NUM_OF_VEHICLES, seed = 42):
     else [metric[u] for u in [0]*15+[1]*10+[2]*10+[3]*10+[4]*5+[5]*5][:NUM_OF_VEHICLES]
 
     # Save the list to a CSV file
-    np.savetxt('vehicle.csv', xe_s, delimiter=',', fmt='%.1f')
+    # Ensure the 'data' folder exists
+    if not os.path.exists('data'):
+        os.makedirs('data')
+    np.savetxt('data/vehicle.csv', xe_s, delimiter=',', fmt='%.1f')
 
 gen_list_vehicle(5)

@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 # Define the size of the matrix
 def gen_map(NUM_OF_NODES = 10,seed = 42):
@@ -12,6 +13,9 @@ def gen_map(NUM_OF_NODES = 10,seed = 42):
     print(matrix)
 
     # Save the matrix to a CSV file
-    np.savetxt('distance.csv', matrix, delimiter=',')
+    # Ensure the 'data' folder exists
+    if not os.path.exists('data'):
+        os.makedirs('data')
+    np.savetxt('data/distance.csv', matrix, delimiter=',')
 
 gen_map()
