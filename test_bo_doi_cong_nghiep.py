@@ -5,8 +5,11 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 # chuyển hết sang đơn vị (0.1m3)
 # xe 9.7 m3 thành 97 0.1m3
 
-NUM_OF_VEHICLES = 3
+NUM_OF_VEHICLES = 5
 NUM_OF_NODES = 7
+DISTANCE_SCALE = 1 #scale = 1: đo khoảng cách theo km, scale = 10 do khoảng cách theo 0.1m3
+CAPACITY_SCALE = 10 #scale = 1: đo hàng theo đơn vị m3, scale = 10: đo hàng theo đơn vị 0.1m3
+AVG_VELOCITY = DISTANCE_SCALE * 45
 # ------------------------------
 # Phần "daily": tạo dữ liệu và mô hình định tuyến cho một ngày giao hàng
 
@@ -17,10 +20,12 @@ def load_data(distance_file='distance.csv',request_file = 'requests.csv', vehicl
 
     #load distance matrix
     distance_matrix = np.loadtxt(distance_file, delimiter=',').tolist() #54x54
+    distance_matrix = [[int(u*DISTANCE_SCALE) for u in v] for v in distance_matrix]
     NUM_OF_NODES = len(distance_matrix)
+    # print(distance_matrix)
     
     #load vehicles list
-    vehicle_capacities = [int(u*10) for u in  np.loadtxt(vehicle_file, delimiter=',').tolist()]
+    vehicle_capacities = [int(u*CAPACITY_SCALE) for u in  np.loadtxt(vehicle_file, delimiter=',').tolist()]
     NUM_OF_VEHICLES = len(vehicle_capacities)
 
     #load request
@@ -176,7 +181,7 @@ def create_daily_routing_model(data):
     def time_callback(from_index, to_index):
         from_node = manager.IndexToNode(from_index)
         to_node = manager.IndexToNode(to_index)
-        velocity = 2
+        velocity = AVG_VELOCITY
         service_time = 0 if from_node == data['depot'] else 1
         travel_time = data['distance_matrix'][from_node][to_node] / velocity
         return int(travel_time + service_time)
@@ -221,7 +226,7 @@ def solve_daily_routing(data, historical_km, lambda_penalty, mu_penalty,distance
     min_capacity = min(data['vehicle_capacities'])
     avg_capacity = tinh_trung_binh_co_ban(data['vehicle_capacities'])
     # Gán fixed cost cho từng xe theo historical_km và tải trọng.
-    print(data['num_vehicles'],"#"*10,historical_km)
+    # print(data['num_vehicles'],"#"*10,historical_km)
     for v in range(data['num_vehicles']):
         fixed_cost = int(lambda_penalty * historical_km[v] + mu_penalty * (
             data['vehicle_capacities'][v] - 0))
@@ -358,6 +363,6 @@ if __name__ == '__main__':
     #gen map
     
     # Ví dụ: chạy cho 30 ngày, với lambda_penalty = 1000 và mu_penalty = 50 (điều chỉnh dựa trên dữ liệu thực tế)
-    multi_day_routing(num_days=2, lambda_penalty=1, mu_penalty=1)
-    # multi_day_routing_gen_request(num_days=2, lambda_penalty=1, mu_penalty=1)
+    # multi_day_routing(num_days=2, lambda_penalty=1, mu_penalty=1)
+    multi_day_routing_gen_request(num_days=2, lambda_penalty=1, mu_penalty=1)
 

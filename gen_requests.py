@@ -1,9 +1,6 @@
 import random
 import csv
 
-
-random.seed(42)
-
 def gen_request(NUM_OF_NODES = 55,start_from_0=True,single_start = True, small_weihgt = True):
     """
     Tạo một yêu cầu giao hàng ngẫu nhiên với thông tin về điểm lấy hàng, điểm giao hàng,
@@ -95,6 +92,5 @@ def gen_requests_and_save(num_requests = 10, file_sufices = "", NUM_OF_NODES = 5
         for request in requests:
             writer.writerow(request)
     return requests
-
 
 gen_requests_and_save(file_sufices="0",NUM_OF_NODES=10)
