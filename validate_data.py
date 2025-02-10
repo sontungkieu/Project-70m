@@ -21,7 +21,7 @@ def calculate_sha256_for_all_files_in_data():
         for file in sorted(files):
             file_path = os.path.join(root, file)
             sha256_hash = calculate_sha256(file_path)
-            concatenated_hashes += f"File: {file_path}, SHA-256: {sha256_hash}\ngi"
+            concatenated_hashes += f"File: {file_path}, SHA-256: {sha256_hash}\n"
     print(concatenated_hashes)
     final_hash = hashlib.sha256(concatenated_hashes.encode()).hexdigest()
     print(f"Final SHA-256 hash of concatenated hashes: {final_hash}")
