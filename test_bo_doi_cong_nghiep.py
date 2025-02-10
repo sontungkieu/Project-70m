@@ -11,7 +11,7 @@ CAPACITY_SCALE = 10 # scale = 1: đo hàng theo đơn vị m3, scale = 10: đo h
 TIME_SCALE = 1      # scale = 1: đo thời gian theo đơn vị giờ, scale = X: đo thời gian theo đơn vị 1/X giờ
 MAX_TRAVEL_DISTANCE = DISTANCE_SCALE * 1000  # quãng đường tối đa xe di chuyển trong 1 turn
 AVG_VELOCITY = DISTANCE_SCALE * 45           # đặt vận tốc trung bình xe đi trên đường là 45km/h
-MAX_TRAVEL_TIME = TIME_SCALE * 24            # 24 is not able to run
+MAX_TRAVEL_TIME = TIME_SCALE * 25            # 24 is not able to run
 MAX_WAITING_TIME = TIME_SCALE * 5            # xe có thể đến trước, và đợi không quá 5 tiếng 
 #tunable parameter
 GLOBAL_SPAN_COST_COEFFICIENT = 100
@@ -388,6 +388,6 @@ if __name__=='__main__':
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.01)#[1671, 1566, 1574, 2209, 2136]      
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.0001)#[1522, 1543, 1530, 2292, 2197]       
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=0.1, mu_penalty=1)#[1615, 1577, 1685, 2115, 2046]        
-    multi_day_routing_gen_request(num_days=11, lambda_penalty=LAMBDA, mu_penalty=MU)#[1638, 1577, 1567, 2201, 2136]       
+    multi_day_routing_gen_request(num_days=30, lambda_penalty=LAMBDA, mu_penalty=MU)#[1638, 1577, 1567, 2201, 2136]       
       
 
