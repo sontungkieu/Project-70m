@@ -8,7 +8,10 @@ def gen_map(NUM_OF_NODES = 10,seed = 42):
 
 # Generate an n x n matrix with random values in the range [0.5, 100]
     matrix = np.random.uniform(0.5, 100, (NUM_OF_NODES, NUM_OF_NODES))
+    matrix = (matrix + matrix.T) / 2
 
+    # Set the diagonal elements to zero
+    np.fill_diagonal(matrix, 0)
     # Print the generated matrix
     print(matrix)
 

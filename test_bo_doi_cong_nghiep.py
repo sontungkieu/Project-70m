@@ -11,7 +11,7 @@ CAPACITY_SCALE = 10 # scale = 1: đo hàng theo đơn vị m3, scale = 10: đo h
 TIME_SCALE = 1      # scale = 1: đo thời gian theo đơn vị giờ, scale = X: đo thời gian theo đơn vị 1/X giờ
 MAX_TRAVEL_DISTANCE = DISTANCE_SCALE * 1000  # quãng đường tối đa xe di chuyển trong 1 turn
 AVG_VELOCITY = DISTANCE_SCALE * 45           # đặt vận tốc trung bình xe đi trên đường là 45km/h
-MAX_TRAVEL_TIME = TIME_SCALE * 25            # 24 is not able to run
+MAX_TRAVEL_TIME = TIME_SCALE * 24            # 24 is not able to run
 MAX_WAITING_TIME = TIME_SCALE * 5            # xe có thể đến trước, và đợi không quá 5 tiếng 
 #tunable parameter
 GLOBAL_SPAN_COST_COEFFICIENT = 100
