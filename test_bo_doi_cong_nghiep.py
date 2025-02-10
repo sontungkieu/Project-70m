@@ -1,15 +1,29 @@
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
-
 # vehicle capacity phải là số nguyên
 # chuyển hết sang đơn vị (0.1m3)
 # xe 9.7 m3 thành 97 0.1m3
 
-NUM_OF_VEHICLES = 5
-NUM_OF_NODES = 7
-DISTANCE_SCALE = 1 #scale = 1: đo khoảng cách theo km, scale = 10 do khoảng cách theo 0.1m3
-CAPACITY_SCALE = 10 #scale = 1: đo hàng theo đơn vị m3, scale = 10: đo hàng theo đơn vị 0.1m3
-AVG_VELOCITY = DISTANCE_SCALE * 45
+NUM_OF_VEHICLES = 5 # số xe
+NUM_OF_NODES = 7    # số đỉnh của đồ thị
+DISTANCE_SCALE = 1  # scale = 1: đo khoảng cách theo km, scale = 10 do khoảng cách theo 0.1km
+CAPACITY_SCALE = 10 # scale = 1: đo hàng theo đơn vị m3, scale = 10: đo hàng theo đơn vị 0.1m3
+TIME_SCALE = 1      # scale = 1: đo thời gian theo đơn vị giờ, scale = X: đo thời gian theo đơn vị 1/X giờ
+MAX_TRAVEL_DISTANCE = DISTANCE_SCALE * 1000  # quãng đường tối đa xe di chuyển trong 1 turn
+AVG_VELOCITY = DISTANCE_SCALE * 45           # đặt vận tốc trung bình xe đi trên đường là 45km/h
+MAX_TRAVEL_TIME = TIME_SCALE * 24            # 24 is not able to run
+MAX_WAITING_TIME = TIME_SCALE * 5            # xe có thể đến trước, và đợi không quá 5 tiếng 
+#tunable parameter
+GLOBAL_SPAN_COST_COEFFICIENT = 100
+MU = 3
+LAMBDA = 1
+SEARCH_STRATEGY = 1
+
+search_strategy = [routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC,
+                   routing_enums_pb2.FirstSolutionStrategy.AUTOMATIC,
+                   routing_enums_pb2.FirstSolutionStrategy.GLOBAL_CHEAPEST_ARC,
+                   routing_enums_pb2.FirstSolutionStrategy.SAVINGS,][SEARCH_STRATEGY]
+
 # ------------------------------
 # Phần "daily": tạo dữ liệu và mô hình định tuyến cho một ngày giao hàng
 
@@ -44,12 +58,12 @@ def load_data(distance_file='data/distance.csv',request_file = 'data/requests.cs
     """
     requests_df = pd.read_csv(request_file)
     demands = [0 for i in range(NUM_OF_NODES)]
-    time_windows = [(0,24) for i in range(NUM_OF_NODES)]
+    time_windows = [(0,24*TIME_SCALE) for i in range(NUM_OF_NODES)]
     for _, row in requests_df.iterrows():
         end_place = int(row['End Place'][1:-1].split(',')[0])
         weight = row['Weight']
         demands[end_place] += int(weight*10)
-        time_windows[end_place] = tuple(int(u) for u in row['Gen Timeframe'][1:-1].split(','))
+        time_windows[end_place] = tuple(int(u*TIME_SCALE) for u in row['Gen Timeframe'][1:-1].split(','))
     print(demands)
     return distance_matrix,demands,vehicle_capacities, time_windows
     
@@ -113,14 +127,15 @@ def create_data_model(*,distance_matrix=None,demands = None, vehicles = None, ti
     #     + Khách hàng 2 (node 3): từ 0 đến 15.
     #     + Khách hàng 3 (node 4): từ 0 đến 15.
     #     + Khách hàng 4 (node 5 và 6): từ 10 đến 30.
+    t_TIME_SCALE = TIME_SCALE/30*24
     data['time_windows'] = [
-        (0, 30),    # depot
-        (0, 20),    # khách hàng 1a
-        (0, 20),    # khách hàng 1b
-        (0, 15),    # khách hàng 2
-        (0, 15),    # khách hàng 3
-        (0, 30),   # khách hàng 4a
-        (0, 30),   # khách hàng 4b
+        (0, 30*t_TIME_SCALE),    # depot
+        (0, 20*t_TIME_SCALE),    # khách hàng 1a
+        (0, 20*t_TIME_SCALE),    # khách hàng 1b
+        (0, 15*t_TIME_SCALE),    # khách hàng 2
+        (0, 15*t_TIME_SCALE),    # khách hàng 3
+        (0, 30*t_TIME_SCALE),   # khách hàng 4a
+        (0, 30*t_TIME_SCALE),   # khách hàng 4b
     ] if time_window == None else time_window
     return data
 
@@ -145,12 +160,12 @@ def create_daily_routing_model(data):
     routing.AddDimension(
         transit_callback_index,
         0,       # không cho phép slack
-        1000,    # horizon đủ lớn cho bài toán
+        MAX_TRAVEL_DISTANCE,    # horizon đủ lớn cho bài toán
         True,    # fix_start_cumul_to_zero = True, để bắt đầu từ 0
         "Distance"
     )
     distance_dimension = routing.GetDimensionOrDie("Distance")
-    distance_dimension.SetGlobalSpanCostCoefficient(100)
+    distance_dimension.SetGlobalSpanCostCoefficient(GLOBAL_SPAN_COST_COEFFICIENT)
 
     # Callback demand cho "Capacity"
     def demand_callback(from_index):
@@ -187,12 +202,11 @@ def create_daily_routing_model(data):
         return int(travel_time + service_time)
     transit_time_callback_index = routing.RegisterTransitCallback(
         time_callback)
-    waiting_time = 5
-    horizon = 30
+    
     routing.AddDimension(
         transit_time_callback_index,
-        waiting_time,
-        horizon,
+        MAX_WAITING_TIME,
+        MAX_TRAVEL_TIME,
         True,   # fix_start_cumul_to_zero = True
         'Time'
     )
@@ -203,7 +217,7 @@ def create_daily_routing_model(data):
     return routing, manager, capacity_dimension, time_dimension
 
 
-def solve_daily_routing(data, historical_km, lambda_penalty, mu_penalty,distance_matrix =None,demands=None,vehicle_capacities=None, time_windows=None):
+def solve_daily_routing(data, historical_km, lambda_penalty, mu_penalty):
     """
     Giải định tuyến cho ngày hôm đó:
     - historical_km: danh sách số km tích lũy hiện tại của từng xe.
@@ -220,7 +234,7 @@ def solve_daily_routing(data, historical_km, lambda_penalty, mu_penalty,distance
     routing, manager, capacity_dimension, time_dimension = create_daily_routing_model(
         data)
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
-    search_parameters.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
+    search_parameters.first_solution_strategy = search_strategy
 
     # Tính min_capacity để điều chỉnh fixed cost theo tải trọng.
     min_capacity = min(data['vehicle_capacities'])
@@ -360,9 +374,20 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
         print("Updated historical km:", historical_km)
     print(list_of_seed)
 
-if __name__ == '__main__':
+if __name__=='__main__':
     #gen map
     # Ví dụ: chạy cho 30 ngày, với lambda_penalty = 1000 và mu_penalty = 50 (điều chỉnh dựa trên dữ liệu thực tế)
     # multi_day_routing(num_days=2, lambda_penalty=1, mu_penalty=1)
-    multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=1)
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=1)#[1638, 1577, 1567, 2201, 2136]       
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=2)#[1559, 1568, 1615, 2231, 2118]
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=3)#[1528, 1561, 1548, 2194, 2126]
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=5)#[1528, 1561, 1548, 2194, 2126]      
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=10)#[1428, 1457, 1452, 2314, 2224]       
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=20)#[1465, 1460, 1448, 2284, 2372]       
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=30)#[1466, 1459, 1491, 2245, 2336]       
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.01)#[1671, 1566, 1574, 2209, 2136]      
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.0001)#[1522, 1543, 1530, 2292, 2197]       
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=0.1, mu_penalty=1)#[1615, 1577, 1685, 2115, 2046]        
+    multi_day_routing_gen_request(num_days=11, lambda_penalty=LAMBDA, mu_penalty=MU)#[1638, 1577, 1567, 2201, 2136]       
+      
 
