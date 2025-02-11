@@ -375,6 +375,41 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
         print("Updated historical km:", historical_km)
     print(list_of_seed)
 
+# config = {'NUM_OF_VEHICLES': NUM_OF_VEHICLES,              # số xe
+# 'NUM_OF_NODES': NUM_OF_NODES,                # số đỉnh của đồ thị
+# 'NUM_OF_REQUEST_PER_DAY': NUM_OF_REQUEST_PER_DAY,        #
+# 'NUM_OF_DAY_REPETION': NUM_OF_DAY_REPETION,          #
+# 'DISTANCE_SCALE': DISTANCE_SCALE,        # scale = 1: đo khoảng cách theo km, scale = 10 do khoảng cách theo 0.1km
+# 'CAPACITY_SCALE': CAPACITY_SCALE,       # scale = 1: đo hàng theo đơn vị m3, scale = 10: đo hàng theo đơn vị 0.1m3
+# 'TIME_SCALE':TIME_SCALE,            # scale = 1: đo thời gian theo đơn vị giờ, scale = X: đo thời gian theo đơn vị 1/X giờ
+# MAX_TRAVEL_DISTANCE  # quãng đường tối đa xe di chuyển trong 1 turn
+# AVG_VELOCITY = DISTANCE_SCALE * 45           # đặt vận tốc trung bình xe đi trên đường là 45km/h
+# MAX_TRAVEL_TIME = TIME_SCALE * 24            # 24 is not able to run
+# MAX_WAITING_TIME = TIME_SCALE * 3            # xe có thể đến trước, và đợi không quá 5 tiếng 
+# #tunable parameter
+# GLOBAL_SPAN_COST_COEFFICIENT = 100
+# MU = 1 
+# LAMBDA = 1
+# SEARCH_STRATEGY = 0}
+
+config = {
+    'NUM_OF_VEHICLES': NUM_OF_VEHICLES,              # số xe
+    'NUM_OF_NODES': NUM_OF_NODES,                    # số đỉnh của đồ thị
+    'NUM_OF_REQUEST_PER_DAY': NUM_OF_REQUEST_PER_DAY, # số yêu cầu mỗi ngày
+    'NUM_OF_DAY_REPETION': NUM_OF_DAY_REPETION,      # số lần lặp lại trong ngày
+    'DISTANCE_SCALE': DISTANCE_SCALE,                # scale = 1: đo khoảng cách theo km, scale = 10 do khoảng cách theo 0.1km
+    'CAPACITY_SCALE': CAPACITY_SCALE,                # scale = 1: đo hàng theo đơn vị m3, scale = 10: đo hàng theo đơn vị 0.1m3
+    'TIME_SCALE': TIME_SCALE,                        # scale = 1: đo thời gian theo đơn vị giờ, scale = X: đo thời gian theo đơn vị 1/X giờ
+    'MAX_TRAVEL_DISTANCE': MAX_TRAVEL_DISTANCE,      # quãng đường tối đa xe di chuyển trong 1 turn
+    'AVG_VELOCITY': AVG_VELOCITY,                    # đặt vận tốc trung bình xe đi trên đường là 45km/h
+    'MAX_TRAVEL_TIME': MAX_TRAVEL_TIME,              # thời gian di chuyển tối đa
+    'MAX_WAITING_TIME': MAX_WAITING_TIME,            # xe có thể đến trước, và đợi không quá 5 tiếng
+    'GLOBAL_SPAN_COST_COEFFICIENT': GLOBAL_SPAN_COST_COEFFICIENT, # hệ số chi phí toàn cầu
+    'MU': MU,                                        # hệ số MU
+    'LAMBDA': LAMBDA,                                # hệ số LAMBDA
+    'SEARCH_STRATEGY': SEARCH_STRATEGY               # chiến lược tìm kiếm
+}
+
 if __name__=='__main__':
     import gen_map
     import gen_vehicle
@@ -395,6 +430,9 @@ if __name__=='__main__':
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.01)#[1671, 1566, 1574, 2209, 2136]      
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.0001)#[1522, 1543, 1530, 2292, 2197]       
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=0.1, mu_penalty=1)#[1615, 1577, 1685, 2115, 2046]        
-    multi_day_routing_gen_request(num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)#[1638, 1577, 1567, 2201, 2136]       
+    multi_day_routing_gen_request(num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)#[1638, 1577, 1567, 2201, 2136] 
+    import sys
+
+    print(config, file=sys.stderr)      
       
 
