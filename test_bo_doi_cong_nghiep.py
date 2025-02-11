@@ -4,15 +4,17 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 # chuyển hết sang đơn vị (0.1m3)
 # xe 9.7 m3 thành 97 0.1m3
 
-NUM_OF_VEHICLES = 7 # số xe
-NUM_OF_NODES = 10    # số đỉnh của đồ thị
-DISTANCE_SCALE = 1  # scale = 1: đo khoảng cách theo km, scale = 10 do khoảng cách theo 0.1km
-CAPACITY_SCALE = 10 # scale = 1: đo hàng theo đơn vị m3, scale = 10: đo hàng theo đơn vị 0.1m3
-TIME_SCALE = 1      # scale = 1: đo thời gian theo đơn vị giờ, scale = X: đo thời gian theo đơn vị 1/X giờ
+NUM_OF_VEHICLES = 41              # số xe
+NUM_OF_NODES = 100                # số đỉnh của đồ thị
+NUM_OF_REQUEST_PER_DAY = 50       #
+NUM_OF_DAY_REPETION = 30          #
+DISTANCE_SCALE = 1        # scale = 1: đo khoảng cách theo km, scale = 10 do khoảng cách theo 0.1km
+CAPACITY_SCALE = 10       # scale = 1: đo hàng theo đơn vị m3, scale = 10: đo hàng theo đơn vị 0.1m3
+TIME_SCALE = 1            # scale = 1: đo thời gian theo đơn vị giờ, scale = X: đo thời gian theo đơn vị 1/X giờ
 MAX_TRAVEL_DISTANCE = DISTANCE_SCALE * 1000  # quãng đường tối đa xe di chuyển trong 1 turn
 AVG_VELOCITY = DISTANCE_SCALE * 45           # đặt vận tốc trung bình xe đi trên đường là 45km/h
 MAX_TRAVEL_TIME = TIME_SCALE * 24            # 24 is not able to run
-MAX_WAITING_TIME = TIME_SCALE * 3         # xe có thể đến trước, và đợi không quá 5 tiếng 
+MAX_WAITING_TIME = TIME_SCALE * 3            # xe có thể đến trước, và đợi không quá 5 tiếng 
 #tunable parameter
 GLOBAL_SPAN_COST_COEFFICIENT = 100
 MU = 1 
@@ -207,7 +209,7 @@ def create_daily_routing_model(data):
         transit_time_callback_index,
         MAX_WAITING_TIME,
         MAX_TRAVEL_TIME,
-        True,   # fix_start_cumul_to_zero = True
+        False,   # fix_start_cumul_to_zero = True
         'Time'
     )
     time_dimension = routing.GetDimensionOrDie('Time')
@@ -354,7 +356,7 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
         import random
         seed = random.randint(10,1000)
         list_of_seed.append(seed)
-        gen_requests.gen_requests_and_save(5,file_sufices=str(day),NUM_OF_NODES=NUM_OF_NODES,seed=seed)
+        gen_requests.gen_requests_and_save(NUM_OF_REQUEST_PER_DAY,file_sufices=str(day),NUM_OF_NODES=NUM_OF_NODES,seed=seed)
         distance_matrix,demands,vehicle_capacities, time_windows = load_data(request_file=f"data/requests{day}.csv")
         if not historical_km:
             historical_km = [0 for _ in range(NUM_OF_VEHICLES)]
@@ -393,6 +395,6 @@ if __name__=='__main__':
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.01)#[1671, 1566, 1574, 2209, 2136]      
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.0001)#[1522, 1543, 1530, 2292, 2197]       
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=0.1, mu_penalty=1)#[1615, 1577, 1685, 2115, 2046]        
-    multi_day_routing_gen_request(num_days=30, lambda_penalty=LAMBDA, mu_penalty=MU)#[1638, 1577, 1567, 2201, 2136]       
+    multi_day_routing_gen_request(num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)#[1638, 1577, 1567, 2201, 2136]       
       
 
