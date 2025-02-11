@@ -4,8 +4,8 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 # chuyển hết sang đơn vị (0.1m3)
 # xe 9.7 m3 thành 97 0.1m3
 
-NUM_OF_VEHICLES = 5 # số xe
-NUM_OF_NODES = 7    # số đỉnh của đồ thị
+NUM_OF_VEHICLES = 7 # số xe
+NUM_OF_NODES = 10    # số đỉnh của đồ thị
 DISTANCE_SCALE = 1  # scale = 1: đo khoảng cách theo km, scale = 10 do khoảng cách theo 0.1km
 CAPACITY_SCALE = 10 # scale = 1: đo hàng theo đơn vị m3, scale = 10: đo hàng theo đơn vị 0.1m3
 TIME_SCALE = 1      # scale = 1: đo thời gian theo đơn vị giờ, scale = X: đo thời gian theo đơn vị 1/X giờ
@@ -17,7 +17,7 @@ MAX_WAITING_TIME = TIME_SCALE * 5            # xe có thể đến trước, và
 GLOBAL_SPAN_COST_COEFFICIENT = 100
 MU = 3
 LAMBDA = 1
-SEARCH_STRATEGY = 1
+SEARCH_STRATEGY = 0
 
 search_strategy = [routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC,
                    routing_enums_pb2.FirstSolutionStrategy.AUTOMATIC,
@@ -349,7 +349,6 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
     historical_km = None
     list_of_seed = []
     for day in range(num_days):
-
         print(f"\n--- Day {day+1} ---")
         import gen_requests
         import random
@@ -375,7 +374,13 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
     print(list_of_seed)
 
 if __name__=='__main__':
-    #gen map
+    # import gen_map
+    # import gen_vehicle
+    # #gen map
+    # gen_map.gen_map(NUM_OF_NODES=NUM_OF_NODES,seed=42)
+    # #gen vehicle
+    # gen_vehicle.gen_list_vehicle(NUM_OF_VEHICLES=NUM_OF_VEHICLES,seed=42)
+
     # Ví dụ: chạy cho 30 ngày, với lambda_penalty = 1000 và mu_penalty = 50 (điều chỉnh dựa trên dữ liệu thực tế)
     # multi_day_routing(num_days=2, lambda_penalty=1, mu_penalty=1)
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=1)#[1638, 1577, 1567, 2201, 2136]       
