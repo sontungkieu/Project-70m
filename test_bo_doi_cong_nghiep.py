@@ -12,10 +12,10 @@ TIME_SCALE = 1      # scale = 1: đo thời gian theo đơn vị giờ, scale = 
 MAX_TRAVEL_DISTANCE = DISTANCE_SCALE * 1000  # quãng đường tối đa xe di chuyển trong 1 turn
 AVG_VELOCITY = DISTANCE_SCALE * 45           # đặt vận tốc trung bình xe đi trên đường là 45km/h
 MAX_TRAVEL_TIME = TIME_SCALE * 24            # 24 is not able to run
-MAX_WAITING_TIME = TIME_SCALE * 5            # xe có thể đến trước, và đợi không quá 5 tiếng 
+MAX_WAITING_TIME = TIME_SCALE * 3         # xe có thể đến trước, và đợi không quá 5 tiếng 
 #tunable parameter
 GLOBAL_SPAN_COST_COEFFICIENT = 100
-MU = 3
+MU = 1 
 LAMBDA = 1
 SEARCH_STRATEGY = 0
 
@@ -374,12 +374,12 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
     print(list_of_seed)
 
 if __name__=='__main__':
-    # import gen_map
-    # import gen_vehicle
-    # #gen map
-    # gen_map.gen_map(NUM_OF_NODES=NUM_OF_NODES,seed=42)
-    # #gen vehicle
-    # gen_vehicle.gen_list_vehicle(NUM_OF_VEHICLES=NUM_OF_VEHICLES,seed=42)
+    import gen_map
+    import gen_vehicle
+    #gen map
+    gen_map.gen_map(NUM_OF_NODES=NUM_OF_NODES,seed=42)
+    #gen vehicle
+    gen_vehicle.gen_list_vehicle(NUM_OF_VEHICLES=NUM_OF_VEHICLES,seed=42)
 
     # Ví dụ: chạy cho 30 ngày, với lambda_penalty = 1000 và mu_penalty = 50 (điều chỉnh dựa trên dữ liệu thực tế)
     # multi_day_routing(num_days=2, lambda_penalty=1, mu_penalty=1)
