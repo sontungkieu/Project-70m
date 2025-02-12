@@ -5,8 +5,8 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 # xe 9.7 m3 thành 97 0.1m3
 
 NUM_OF_VEHICLES = 41              # số xe
-NUM_OF_NODES = 100                # số đỉnh của đồ thị
-NUM_OF_REQUEST_PER_DAY = 50       #
+NUM_OF_NODES = 30               # số đỉnh của đồ thị
+NUM_OF_REQUEST_PER_DAY = 10       #
 NUM_OF_DAY_REPETION = 30          #
 DISTANCE_SCALE = 1        # scale = 1: đo khoảng cách theo km, scale = 10 do khoảng cách theo 0.1km
 CAPACITY_SCALE = 10       # scale = 1: đo hàng theo đơn vị m3, scale = 10: đo hàng theo đơn vị 0.1m3
