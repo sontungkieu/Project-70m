@@ -143,7 +143,7 @@ def read_requests(config):
     NUM_OF_DAY_REPETION = config['NUM_OF_DAY_REPETION']
     requests_files = []
     for i in range(NUM_OF_DAY_REPETION):
-        request_filename = f"data/requests{i}.txt"
+        request_filename = f"data/requests{i}.json"
         try:
             with open(request_filename, 'r', encoding='utf-8') as file:
                 requests_files.append(file.read())
