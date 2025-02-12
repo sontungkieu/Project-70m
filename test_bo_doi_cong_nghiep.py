@@ -16,10 +16,10 @@ AVG_VELOCITY = DISTANCE_SCALE * 45           # đặt vận tốc trung bình xe
 MAX_TRAVEL_TIME = TIME_SCALE * 24            # 24 is not able to run
 MAX_WAITING_TIME = TIME_SCALE * 3            # xe có thể đến trước, và đợi không quá 5 tiếng 
 #tunable parameter
-GLOBAL_SPAN_COST_COEFFICIENT = 100
-MU = 1 
+GLOBAL_SPAN_COST_COEFFICIENT = 1000
+MU = 0.4 
 LAMBDA = 1
-SEARCH_STRATEGY = 0
+SEARCH_STRATEGY = 2
 
 search_strategy = [routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC,
                    routing_enums_pb2.FirstSolutionStrategy.AUTOMATIC,
@@ -28,33 +28,6 @@ search_strategy = [routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC,
 
 # ------------------------------
 # Phần "daily": tạo dữ liệu và mô hình định tuyến cho một ngày giao hàng
-
-# def load_data(distance_file='data/distance.csv',request_file = 'data/requests.csv', vehicle_file = 'data/vehicle.csv'):
-#     global NUM_OF_VEHICLES, NUM_OF_NODES
-#     import numpy as np
-#     import pandas as pd
-
-#     #load distance matrix
-#     distance_matrix = np.loadtxt(distance_file, delimiter=',').tolist() #54x54
-#     distance_matrix = [[int(u*DISTANCE_SCALE) for u in v] for v in distance_matrix]
-#     NUM_OF_NODES = len(distance_matrix)
-    
-#     #load vehicles list
-#     vehicle_capacities = [int(u*CAPACITY_SCALE) for u in  np.loadtxt(vehicle_file, delimiter=',').tolist()]
-#     NUM_OF_VEHICLES = len(vehicle_capacities)
-
-#     #load request
-    
-#     requests_df = pd.read_csv(request_file)
-#     demands = [0 for i in range(NUM_OF_NODES)]
-#     time_windows = [(0,24*TIME_SCALE) for i in range(NUM_OF_NODES)]
-#     for _, row in requests_df.iterrows():
-#         end_place = int(row['End Place'][1:-1].split(',')[0])
-#         weight = row['Weight']
-#         demands[end_place] += int(weight*10)
-#         time_windows[end_place] = tuple(int(u*TIME_SCALE) for u in row['Gen Timeframe'][1:-1].split(','))
-#     print(f"demands: {demands}")
-#     return distance_matrix,demands,vehicle_capacities, time_windows
 
 def load_data(distance_file='data/distance.json', request_file='data/requests.json', vehicle_file='data/vehicle.json'):
     import json
