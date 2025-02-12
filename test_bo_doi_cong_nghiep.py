@@ -16,10 +16,10 @@ AVG_VELOCITY = DISTANCE_SCALE * 45           # đặt vận tốc trung bình xe
 MAX_TRAVEL_TIME = TIME_SCALE * 24            # 24 is not able to run
 MAX_WAITING_TIME = TIME_SCALE * 3            # xe có thể đến trước, và đợi không quá 5 tiếng 
 #tunable parameter
-GLOBAL_SPAN_COST_COEFFICIENT = 1000
-MU = 0.4 
-LAMBDA = 1
-SEARCH_STRATEGY = 2
+GLOBAL_SPAN_COST_COEFFICIENT = 2000
+MU = 0.1 
+LAMBDA = 10
+SEARCH_STRATEGY = 1 # 0: PATH_CHEAPEST_ARC, 1: AUTOMATIC, 2: GLOBAL_CHEAPEST_ARC, 3: SAVINGS 
 
 search_strategy = [routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC,
                    routing_enums_pb2.FirstSolutionStrategy.AUTOMATIC,
@@ -267,9 +267,17 @@ def solve_daily_routing(data, historical_km, lambda_penalty, mu_penalty):
     daily_distances = []
     distance_dimension = routing.GetDimensionOrDie("Distance")
     for v in range(data['num_vehicles']):
-        end_index = routing.End(v)
-        distance = solution.Value(distance_dimension.CumulVar(end_index))
-        daily_distances.append(distance)
+        # Bắt đầu từ depot
+        index = routing.Start(v)
+        max_distance = 0
+        # Duyệt qua toàn bộ các node trên lộ trình của xe
+        while not routing.IsEnd(index):
+            current_distance = solution.Value(distance_dimension.CumulVar(index))
+            max_distance = max(max_distance, current_distance)
+            index = solution.Value(routing.NextVar(index))
+        # Sau khi duyệt hết lộ trình, max_distance là khoảng cách xa nhất từ depot
+        daily_distances.append(max_distance)
+
     return solution, manager, daily_distances, routing
 
 
