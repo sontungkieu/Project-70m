@@ -75,6 +75,7 @@ from time import perf_counter
 import psutil
 from datetime import datetime
 import ast
+import os
 
 config = []
 def run_test_bo_doi_cong_nghiep():
@@ -82,8 +83,10 @@ def run_test_bo_doi_cong_nghiep():
     
     # Lấy thời gian hiện tại và tạo tên file
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    stdout_filename = f"stdout_output_{current_time}.txt"
-    config_filename = f"config_{current_time}.txt"
+    if not os.path.exists('data'):
+        os.makedirs('data')
+    stdout_filename = f"data/stdout_output_{current_time}.txt"
+    config_filename = f"data/config_{current_time}.txt"
 
     # Chạy process và ghi stdout + config (thay vì stderr)
     with open(stdout_filename, 'wb') as stdout_file, open(config_filename, 'wb') as config_file:
