@@ -161,7 +161,7 @@ if __name__ == "__main__":
     run_time, memory_usage, stdout_filename, config_filename = run_test_bo_doi_cong_nghiep()
 
     #sau khi chạy
-    config_data = check(config_filename)
+    config_data = read_config(config_filename)
     output_data = read_output(stdout_filename)
     requests_data = read_requests(config_data)
 

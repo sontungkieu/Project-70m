@@ -29,22 +29,60 @@ search_strategy = [routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC,
 # ------------------------------
 # Phần "daily": tạo dữ liệu và mô hình định tuyến cho một ngày giao hàng
 
-def load_data(distance_file='data/distance.csv',request_file = 'data/requests.csv', vehicle_file = 'data/vehicle.csv'):
-    global NUM_OF_VEHICLES, NUM_OF_NODES
-    import numpy as np
-    import pandas as pd
+# def load_data(distance_file='data/distance.csv',request_file = 'data/requests.csv', vehicle_file = 'data/vehicle.csv'):
+#     global NUM_OF_VEHICLES, NUM_OF_NODES
+#     import numpy as np
+#     import pandas as pd
 
-    #load distance matrix
-    distance_matrix = np.loadtxt(distance_file, delimiter=',').tolist() #54x54
-    distance_matrix = [[int(u*DISTANCE_SCALE) for u in v] for v in distance_matrix]
-    NUM_OF_NODES = len(distance_matrix)
-    # print(distance_matrix)
+#     #load distance matrix
+#     distance_matrix = np.loadtxt(distance_file, delimiter=',').tolist() #54x54
+#     distance_matrix = [[int(u*DISTANCE_SCALE) for u in v] for v in distance_matrix]
+#     NUM_OF_NODES = len(distance_matrix)
     
-    #load vehicles list
-    vehicle_capacities = [int(u*CAPACITY_SCALE) for u in  np.loadtxt(vehicle_file, delimiter=',').tolist()]
+#     #load vehicles list
+#     vehicle_capacities = [int(u*CAPACITY_SCALE) for u in  np.loadtxt(vehicle_file, delimiter=',').tolist()]
+#     NUM_OF_VEHICLES = len(vehicle_capacities)
+
+#     #load request
+    
+#     requests_df = pd.read_csv(request_file)
+#     demands = [0 for i in range(NUM_OF_NODES)]
+#     time_windows = [(0,24*TIME_SCALE) for i in range(NUM_OF_NODES)]
+#     for _, row in requests_df.iterrows():
+#         end_place = int(row['End Place'][1:-1].split(',')[0])
+#         weight = row['Weight']
+#         demands[end_place] += int(weight*10)
+#         time_windows[end_place] = tuple(int(u*TIME_SCALE) for u in row['Gen Timeframe'][1:-1].split(','))
+#     print(f"demands: {demands}")
+#     return distance_matrix,demands,vehicle_capacities, time_windows
+
+def load_data(distance_file='data/distance.json', request_file='data/requests.json', vehicle_file='data/vehicle.json'):
+    import json
+    global NUM_OF_VEHICLES, NUM_OF_NODES
+    
+    # Đọc distance matrix từ JSON
+    with open(distance_file, 'r', encoding='utf-8') as f:
+        distance_matrix = json.load(f)
+    
+    distance_matrix = [[int(u * DISTANCE_SCALE) for u in v] for v in distance_matrix]
+    NUM_OF_NODES = len(distance_matrix)
+
+    # Đọc danh sách vehicle từ JSON
+    with open(vehicle_file, 'r', encoding='utf-8') as f:
+        vehicle_capacities = json.load(f)
+
+    vehicle_capacities = [int(u * CAPACITY_SCALE) for u in vehicle_capacities]
     NUM_OF_VEHICLES = len(vehicle_capacities)
 
-    #load request
+    # Đọc danh sách requests từ JSON
+    with open(request_file, 'r', encoding='utf-8') as f:
+        requests_data = json.load(f)
+    print(f"requests_data: {requests_data}")
+    # exit(0)
+
+    demands = [0 for _ in range(NUM_OF_NODES)]
+    time_windows = [(0, 24 * TIME_SCALE) for _ in range(NUM_OF_NODES)]
+
     """
     Start Place,End Place,Weight,Gen Day,Gen Timeframe
     [0],[51],1.4,1,"[4, 7]"
@@ -58,17 +96,16 @@ def load_data(distance_file='data/distance.csv',request_file = 'data/requests.cs
     [2],[9],1.19,0,"[8, 12]"
     [2],[14],1.89,2,"[6, 21]"
     """
-    requests_df = pd.read_csv(request_file)
-    demands = [0 for i in range(NUM_OF_NODES)]
-    time_windows = [(0,24*TIME_SCALE) for i in range(NUM_OF_NODES)]
-    for _, row in requests_df.iterrows():
-        end_place = int(row['End Place'][1:-1].split(',')[0])
-        weight = row['Weight']
-        demands[end_place] += int(weight*10)
-        time_windows[end_place] = tuple(int(u*TIME_SCALE) for u in row['Gen Timeframe'][1:-1].split(','))
-    print(demands)
-    return distance_matrix,demands,vehicle_capacities, time_windows
-    
+    for request in requests_data:
+        print(f"request: {request}")
+        end_place = int(request[1][0])  # Truy xuất phần tử đầu tiên trong danh sách
+        weight = request[2]
+        demands[end_place] += int(weight * 10)
+        time_windows[end_place] = tuple(int(u * TIME_SCALE) for u in request[-1])
+
+    print(f"demands: {demands}")
+    return distance_matrix, demands, vehicle_capacities, time_windows
+
 
 def create_data_model(*,distance_matrix=None,demands = None, vehicles = None, time_window = None):
     """Tạo dữ liệu cho bài toán giao hàng với split delivery.
@@ -357,7 +394,7 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
         seed = random.randint(10,1000)
         list_of_seed.append(seed)
         gen_requests.gen_requests_and_save(NUM_OF_REQUEST_PER_DAY,file_sufices=str(day),NUM_OF_NODES=NUM_OF_NODES,seed=seed)
-        distance_matrix,demands,vehicle_capacities, time_windows = load_data(request_file=f"data/requests{day}.csv")
+        distance_matrix,demands,vehicle_capacities, time_windows = load_data(request_file=f"data/requests{day}.json")
         if not historical_km:
             historical_km = [0 for _ in range(NUM_OF_VEHICLES)]
         # Trong thực tế, dữ liệu đơn hàng có thể khác mỗi ngày.
