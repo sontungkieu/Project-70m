@@ -384,6 +384,7 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
             historical_km[v] += daily_distances[v]
         print("Updated historical km:", historical_km)
     print(list_of_seed)
+    return historical_km
 
 # config = {'NUM_OF_VEHICLES': NUM_OF_VEHICLES,              # số xe
 # 'NUM_OF_NODES': NUM_OF_NODES,                # số đỉnh của đồ thị
@@ -440,7 +441,8 @@ if __name__=='__main__':
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.01)#[1671, 1566, 1574, 2209, 2136]      
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.0001)#[1522, 1543, 1530, 2292, 2197]       
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=0.1, mu_penalty=1)#[1615, 1577, 1685, 2115, 2046]        
-    multi_day_routing_gen_request(num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)#[1638, 1577, 1567, 2201, 2136] 
+    historical_km = multi_day_routing_gen_request(num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)#[1638, 1577, 1567, 2201, 2136] 
+    print(f"max km: {max(historical_km)}, mim km: {min(historical_km)}, sum km: {sum(historical_km)}")
     import sys
 
     print(config, file=sys.stderr)      
