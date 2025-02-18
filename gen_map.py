@@ -2,27 +2,42 @@ import numpy as np
 import os
 import json
 
-# Define the size of the matrix
-def gen_map(NUM_OF_NODES=10, seed=42):
-    # Set the seed for reproducibility
+
+def gen_map(NUM_OF_NODES=30, seed=42):
     np.random.seed(seed)
 
-    # Generate an n x n matrix with random values in the range [0.5, 100]
+    # 1. Sinh ngẫu nhiên ma trận n x n trong khoảng [0.5, 100]
     matrix = np.random.uniform(0.5, 100, (NUM_OF_NODES, NUM_OF_NODES))
+    # Làm cho ma trận đối xứng
     matrix = (matrix + matrix.T) / 2
-
-    # Set the diagonal elements to zero
+    # Đặt đường chéo bằng 0 (khoảng cách từ một nút đến chính nó)
     np.fill_diagonal(matrix, 0)
 
-    # Convert the matrix to a list of lists
+    # 2. Áp dụng Floyd-Warshall để đảm bảo không vi phạm bất đẳng thức tam giác
+    for k in range(NUM_OF_NODES):
+        for i in range(NUM_OF_NODES):
+            for j in range(NUM_OF_NODES):
+                # Nếu đi qua nút k giúp rút ngắn khoảng cách từ i đến j thì cập nhật
+                if matrix[i, k] + matrix[k, j] < matrix[i, j]:
+                    matrix[i, j] = matrix[i, k] + matrix[k, j]
+
+    # Chuyển về list để ghi JSON
     matrix_list = matrix.tolist()
 
-    # Save the matrix to a JSON file using the json library
-    # Ensure the 'data' folder exists
+    # Tạo thư mục 'data' nếu chưa tồn tại
     if not os.path.exists('data'):
         os.makedirs('data')
-    
+
+    # Ghi kết quả ra file JSON
     with open('data/distance.json', 'w') as jsonfile:
         json.dump(matrix_list, jsonfile)
 
+    # Kiểm chứng nhanh một vài phần tử xem có vi phạm tam giác không
+    # (Với 30 nút, bạn có thể chọn vài bộ (i, j, k) bất kỳ để kiểm)
+    # Ví dụ với bộ (2, 1, 26):
+    print("Kiểm tra bất đẳng thức tam giác cho (2, 1, 26):",
+          matrix[2][1] + matrix[1][26] >= matrix[2][26])
+
+
+# Gọi hàm
 gen_map()
