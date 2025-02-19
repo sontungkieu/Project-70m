@@ -103,3 +103,18 @@ def gen_requests_and_save(num_requests=10, file_sufices="", NUM_OF_NODES=55, sta
     return requests
 
 gen_requests_and_save(file_sufices="0", NUM_OF_NODES=10)
+
+
+"""
+    Start Place,End Place,Weight,Gen Day,Gen Timeframe
+    [0],[51],1.4,1,"[4, 7]"
+    [0],[41],2.16,0,"[0, 2]"
+    [1],[36],0.13,1,"[20, 22]"
+    [1],[32],1.42,0,"[5, 22]"
+    [2],[21],0.79,1,"[3, 10]"
+    [3],[10],1.83,2,"[8, 19]"
+    [3],[38],0.63,3,"[2, 17]"
+    [2],[40],0.98,0,"[1, 21]"
+    [2],[9],1.19,0,"[8, 12]"
+    [2],[14],1.89,2,"[6, 21]"
+    """
