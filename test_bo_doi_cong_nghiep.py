@@ -368,7 +368,7 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
     list_of_seed = []
     for day in range(num_days):
         print(f"\n--- Day {day+1} ---")
-        import gen_requests
+        import utilities.gen_requests as gen_requests
         import random
         seed = random.randint(10, 1000)
         list_of_seed.append(seed)
@@ -420,8 +420,8 @@ config = {
 }
 
 if __name__ == '__main__':
-    import gen_map
-    import gen_vehicle
+    import utilities.gen_map as gen_map
+    import utilities.gen_vehicle as gen_vehicle
     # gen map
     gen_map.gen_map(NUM_OF_NODES=NUM_OF_NODES, seed=42)
     # gen vehicle

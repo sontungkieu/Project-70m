@@ -85,12 +85,19 @@ def gen_requests_and_save(num_requests=10, file_sufices="", NUM_OF_NODES=55, sta
         filtered_requests.append(u)
     requests = filtered_requests[:num_requests]
 
-    # Ensure the 'data' folder exists
-    if not os.path.exists('data'):
-        os.makedirs('data')
-
+    # Determine the absolute path of the current file (in utilities)
+    current_file_dir = os.path.dirname(os.path.abspath(__file__))
+    # Navigate up one directory to get the project root
+    project_root = os.path.abspath(os.path.join(current_file_dir, '..'))
+    # Construct the path to the 'data' directory
+    data_dir = os.path.join(project_root, 'data')
+    
+    # Create the 'data' directory if it doesn't exist
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+    
     # Save the requests to a JSON file using the json library
-    with open(f'data/requests{file_sufices}.json', 'w') as file:
+    with open(os.path.join(data_dir,f'requests{file_sufices}.json'), 'w') as file:
         json.dump(requests, file, separators=(',', ': '))
 
     return requests
