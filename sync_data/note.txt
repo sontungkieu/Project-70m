@@ -10,3 +10,5 @@
 #########Idea Chí Bằng###########
 # chia đơn hàng ra bằng với capacity của xe nhỏ nhất (97 -> 95) -> bị lẻ, chưa xem code Bằng giải thế nào.
 # chưa handle trường hợp tổng đơn hàng> tổng capacity các xe
+
+# time window cho từng điểm ở đây là gì, là chỉ được đi qua các điểm đó trong thời gian đó, hay là chỉ được giao hàng cho điểm đó trong thời gian đó?
