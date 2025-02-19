@@ -1,0 +1,7 @@
+matplotlib==3.8.2
+numpy==1.26.4
+pandas==2.2.2
+ortools==9.3.10497
+protobuf==4.25.3
+absl-py==1.4.0
+pyarrow==18.0.0
