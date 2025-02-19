@@ -1,3 +1,11 @@
+/data/
+/__pycache__/
+/utilities/__pycache__/
+
+
+
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -169,7 +177,3 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-=======
-/data/
-/__pycache__/
-/utilities/__pycache__/
