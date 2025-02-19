@@ -364,17 +364,18 @@ def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty)
     Điều này giúp ưu tiên xe có số km tích lũy thấp và có tải trọng nhỏ hơn.
     """
     # Khởi tạo historical_km cho NUM_OF_VEHICLE xe (trong thực tế có thể là 47 xe)
-    # Cập nhật số se available tại mỗi ngày
-    import utilities.update_list_vehicle as update_list_vehicle
-    # Load request từ file
-    import utilities.load_request as load_request
-    # Tạo bản đồ từ request
-    import utilities.update_map as update_map
     historical_km = None
     for day in range(num_days):
         print(f"\n--- Day {day+1} ---")
+        # Cập nhật số se available tại mỗi ngày
+        import utilities.update_list_vehicle as update_list_vehicle
+        # Load request từ file
+        import utilities.load_request as load_request
+        # Tạo bản đồ từ request
+        import utilities.update_map as update_map
+
+
         # Trong thực tế, dữ liệu đơn hàng có thể khác mỗi ngày.
-        # data = create_daily_data_model()
         data = create_data_model()
         if not historical_km:
             historical_km = [0 for _ in range(NUM_OF_VEHICLES)]
