@@ -355,7 +355,48 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
     print(list_of_seed)
     return historical_km
 
+def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty):
+    """
+    Giả sử bạn có danh sách historical_km ban đầu cho từng xe (ví dụ với 4 xe).
+    Sau mỗi ngày, cập nhật historical_km bằng cách cộng thêm quãng đường của ngày đó.
+    Fixed cost của từng xe được tính theo: 
+         fixed_cost = lambda_penalty * historical_km + mu_penalty * (vehicle_capacities - min_capacity)
+    Điều này giúp ưu tiên xe có số km tích lũy thấp và có tải trọng nhỏ hơn.
+    """
+    # Khởi tạo historical_km cho NUM_OF_VEHICLE xe (trong thực tế có thể là 47 xe)
+    # Cập nhật số se available tại mỗi ngày
+    import utilities.update_list_vehicle as update_list_vehicle
+    # Load request từ file
+    import utilities.load_request as load_request
+    # Tạo bản đồ từ request
+    import utilities.update_map as update_map
+    historical_km = None
+    for day in range(num_days):
+        print(f"\n--- Day {day+1} ---")
+        # Trong thực tế, dữ liệu đơn hàng có thể khác mỗi ngày.
+        # data = create_daily_data_model()
+        data = create_data_model()
+        if not historical_km:
+            historical_km = [0 for _ in range(NUM_OF_VEHICLES)]
+        solution, manager, daily_distances, routing = solve_daily_routing(
+            data, historical_km, lambda_penalty, mu_penalty)
+        if solution is None:
+            print("Không tìm được lời giải cho ngày này.")
+            continue
+        print_daily_solution(data, manager, routing, solution)
+        # Cập nhật historical_km cho từng xe
+        for v in range(data['num_vehicles']):
+            historical_km[v] += daily_distances[v]
+        print("Updated historical km:", historical_km)
+
+    return historical_km
+
 if __name__ == '__main__':
+    # test = False
+    multi_day_routing_real_ready_to_deploy(
+        num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)
+    # test = true
+    "#####################################################################"
     import utilities.gen_map as gen_map
     import utilities.gen_vehicle as gen_vehicle
     # gen map
