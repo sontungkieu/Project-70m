@@ -3,7 +3,7 @@ import csv
 import time
 
 # 🔹 Replace with your actual Goong.io API key
-GOONG_API_KEY = "IM PORT GOONG API KEY"
+GOONG_API_KEY = ""
 
 def is_plus_code(address):
     """Detects if an address is a Plus Code (contains '+', but is not a full address)."""
