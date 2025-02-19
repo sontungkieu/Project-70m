@@ -1,0 +1,14 @@
+requests
+selenium
+webdriver-manager
+#ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+#geventhttpclient 2.3.1 requires brotli, which is not installed.
+#locust 2.32.0 requires flask>=2.0.0, which is not installed.
+#locust 2.32.0 requires Flask-Cors>=3.0.10, which is not installed.
+#locust 2.32.0 requires Flask-Login>=0.6.3, which is not installed.
+#locust 2.32.0 requires Werkzeug>=2.0.0, which is not installed.
+brotli 
+flask 
+Flask-Cors 
+Flask-Login 
+Werkzeug
