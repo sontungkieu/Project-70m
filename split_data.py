@@ -9,7 +9,17 @@ def split_customers(data):
       - 'time_windows'
     và trả về data cùng với mapping: danh sách mapping từ chỉ số của new node sang chỉ số khách hàng gốc.
     """
+    NUM_OF_NODES = len(data['demands'])
+    #  2. Áp dụng Floyd-Warshall để đảm bảo không vi phạm bất đẳng thức tam giác
+    matrix = data['distance_matrix']
+    for k in range(NUM_OF_NODES):
+        for i in range(NUM_OF_NODES):
+            for j in range(NUM_OF_NODES):
+                # Nếu đi qua nút k giúp rút ngắn khoảng cách từ i đến j thì cập nhật
+                if matrix[i][k] + matrix[k][j] < matrix[i][j]:
+                    matrix[i][j] = matrix[i][k] + matrix[k][j]
     # Tạo danh sách mới để lưu các demand sau khi tách và mapping của các node.
+    data['distance_matrix'] = matrix
     new_demands = []
     node_mapping = []  # mapping: new node index -> original customer index
 
