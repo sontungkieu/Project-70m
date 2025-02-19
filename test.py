@@ -63,7 +63,7 @@ def read_config(config_filename):
         return None
 
 def read_output(output_filename):
-    import read_output
+    import utilities.read_output as read_output
     return read_output.read_and_save_json_output(filename=output_filename)
 
 
