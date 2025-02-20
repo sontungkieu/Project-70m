@@ -1,20 +1,55 @@
-matplotlib==3.9.1
-numpy==1.26.4
-pandas==2.2.2
-ortools==9.11.4210
+# Core dependencies
+Flask==3.1.0
+gunicorn==23.0.0  # Chạy server trên Cloud Run
 
-#####################
-requests
-selenium
-webdriver-manager
-#ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
-#geventhttpclient 2.3.1 requires brotli, which is not installed.
-#locust 2.32.0 requires flask>=2.0.0, which is not installed.
-#locust 2.32.0 requires Flask-Cors>=3.0.10, which is not installed.
-#locust 2.32.0 requires Flask-Login>=0.6.3, which is not installed.
-#locust 2.32.0 requires Werkzeug>=2.0.0, which is not installed.
-brotli 
-flask 
-Flask-Cors 
-Flask-Login 
+# Firebase
+firebase-admin==6.6.0
+google-auth==2.38.0
+google-auth-httplib2==0.2.0
+google-cloud-firestore==2.20.0
+google-crc32c==1.6.0
+google-resumable-media==2.7.2
+googleapis-common-protos==1.67.0
+grpcio==1.70.0
+grpcio-status==1.70.0
+
+# OR-Tools
+ortools==9.11.4210  # Phiên bản mới nhất, thay thế phiên bản cũ (9.10.4067)
+
+# Utility libraries
+requests==2.32.3
+numpy==1.26.4
+pandas==2.2.3
+protobuf==5.26.1
+psutil==5.9.8  # Theo dõi CPU, RAM khi chạy thuật toán
+matplotlib==3.9.1  # Visualization cho debug
+
+# Flask Utilities
+Werkzeug==3.1.3
+Flask-Cors==3.0.10
+Flask-Login==0.6.3
+
+# Extra dependencies (suggested versions)
+CacheControl==0.14.2
+cachetools==5.5.1
+certifi==2025.1.31
+cffi==1.17.1
+charset-normalizer==3.4.1
+click==8.1.8
+colorama==0.4.6
+cryptography==44.0.1
+idna==3.10
+MarkupSafe==3.0.2
+python-dateutil==2.9.0.post0
+pytz==2025.1
+uritemplate==4.1.1
+urllib3==2.3.0
+rsa==4.9
+six==1.17.0
+
+# Locust Dependencies
+brotli
+flask
+Flask-Cors
+Flask-Login
 Werkzeug
