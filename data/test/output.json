@@ -5,379 +5,60 @@
     {
         "vehicles": {
             "0": {
-                "distance_of_route": 109,
+                "distance_of_route": 102,
                 "list_of_route": [
                     {
                         "node": 0,
-                        "arrival_time": 1,
-                        "capacity": 127,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 18,
-                        "arrival_time": 4,
-                        "capacity": 127,
-                        "delivered": 38
-                    },
-                    {
-                        "node": 29,
-                        "arrival_time": 8,
-                        "capacity": 89,
-                        "delivered": 13
-                    },
-                    {
-                        "node": 19,
-                        "arrival_time": 12,
-                        "capacity": 76,
-                        "delivered": 76
-                    },
-                    {
-                        "node": 0,
-                        "arrival_time": 13,
-                        "capacity": 0,
-                        "delivered": 0
-                    }
-                ]
-            },
-            "31": {
-                "distance_of_route": 118,
-                "list_of_route": [
-                    {
-                        "node": 0,
-                        "arrival_time": 0,
-                        "capacity": 83,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 14,
-                        "arrival_time": 0,
-                        "capacity": 83,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 13,
-                        "arrival_time": 3,
-                        "capacity": 83,
-                        "delivered": 78
-                    },
-                    {
-                        "node": 20,
-                        "arrival_time": 7,
-                        "capacity": 5,
-                        "delivered": 5
-                    },
-                    {
-                        "node": 0,
-                        "arrival_time": 8,
-                        "capacity": 0,
-                        "delivered": 0
-                    }
-                ]
-            },
-            "32": {
-                "distance_of_route": 108,
-                "list_of_route": [
-                    {
-                        "node": 0,
-                        "arrival_time": 0,
-                        "capacity": 171,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 3,
-                        "arrival_time": 3,
-                        "capacity": 171,
-                        "delivered": 46
-                    },
-                    {
-                        "node": 8,
-                        "arrival_time": 7,
-                        "capacity": 125,
-                        "delivered": 57
-                    },
-                    {
-                        "node": 25,
-                        "arrival_time": 11,
-                        "capacity": 68,
-                        "delivered": 68
-                    },
-                    {
-                        "node": 0,
-                        "arrival_time": 12,
-                        "capacity": 0,
-                        "delivered": 0
-                    }
-                ]
-            },
-            "33": {
-                "distance_of_route": 109,
-                "list_of_route": [
-                    {
-                        "node": 0,
-                        "arrival_time": 8,
-                        "capacity": 106,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 7,
-                        "arrival_time": 12,
-                        "capacity": 106,
-                        "delivered": 3
-                    },
-                    {
-                        "node": 27,
-                        "arrival_time": 13,
-                        "capacity": 103,
-                        "delivered": 33
-                    },
-                    {
-                        "node": 12,
-                        "arrival_time": 17,
-                        "capacity": 70,
-                        "delivered": 70
-                    },
-                    {
-                        "node": 0,
-                        "arrival_time": 18,
-                        "capacity": 0,
-                        "delivered": 0
-                    }
-                ]
-            },
-            "34": {
-                "distance_of_route": 114,
-                "list_of_route": [
-                    {
-                        "node": 0,
-                        "arrival_time": 17,
-                        "capacity": 51,
+                        "arrival_time": 14,
+                        "capacity": 100,
                         "delivered": 0
                     },
                     {
                         "node": 21,
-                        "arrival_time": 20,
-                        "capacity": 51,
-                        "delivered": 12
-                    },
-                    {
-                        "node": 5,
-                        "arrival_time": 21,
-                        "capacity": 39,
-                        "delivered": 39
-                    },
-                    {
-                        "node": 17,
-                        "arrival_time": 22,
-                        "capacity": 0,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 0,
-                        "arrival_time": 23,
-                        "capacity": 0,
-                        "delivered": 0
-                    }
-                ]
-            },
-            "35": {
-                "distance_of_route": 108,
-                "list_of_route": [
-                    {
-                        "node": 0,
-                        "arrival_time": 4,
-                        "capacity": 31,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 9,
-                        "arrival_time": 7,
-                        "capacity": 31,
-                        "delivered": 11
-                    },
-                    {
-                        "node": 15,
-                        "arrival_time": 11,
-                        "capacity": 20,
-                        "delivered": 6
-                    },
-                    {
-                        "node": 24,
-                        "arrival_time": 15,
-                        "capacity": 14,
-                        "delivered": 14
-                    },
-                    {
-                        "node": 0,
                         "arrival_time": 17,
-                        "capacity": 0,
-                        "delivered": 0
-                    }
-                ]
-            },
-            "36": {
-                "distance_of_route": 99,
-                "list_of_route": [
-                    {
-                        "node": 0,
-                        "arrival_time": 17,
-                        "capacity": 84,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 22,
-                        "arrival_time": 20,
-                        "capacity": 84,
-                        "delivered": 69
-                    },
-                    {
-                        "node": 16,
-                        "arrival_time": 21,
-                        "capacity": 15,
-                        "delivered": 15
-                    },
-                    {
-                        "node": 0,
-                        "arrival_time": 23,
-                        "capacity": 0,
-                        "delivered": 0
-                    }
-                ]
-            },
-            "37": {
-                "distance_of_route": 118,
-                "list_of_route": [
-                    {
-                        "node": 0,
-                        "arrival_time": 0,
-                        "capacity": 146,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 2,
-                        "arrival_time": 0,
-                        "capacity": 146,
-                        "delivered": 92
-                    },
-                    {
-                        "node": 1,
-                        "arrival_time": 3,
-                        "capacity": 54,
-                        "delivered": 1
+                        "capacity": 100,
+                        "delivered": 51
                     },
                     {
                         "node": 26,
-                        "arrival_time": 5,
-                        "capacity": 53,
-                        "delivered": 53
+                        "arrival_time": 18,
+                        "capacity": 49,
+                        "delivered": 49
                     },
                     {
                         "node": 0,
-                        "arrival_time": 6,
+                        "arrival_time": 19,
                         "capacity": 0,
                         "delivered": 0
                     }
                 ]
             },
-            "38": {
-                "distance_of_route": 68,
+            "1": {
+                "distance_of_route": 82,
                 "list_of_route": [
                     {
                         "node": 0,
-                        "arrival_time": 0,
-                        "capacity": 64,
+                        "arrival_time": 13,
+                        "capacity": 63,
                         "delivered": 0
                     },
                     {
-                        "node": 6,
-                        "arrival_time": 2,
-                        "capacity": 64,
-                        "delivered": 10
-                    },
-                    {
-                        "node": 4,
-                        "arrival_time": 6,
-                        "capacity": 54,
-                        "delivered": 14
-                    },
-                    {
-                        "node": 28,
-                        "arrival_time": 10,
-                        "capacity": 40,
-                        "delivered": 40
-                    },
-                    {
-                        "node": 0,
-                        "arrival_time": 11,
-                        "capacity": 0,
-                        "delivered": 0
-                    }
-                ]
-            },
-            "40": {
-                "distance_of_route": 62,
-                "list_of_route": [
-                    {
-                        "node": 0,
-                        "arrival_time": 0,
-                        "capacity": 137,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 10,
-                        "arrival_time": 3,
-                        "capacity": 137,
-                        "delivered": 25
-                    },
-                    {
-                        "node": 11,
-                        "arrival_time": 6,
-                        "capacity": 112,
-                        "delivered": 69
+                        "node": 12,
+                        "arrival_time": 16,
+                        "capacity": 63,
+                        "delivered": 18
                     },
                     {
                         "node": 23,
-                        "arrival_time": 7,
-                        "capacity": 43,
-                        "delivered": 43
+                        "arrival_time": 17,
+                        "capacity": 45,
+                        "delivered": 45
                     },
                     {
-                        "node": 0,
-                        "arrival_time": 8,
+                        "node": 18,
+                        "arrival_time": 18,
                         "capacity": 0,
                         "delivered": 0
-                    }
-                ]
-            }
-        }
-    },
-    {
-        "vehicles": {
-            "1": {
-                "distance_of_route": 86,
-                "list_of_route": [
-                    {
-                        "node": 0,
-                        "arrival_time": 10,
-                        "capacity": 116,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 4,
-                        "arrival_time": 13,
-                        "capacity": 116,
-                        "delivered": 12
-                    },
-                    {
-                        "node": 25,
-                        "arrival_time": 17,
-                        "capacity": 104,
-                        "delivered": 13
-                    },
-                    {
-                        "node": 8,
-                        "arrival_time": 18,
-                        "capacity": 91,
-                        "delivered": 91
                     },
                     {
                         "node": 0,
@@ -392,66 +73,66 @@
                 "list_of_route": [
                     {
                         "node": 0,
-                        "arrival_time": 1,
-                        "capacity": 96,
+                        "arrival_time": 0,
+                        "capacity": 153,
                         "delivered": 0
                     },
                     {
-                        "node": 15,
-                        "arrival_time": 4,
-                        "capacity": 96,
-                        "delivered": 61
-                    },
-                    {
                         "node": 24,
-                        "arrival_time": 8,
-                        "capacity": 35,
-                        "delivered": 18
+                        "arrival_time": 1,
+                        "capacity": 153,
+                        "delivered": 0
                     },
                     {
                         "node": 9,
-                        "arrival_time": 12,
-                        "capacity": 17,
-                        "delivered": 17
+                        "arrival_time": 5,
+                        "capacity": 153,
+                        "delivered": 81
+                    },
+                    {
+                        "node": 15,
+                        "arrival_time": 7,
+                        "capacity": 72,
+                        "delivered": 72
                     },
                     {
                         "node": 0,
-                        "arrival_time": 13,
+                        "arrival_time": 8,
                         "capacity": 0,
                         "delivered": 0
                     }
                 ]
             },
             "3": {
-                "distance_of_route": 90,
+                "distance_of_route": 100,
                 "list_of_route": [
                     {
                         "node": 0,
-                        "arrival_time": 7,
-                        "capacity": 102,
+                        "arrival_time": 5,
+                        "capacity": 190,
                         "delivered": 0
                     },
                     {
-                        "node": 10,
-                        "arrival_time": 10,
-                        "capacity": 102,
-                        "delivered": 63
+                        "node": 22,
+                        "arrival_time": 8,
+                        "capacity": 190,
+                        "delivered": 74
                     },
                     {
-                        "node": 11,
-                        "arrival_time": 11,
-                        "capacity": 39,
-                        "delivered": 24
-                    },
-                    {
-                        "node": 3,
+                        "node": 8,
                         "arrival_time": 12,
-                        "capacity": 15,
-                        "delivered": 15
+                        "capacity": 116,
+                        "delivered": 82
+                    },
+                    {
+                        "node": 25,
+                        "arrival_time": 16,
+                        "capacity": 34,
+                        "delivered": 34
                     },
                     {
                         "node": 0,
-                        "arrival_time": 13,
+                        "arrival_time": 17,
                         "capacity": 0,
                         "delivered": 0
                     }
@@ -462,228 +143,337 @@
                 "list_of_route": [
                     {
                         "node": 0,
-                        "arrival_time": 11,
-                        "capacity": 76,
+                        "arrival_time": 2,
+                        "capacity": 255,
                         "delivered": 0
                     },
                     {
-                        "node": 14,
-                        "arrival_time": 14,
-                        "capacity": 76,
-                        "delivered": 0
+                        "node": 5,
+                        "arrival_time": 5,
+                        "capacity": 255,
+                        "delivered": 89
                     },
                     {
-                        "node": 13,
-                        "arrival_time": 18,
-                        "capacity": 76,
-                        "delivered": 76
+                        "node": 17,
+                        "arrival_time": 9,
+                        "capacity": 166,
+                        "delivered": 77
+                    },
+                    {
+                        "node": 16,
+                        "arrival_time": 10,
+                        "capacity": 89,
+                        "delivered": 89
                     },
                     {
                         "node": 0,
-                        "arrival_time": 20,
+                        "arrival_time": 12,
                         "capacity": 0,
                         "delivered": 0
                     }
                 ]
             },
             "5": {
-                "distance_of_route": 107,
+                "distance_of_route": 106,
                 "list_of_route": [
                     {
                         "node": 0,
                         "arrival_time": 0,
-                        "capacity": 120,
+                        "capacity": 245,
                         "delivered": 0
                     },
                     {
-                        "node": 6,
-                        "arrival_time": 1,
-                        "capacity": 120,
-                        "delivered": 63
+                        "node": 20,
+                        "arrival_time": 3,
+                        "capacity": 245,
+                        "delivered": 90
                     },
                     {
-                        "node": 22,
-                        "arrival_time": 2,
-                        "capacity": 57,
-                        "delivered": 53
+                        "node": 3,
+                        "arrival_time": 7,
+                        "capacity": 155,
+                        "delivered": 59
                     },
                     {
-                        "node": 16,
-                        "arrival_time": 4,
-                        "capacity": 4,
-                        "delivered": 4
+                        "node": 4,
+                        "arrival_time": 8,
+                        "capacity": 96,
+                        "delivered": 96
                     },
                     {
                         "node": 0,
-                        "arrival_time": 6,
+                        "arrival_time": 9,
                         "capacity": 0,
                         "delivered": 0
                     }
                 ]
             },
             "6": {
-                "distance_of_route": 107,
+                "distance_of_route": 85,
                 "list_of_route": [
                     {
                         "node": 0,
                         "arrival_time": 0,
-                        "capacity": 145,
+                        "capacity": 36,
                         "delivered": 0
                     },
                     {
-                        "node": 5,
+                        "node": 11,
                         "arrival_time": 0,
-                        "capacity": 145,
-                        "delivered": 48
+                        "capacity": 36,
+                        "delivered": 0
                     },
                     {
-                        "node": 21,
-                        "arrival_time": 1,
-                        "capacity": 97,
-                        "delivered": 64
+                        "node": 2,
+                        "arrival_time": 4,
+                        "capacity": 36,
+                        "delivered": 9
                     },
                     {
-                        "node": 20,
-                        "arrival_time": 2,
-                        "capacity": 33,
-                        "delivered": 33
+                        "node": 1,
+                        "arrival_time": 8,
+                        "capacity": 27,
+                        "delivered": 27
                     },
                     {
                         "node": 0,
-                        "arrival_time": 3,
+                        "arrival_time": 9,
                         "capacity": 0,
                         "delivered": 0
                     }
                 ]
             },
             "7": {
-                "distance_of_route": 109,
+                "distance_of_route": 111,
                 "list_of_route": [
                     {
                         "node": 0,
-                        "arrival_time": 9,
-                        "capacity": 177,
+                        "arrival_time": 2,
+                        "capacity": 234,
                         "delivered": 0
                     },
                     {
-                        "node": 7,
-                        "arrival_time": 13,
-                        "capacity": 177,
-                        "delivered": 73
+                        "node": 6,
+                        "arrival_time": 5,
+                        "capacity": 234,
+                        "delivered": 72
                     },
                     {
-                        "node": 27,
-                        "arrival_time": 14,
-                        "capacity": 104,
-                        "delivered": 83
+                        "node": 28,
+                        "arrival_time": 9,
+                        "capacity": 162,
+                        "delivered": 85
                     },
                     {
-                        "node": 12,
-                        "arrival_time": 15,
-                        "capacity": 21,
-                        "delivered": 21
+                        "node": 13,
+                        "arrival_time": 10,
+                        "capacity": 77,
+                        "delivered": 77
                     },
                     {
                         "node": 0,
-                        "arrival_time": 16,
+                        "arrival_time": 12,
                         "capacity": 0,
                         "delivered": 0
                     }
                 ]
             },
             "8": {
-                "distance_of_route": 118,
+                "distance_of_route": 115,
                 "list_of_route": [
                     {
                         "node": 0,
-                        "arrival_time": 5,
-                        "capacity": 44,
+                        "arrival_time": 11,
+                        "capacity": 178,
                         "delivered": 0
                     },
                     {
-                        "node": 2,
-                        "arrival_time": 8,
-                        "capacity": 44,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 1,
-                        "arrival_time": 12,
-                        "capacity": 44,
-                        "delivered": 17
-                    },
-                    {
-                        "node": 26,
+                        "node": 29,
                         "arrival_time": 14,
-                        "capacity": 27,
-                        "delivered": 27
+                        "capacity": 178,
+                        "delivered": 76
+                    },
+                    {
+                        "node": 19,
+                        "arrival_time": 15,
+                        "capacity": 102,
+                        "delivered": 79
+                    },
+                    {
+                        "node": 14,
+                        "arrival_time": 16,
+                        "capacity": 23,
+                        "delivered": 23
                     },
                     {
                         "node": 0,
-                        "arrival_time": 15,
+                        "arrival_time": 17,
                         "capacity": 0,
                         "delivered": 0
                     }
                 ]
             },
             "9": {
-                "distance_of_route": 87,
+                "distance_of_route": 109,
                 "list_of_route": [
                     {
                         "node": 0,
-                        "arrival_time": 2,
-                        "capacity": 123,
+                        "arrival_time": 0,
+                        "capacity": 91,
                         "delivered": 0
                     },
                     {
-                        "node": 23,
-                        "arrival_time": 5,
-                        "capacity": 123,
-                        "delivered": 51
+                        "node": 7,
+                        "arrival_time": 1,
+                        "capacity": 91,
+                        "delivered": 4
                     },
                     {
-                        "node": 18,
-                        "arrival_time": 6,
-                        "capacity": 72,
-                        "delivered": 6
+                        "node": 27,
+                        "arrival_time": 2,
+                        "capacity": 87,
+                        "delivered": 9
                     },
                     {
-                        "node": 17,
-                        "arrival_time": 7,
-                        "capacity": 66,
-                        "delivered": 66
+                        "node": 10,
+                        "arrival_time": 3,
+                        "capacity": 78,
+                        "delivered": 78
                     },
                     {
                         "node": 0,
-                        "arrival_time": 8,
+                        "arrival_time": 4,
+                        "capacity": 0,
+                        "delivered": 0
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "vehicles": {
+            "1": {
+                "distance_of_route": 93,
+                "list_of_route": [
+                    {
+                        "node": 0,
+                        "arrival_time": 12,
+                        "capacity": 120,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 3,
+                        "arrival_time": 15,
+                        "capacity": 120,
+                        "delivered": 47
+                    },
+                    {
+                        "node": 8,
+                        "arrival_time": 16,
+                        "capacity": 73,
+                        "delivered": 18
+                    },
+                    {
+                        "node": 29,
+                        "arrival_time": 17,
+                        "capacity": 55,
+                        "delivered": 55
+                    },
+                    {
+                        "node": 0,
+                        "arrival_time": 18,
+                        "capacity": 0,
+                        "delivered": 0
+                    }
+                ]
+            },
+            "3": {
+                "distance_of_route": 106,
+                "list_of_route": [
+                    {
+                        "node": 0,
+                        "arrival_time": 0,
+                        "capacity": 55,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 12,
+                        "arrival_time": 0,
+                        "capacity": 55,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 24,
+                        "arrival_time": 1,
+                        "capacity": 55,
+                        "delivered": 6
+                    },
+                    {
+                        "node": 15,
+                        "arrival_time": 4,
+                        "capacity": 49,
+                        "delivered": 49
+                    },
+                    {
+                        "node": 0,
+                        "arrival_time": 5,
                         "capacity": 0,
                         "delivered": 0
                     }
                 ]
             },
             "10": {
-                "distance_of_route": 72,
+                "distance_of_route": 99,
+                "list_of_route": [
+                    {
+                        "node": 0,
+                        "arrival_time": 0,
+                        "capacity": 13,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 22,
+                        "arrival_time": 1,
+                        "capacity": 13,
+                        "delivered": 13
+                    },
+                    {
+                        "node": 16,
+                        "arrival_time": 2,
+                        "capacity": 0,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 0,
+                        "arrival_time": 4,
+                        "capacity": 0,
+                        "delivered": 0
+                    }
+                ]
+            },
+            "11": {
+                "distance_of_route": 118,
                 "list_of_route": [
                     {
                         "node": 0,
                         "arrival_time": 1,
-                        "capacity": 207,
+                        "capacity": 193,
                         "delivered": 0
                     },
                     {
-                        "node": 28,
+                        "node": 14,
                         "arrival_time": 4,
-                        "capacity": 207,
-                        "delivered": 60
+                        "capacity": 193,
+                        "delivered": 36
                     },
                     {
-                        "node": 19,
+                        "node": 13,
                         "arrival_time": 5,
-                        "capacity": 147,
-                        "delivered": 86
+                        "capacity": 157,
+                        "delivered": 96
                     },
                     {
-                        "node": 29,
+                        "node": 20,
                         "arrival_time": 6,
                         "capacity": 61,
                         "delivered": 61
@@ -695,350 +485,560 @@
                         "delivered": 0
                     }
                 ]
-            }
-        }
-    },
-    {
-        "vehicles": {
-            "11": {
-                "distance_of_route": 114,
+            },
+            "12": {
+                "distance_of_route": 112,
                 "list_of_route": [
                     {
                         "node": 0,
+                        "arrival_time": 5,
+                        "capacity": 159,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 9,
                         "arrival_time": 8,
-                        "capacity": 47,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 17,
-                        "arrival_time": 11,
-                        "capacity": 47,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 5,
-                        "arrival_time": 15,
-                        "capacity": 47,
-                        "delivered": 1
+                        "capacity": 159,
+                        "delivered": 35
                     },
                     {
                         "node": 21,
-                        "arrival_time": 19,
-                        "capacity": 46,
-                        "delivered": 46
+                        "arrival_time": 9,
+                        "capacity": 124,
+                        "delivered": 47
+                    },
+                    {
+                        "node": 5,
+                        "arrival_time": 10,
+                        "capacity": 77,
+                        "delivered": 77
                     },
                     {
                         "node": 0,
-                        "arrival_time": 20,
-                        "capacity": 0,
-                        "delivered": 0
-                    }
-                ]
-            },
-            "12": {
-                "distance_of_route": 99,
-                "list_of_route": [
-                    {
-                        "node": 0,
-                        "arrival_time": 0,
-                        "capacity": 86,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 20,
-                        "arrival_time": 3,
-                        "capacity": 86,
-                        "delivered": 55
-                    },
-                    {
-                        "node": 25,
-                        "arrival_time": 4,
-                        "capacity": 31,
-                        "delivered": 31
-                    },
-                    {
-                        "node": 11,
-                        "arrival_time": 5,
-                        "capacity": 0,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 0,
-                        "arrival_time": 6,
+                        "arrival_time": 11,
                         "capacity": 0,
                         "delivered": 0
                     }
                 ]
             },
             "13": {
-                "distance_of_route": 100,
+                "distance_of_route": 109,
                 "list_of_route": [
                     {
                         "node": 0,
-                        "arrival_time": 4,
-                        "capacity": 14,
+                        "arrival_time": 5,
+                        "capacity": 73,
                         "delivered": 0
                     },
                     {
                         "node": 10,
-                        "arrival_time": 7,
-                        "capacity": 14,
-                        "delivered": 0
+                        "arrival_time": 8,
+                        "capacity": 73,
+                        "delivered": 1
                     },
                     {
-                        "node": 16,
-                        "arrival_time": 11,
-                        "capacity": 14,
-                        "delivered": 11
+                        "node": 27,
+                        "arrival_time": 9,
+                        "capacity": 72,
+                        "delivered": 22
                     },
                     {
-                        "node": 22,
-                        "arrival_time": 12,
-                        "capacity": 3,
-                        "delivered": 3
+                        "node": 7,
+                        "arrival_time": 10,
+                        "capacity": 50,
+                        "delivered": 50
                     },
                     {
                         "node": 0,
-                        "arrival_time": 13,
+                        "arrival_time": 12,
                         "capacity": 0,
                         "delivered": 0
                     }
                 ]
             },
             "14": {
-                "distance_of_route": 90,
+                "distance_of_route": 85,
                 "list_of_route": [
                     {
                         "node": 0,
-                        "arrival_time": 0,
-                        "capacity": 194,
+                        "arrival_time": 3,
+                        "capacity": 264,
                         "delivered": 0
                     },
                     {
-                        "node": 4,
-                        "arrival_time": 3,
-                        "capacity": 194,
-                        "delivered": 86
+                        "node": 1,
+                        "arrival_time": 6,
+                        "capacity": 264,
+                        "delivered": 75
                     },
                     {
-                        "node": 8,
-                        "arrival_time": 7,
-                        "capacity": 108,
-                        "delivered": 66
+                        "node": 2,
+                        "arrival_time": 10,
+                        "capacity": 189,
+                        "delivered": 97
                     },
                     {
-                        "node": 3,
-                        "arrival_time": 11,
-                        "capacity": 42,
-                        "delivered": 42
+                        "node": 11,
+                        "arrival_time": 14,
+                        "capacity": 92,
+                        "delivered": 92
                     },
                     {
                         "node": 0,
-                        "arrival_time": 12,
+                        "arrival_time": 15,
                         "capacity": 0,
                         "delivered": 0
                     }
                 ]
             },
             "15": {
-                "distance_of_route": 118,
+                "distance_of_route": 87,
                 "list_of_route": [
                     {
                         "node": 0,
-                        "arrival_time": 5,
-                        "capacity": 241,
+                        "arrival_time": 3,
+                        "capacity": 207,
                         "delivered": 0
                     },
                     {
-                        "node": 2,
-                        "arrival_time": 8,
-                        "capacity": 241,
-                        "delivered": 92
+                        "node": 23,
+                        "arrival_time": 6,
+                        "capacity": 207,
+                        "delivered": 79
                     },
                     {
-                        "node": 1,
+                        "node": 18,
                         "arrival_time": 9,
-                        "capacity": 149,
-                        "delivered": 73
+                        "capacity": 128,
+                        "delivered": 48
                     },
                     {
-                        "node": 26,
-                        "arrival_time": 10,
-                        "capacity": 76,
-                        "delivered": 76
+                        "node": 17,
+                        "arrival_time": 13,
+                        "capacity": 80,
+                        "delivered": 80
                     },
                     {
                         "node": 0,
-                        "arrival_time": 11,
+                        "arrival_time": 14,
                         "capacity": 0,
                         "delivered": 0
                     }
                 ]
             },
             "16": {
-                "distance_of_route": 117,
+                "distance_of_route": 85,
                 "list_of_route": [
                     {
                         "node": 0,
-                        "arrival_time": 5,
-                        "capacity": 162,
+                        "arrival_time": 0,
+                        "capacity": 141,
                         "delivered": 0
                     },
                     {
-                        "node": 14,
-                        "arrival_time": 8,
-                        "capacity": 162,
-                        "delivered": 48
+                        "node": 28,
+                        "arrival_time": 2,
+                        "capacity": 141,
+                        "delivered": 84
                     },
                     {
-                        "node": 23,
-                        "arrival_time": 12,
-                        "capacity": 114,
-                        "delivered": 79
+                        "node": 25,
+                        "arrival_time": 4,
+                        "capacity": 57,
+                        "delivered": 29
                     },
                     {
-                        "node": 18,
-                        "arrival_time": 13,
-                        "capacity": 35,
-                        "delivered": 35
+                        "node": 4,
+                        "arrival_time": 5,
+                        "capacity": 28,
+                        "delivered": 28
                     },
                     {
                         "node": 0,
-                        "arrival_time": 14,
+                        "arrival_time": 6,
                         "capacity": 0,
                         "delivered": 0
                     }
                 ]
             },
             "17": {
-                "distance_of_route": 109,
+                "distance_of_route": 110,
                 "list_of_route": [
                     {
                         "node": 0,
-                        "arrival_time": 4,
-                        "capacity": 168,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 29,
-                        "arrival_time": 7,
-                        "capacity": 168,
-                        "delivered": 69
-                    },
-                    {
-                        "node": 19,
-                        "arrival_time": 11,
-                        "capacity": 99,
-                        "delivered": 93
-                    },
-                    {
-                        "node": 13,
-                        "arrival_time": 12,
-                        "capacity": 6,
-                        "delivered": 6
-                    },
-                    {
-                        "node": 0,
-                        "arrival_time": 14,
-                        "capacity": 0,
-                        "delivered": 0
-                    }
-                ]
-            },
-            "18": {
-                "distance_of_route": 48,
-                "list_of_route": [
-                    {
-                        "node": 0,
-                        "arrival_time": 0,
-                        "capacity": 52,
+                        "arrival_time": 8,
+                        "capacity": 120,
                         "delivered": 0
                     },
                     {
                         "node": 6,
-                        "arrival_time": 0,
-                        "capacity": 52,
-                        "delivered": 52
+                        "arrival_time": 11,
+                        "capacity": 120,
+                        "delivered": 71
                     },
                     {
-                        "node": 28,
-                        "arrival_time": 1,
-                        "capacity": 0,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 0,
-                        "arrival_time": 2,
-                        "capacity": 0,
-                        "delivered": 0
-                    }
-                ]
-            },
-            "30": {
-                "distance_of_route": 106,
-                "list_of_route": [
-                    {
-                        "node": 0,
-                        "arrival_time": 0,
-                        "capacity": 127,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 24,
-                        "arrival_time": 1,
-                        "capacity": 127,
-                        "delivered": 13
-                    },
-                    {
-                        "node": 9,
-                        "arrival_time": 4,
-                        "capacity": 114,
-                        "delivered": 93
-                    },
-                    {
-                        "node": 15,
-                        "arrival_time": 5,
-                        "capacity": 21,
-                        "delivered": 21
-                    },
-                    {
-                        "node": 0,
-                        "arrival_time": 6,
-                        "capacity": 0,
-                        "delivered": 0
-                    }
-                ]
-            },
-            "39": {
-                "distance_of_route": 109,
-                "list_of_route": [
-                    {
-                        "node": 0,
-                        "arrival_time": 6,
-                        "capacity": 70,
-                        "delivered": 0
-                    },
-                    {
-                        "node": 12,
-                        "arrival_time": 9,
-                        "capacity": 70,
-                        "delivered": 37
-                    },
-                    {
-                        "node": 27,
-                        "arrival_time": 10,
-                        "capacity": 33,
-                        "delivered": 7
-                    },
-                    {
-                        "node": 7,
+                        "node": 19,
                         "arrival_time": 12,
-                        "capacity": 26,
-                        "delivered": 26
+                        "capacity": 49,
+                        "delivered": 40
+                    },
+                    {
+                        "node": 26,
+                        "arrival_time": 13,
+                        "capacity": 9,
+                        "delivered": 9
                     },
                     {
                         "node": 0,
                         "arrival_time": 14,
+                        "capacity": 0,
+                        "delivered": 0
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "vehicles": {
+            "0": {
+                "distance_of_route": 124,
+                "list_of_route": [
+                    {
+                        "node": 0,
+                        "arrival_time": 1,
+                        "capacity": 149,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 14,
+                        "arrival_time": 4,
+                        "capacity": 149,
+                        "delivered": 18
+                    },
+                    {
+                        "node": 16,
+                        "arrival_time": 8,
+                        "capacity": 131,
+                        "delivered": 35
+                    },
+                    {
+                        "node": 22,
+                        "arrival_time": 10,
+                        "capacity": 96,
+                        "delivered": 96
+                    },
+                    {
+                        "node": 0,
+                        "arrival_time": 11,
+                        "capacity": 0,
+                        "delivered": 0
+                    }
+                ]
+            },
+            "2": {
+                "distance_of_route": 124,
+                "list_of_route": [
+                    {
+                        "node": 0,
+                        "arrival_time": 0,
+                        "capacity": 135,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 27,
+                        "arrival_time": 1,
+                        "capacity": 135,
+                        "delivered": 49
+                    },
+                    {
+                        "node": 7,
+                        "arrival_time": 5,
+                        "capacity": 86,
+                        "delivered": 53
+                    },
+                    {
+                        "node": 3,
+                        "arrival_time": 9,
+                        "capacity": 33,
+                        "delivered": 33
+                    },
+                    {
+                        "node": 0,
+                        "arrival_time": 10,
+                        "capacity": 0,
+                        "delivered": 0
+                    }
+                ]
+            },
+            "6": {
+                "distance_of_route": 107,
+                "list_of_route": [
+                    {
+                        "node": 0,
+                        "arrival_time": 0,
+                        "capacity": 111,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 20,
+                        "arrival_time": 1,
+                        "capacity": 111,
+                        "delivered": 89
+                    },
+                    {
+                        "node": 21,
+                        "arrival_time": 2,
+                        "capacity": 22,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 5,
+                        "arrival_time": 3,
+                        "capacity": 22,
+                        "delivered": 22
+                    },
+                    {
+                        "node": 0,
+                        "arrival_time": 4,
+                        "capacity": 0,
+                        "delivered": 0
+                    }
+                ]
+            },
+            "7": {
+                "distance_of_route": 85,
+                "list_of_route": [
+                    {
+                        "node": 0,
+                        "arrival_time": 2,
+                        "capacity": 170,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 6,
+                        "arrival_time": 5,
+                        "capacity": 170,
+                        "delivered": 92
+                    },
+                    {
+                        "node": 28,
+                        "arrival_time": 9,
+                        "capacity": 78,
+                        "delivered": 64
+                    },
+                    {
+                        "node": 25,
+                        "arrival_time": 10,
+                        "capacity": 14,
+                        "delivered": 14
+                    },
+                    {
+                        "node": 0,
+                        "arrival_time": 11,
+                        "capacity": 0,
+                        "delivered": 0
+                    }
+                ]
+            },
+            "8": {
+                "distance_of_route": 20,
+                "list_of_route": [
+                    {
+                        "node": 0,
+                        "arrival_time": 6,
+                        "capacity": 100,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 10,
+                        "arrival_time": 9,
+                        "capacity": 100,
+                        "delivered": 56
+                    },
+                    {
+                        "node": 12,
+                        "arrival_time": 10,
+                        "capacity": 44,
+                        "delivered": 44
+                    },
+                    {
+                        "node": 0,
+                        "arrival_time": 11,
+                        "capacity": 0,
+                        "delivered": 0
+                    }
+                ]
+            },
+            "10": {
+                "distance_of_route": 118,
+                "list_of_route": [
+                    {
+                        "node": 0,
+                        "arrival_time": 3,
+                        "capacity": 179,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 2,
+                        "arrival_time": 6,
+                        "capacity": 179,
+                        "delivered": 78
+                    },
+                    {
+                        "node": 1,
+                        "arrival_time": 7,
+                        "capacity": 101,
+                        "delivered": 29
+                    },
+                    {
+                        "node": 26,
+                        "arrival_time": 8,
+                        "capacity": 72,
+                        "delivered": 72
+                    },
+                    {
+                        "node": 0,
+                        "arrival_time": 9,
+                        "capacity": 0,
+                        "delivered": 0
+                    }
+                ]
+            },
+            "13": {
+                "distance_of_route": 87,
+                "list_of_route": [
+                    {
+                        "node": 0,
+                        "arrival_time": 0,
+                        "capacity": 89,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 23,
+                        "arrival_time": 2,
+                        "capacity": 89,
+                        "delivered": 47
+                    },
+                    {
+                        "node": 18,
+                        "arrival_time": 6,
+                        "capacity": 42,
+                        "delivered": 13
+                    },
+                    {
+                        "node": 17,
+                        "arrival_time": 7,
+                        "capacity": 29,
+                        "delivered": 29
+                    },
+                    {
+                        "node": 0,
+                        "arrival_time": 8,
+                        "capacity": 0,
+                        "delivered": 0
+                    }
+                ]
+            },
+            "14": {
+                "distance_of_route": 109,
+                "list_of_route": [
+                    {
+                        "node": 0,
+                        "arrival_time": 3,
+                        "capacity": 137,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 29,
+                        "arrival_time": 6,
+                        "capacity": 137,
+                        "delivered": 60
+                    },
+                    {
+                        "node": 19,
+                        "arrival_time": 7,
+                        "capacity": 77,
+                        "delivered": 11
+                    },
+                    {
+                        "node": 13,
+                        "arrival_time": 8,
+                        "capacity": 66,
+                        "delivered": 66
+                    },
+                    {
+                        "node": 0,
+                        "arrival_time": 10,
+                        "capacity": 0,
+                        "delivered": 0
+                    }
+                ]
+            },
+            "15": {
+                "distance_of_route": 106,
+                "list_of_route": [
+                    {
+                        "node": 0,
+                        "arrival_time": 8,
+                        "capacity": 165,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 15,
+                        "arrival_time": 11,
+                        "capacity": 165,
+                        "delivered": 36
+                    },
+                    {
+                        "node": 9,
+                        "arrival_time": 12,
+                        "capacity": 129,
+                        "delivered": 87
+                    },
+                    {
+                        "node": 24,
+                        "arrival_time": 13,
+                        "capacity": 42,
+                        "delivered": 42
+                    },
+                    {
+                        "node": 0,
+                        "arrival_time": 15,
+                        "capacity": 0,
+                        "delivered": 0
+                    }
+                ]
+            },
+            "16": {
+                "distance_of_route": 68,
+                "list_of_route": [
+                    {
+                        "node": 0,
+                        "arrival_time": 3,
+                        "capacity": 177,
+                        "delivered": 0
+                    },
+                    {
+                        "node": 11,
+                        "arrival_time": 6,
+                        "capacity": 177,
+                        "delivered": 12
+                    },
+                    {
+                        "node": 4,
+                        "arrival_time": 10,
+                        "capacity": 165,
+                        "delivered": 92
+                    },
+                    {
+                        "node": 8,
+                        "arrival_time": 14,
+                        "capacity": 73,
+                        "delivered": 73
+                    },
+                    {
+                        "node": 0,
+                        "arrival_time": 15,
                         "capacity": 0,
                         "delivered": 0
                     }

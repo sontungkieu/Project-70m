@@ -1,6 +1,7 @@
-/data/
+/data/*
 /__pycache__/
 /utilities/__pycache__/
+/objects/__pycache__/
 
 
 
