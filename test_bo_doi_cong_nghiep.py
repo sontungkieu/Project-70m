@@ -1,5 +1,4 @@
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
-
 from utilities.split_data import split_customers
 # vehicle capacity phải là số nguyên
 # chuyển hết sang đơn vị (0.1m3)
@@ -43,10 +42,7 @@ def load_data(distance_file='data/distance.json', request_file='data/requests.js
     demands = [0 for _ in range(NUM_OF_NODES)]
     time_windows = [(0, 24 * TIME_SCALE) for _ in range(NUM_OF_NODES)]
 
-    """
-    Start Place,End Place,Weight,Gen Day,Gen Timeframe
-    [0],[51],1.4,1,"[4, 7]"
-    """
+
     for request in requests_data:
         print(f"request: {request}")
         # Truy xuất phần tử đầu tiên trong danh sách
@@ -75,6 +71,7 @@ def create_data_model(*, distance_matrix=None, demands=None, vehicles=None, time
     global NUM_OF_VEHICLES
 
     data = {}
+
     
     data['distance_matrix'] =  DEFAULT_DISTANCE_MATRIX if not distance_matrix else distance_matrix
     
@@ -83,9 +80,11 @@ def create_data_model(*, distance_matrix=None, demands=None, vehicles=None, time
     # Với trọng tải của xe là 5 đơn vị, những node với demand <= 5 đảm bảo không vượt quá.
     # Tổng demand của các khách hàng là 5+3+1+2+5+1 = 17, nên sử dụng 4 xe với tải trọng 5 (tổng tải = 20).
     data['vehicle_capacities'] = DEFAULT_VEHICLE_CAPACITIES if not vehicles else vehicles
+
     data['num_vehicles'] = 4 if not vehicles else len(vehicles)
     NUM_OF_VEHICLES = data['num_vehicles']
     data['depot'] = 0
+
 
     data['time_windows'] = DEFAULT_TIME_WINDOWS if time_window == None else time_window
 
@@ -121,6 +120,7 @@ def create_daily_routing_model(data):
         "Distance"
     )
     distance_dimension = routing.GetDimensionOrDie("Distance")
+
     distance_dimension.SetGlobalSpanCostCoefficient(GLOBAL_SPAN_COST_COEFFICIENT)
 
     def stops_callback(from_index, to_index):
@@ -328,6 +328,7 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
     list_of_seed = []
     for day in range(num_days):
         print(f"\n--- Day {day+1} ---")
+
         import utilities.gen_requests as gen_requests
         import random
         seed = random.randint(10, 1000)
