@@ -5,6 +5,8 @@ from datetime import datetime
 import ast
 import os
 import json
+from objects.request import Request
+from config import *
 
 config = []
 def run_test_bo_doi_cong_nghiep(re_run=False):
@@ -86,16 +88,16 @@ def read_requests(config):
 def check(outputs, queries, config):
     print("Kiểm tra kết quả...")
     day_id = 0
-    for output, query in zip(outputs[1:],queries): #zip by day
+    for output, querys in zip(outputs[1:],queries): #zip by day
         print(f"Day {day_id}")
         day_id += 1
         # init time frame and demand
         time_frame = [(0,24*config['TIME_SCALE']) for _ in range(config['NUM_OF_NODES'])]
         demand = [0 for _ in range(config['NUM_OF_NODES'])]
         delivered_weight = [0 for _ in range(config['NUM_OF_NODES'])]
-        for q in query[:config['NUM_OF_REQUEST_PER_DAY']]:
-            time_frame[q[1][0]] = (q[-1][0]*config['TIME_SCALE'], q[-1][1]*config['TIME_SCALE'])
-            demand[q[1][0]] = int(q[2]*config['CAPACITY_SCALE'])
+        for query in querys[:config['NUM_OF_REQUEST_PER_DAY']]:
+            time_frame[query.end_place[0]] = (query.timeframe[0]*config['TIME_SCALE'], query.timeframe[1]*config['TIME_SCALE'])
+            demand[query.end_place[0]] = int(query.weight*config['CAPACITY_SCALE'])
 
         output['vehicles'] = {vehicle_id: vehicle for vehicle_id, vehicle in output['vehicles'].items() if vehicle['distance_of_route'] >0}
 
