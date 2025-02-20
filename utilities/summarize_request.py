@@ -1,0 +1,1 @@
+def summarize_request(from_day,to_day):
