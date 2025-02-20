@@ -1,0 +1,30 @@
+# chia đơn hàng nhỏ ra thành các pack 0.5m3 -> 5 0.1m3 sẽ tận dụng hầu hết các xe, đồng thời không chia đơn quá nhỏ
+# không có đơn nào quá 50m3 -> 500 0.1m3 -> 100 pack cho mỗi điểm, mỗi điểm 
+# 50 điểm -> quá lớn
+# giải pháp:
+#   1. thống kê đơn hàng max các điểm, rồi chia: có thể sinh ra lỗi nếu đột nhiên có đơn lớn hơn
+#   2. biết đơn hàng rồi mới chia: tạo ra ma trận mới mỗi lần chạy 
+# nếu chia 1 đơn hàng ra nhiều xe, xe sẽ không tối ưu, nên đánh penalty cho 1 đơn hàng spread nhiều xe
+# về chia ra các pack 0.5m3 kia xe, trong danh sách đơn hàng, có lẻ 0.6, 0.3, 0.2, 0.9 thì sẽ tính tròn 0.5 hoặc 1.0 rồi trừ sau khi chạy thuật toán
+
+#########Idea Chí Bằng###########
+# chia đơn hàng ra bằng với capacity của xe nhỏ nhất (97 -> 95) -> bị lẻ, chưa xem code Bằng giải thế nào.
+# chưa handle trường hợp tổng đơn hàng> tổng capacity các xe
+
+# time window cho từng điểm ở đây là gì, là chỉ được đi qua các điểm đó trong thời gian đó, hay là chỉ được giao hàng cho điểm đó trong thời gian đó?
+
+
+
+
+    # Ví dụ: chạy cho 30 ngày, với lambda_penalty = 1000 và mu_penalty = 50 (điều chỉnh dựa trên dữ liệu thực tế)
+    # multi_day_routing(num_days=2, lambda_penalty=1, mu_penalty=1)
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=1)#[1638, 1577, 1567, 2201, 2136]
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=2)#[1559, 1568, 1615, 2231, 2118]
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=3)#[1528, 1561, 1548, 2194, 2126]
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=5)#[1528, 1561, 1548, 2194, 2126]
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=10)#[1428, 1457, 1452, 2314, 2224]
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=20)#[1465, 1460, 1448, 2284, 2372]
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=30)#[1466, 1459, 1491, 2245, 2336]
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.01)#[1671, 1566, 1574, 2209, 2136]
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.0001)#[1522, 1543, 1530, 2292, 2197]
+    # multi_day_routing_gen_request(num_days=30, lambda_penalty=0.1, mu_penalty=1)#[1615, 1577, 1685, 2115, 2046]
