@@ -16,12 +16,15 @@ AVG_VELOCITY = DISTANCE_SCALE * 45
 MAX_TRAVEL_TIME = TIME_SCALE * 24            # 24 is not able to run
 # xe có thể đến trước, và đợi không quá 5 tiếng
 MAX_WAITING_TIME = TIME_SCALE * 3
+MIN_CAPACITY = 9.7 * CAPACITY_SCALE
+MAX_CAPACITY = 57 * CAPACITY_SCALE
 # tunable parameter
 GLOBAL_SPAN_COST_COEFFICIENT = 7
 MU = 2
 LAMBDA = 2
 # 0: PATH_CHEAPEST_ARC, 1: AUTOMATIC, 2: GLOBAL_CHEAPEST_ARC, 3: SAVINGS
 SEARCH_STRATEGY = 0   # chọn chiến lược tìm kiếm
+INFINITY = 999_999_999_999_999_999
 
 
 config = {

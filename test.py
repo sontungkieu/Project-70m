@@ -6,7 +6,6 @@ import ast
 import os
 import json
 from objects.request import Request
-from config import *
 
 config = []
 def run_test_bo_doi_cong_nghiep(re_run=False):

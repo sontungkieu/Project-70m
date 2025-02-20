@@ -71,3 +71,33 @@ def split_customers(data):
 
     # Lưu ý: Các thông số khác như 'vehicle_capacities' và 'num_vehicles' không thay đổi.
     return data, node_mapping
+
+from typing import List
+from objects.request import Request
+from ..config import MIN_CAPACITY
+
+def split_requests(requests:List[Request]):
+    #maping, inverse_mapping
+    new_node = 1
+    mapping = {0:[0]}
+    inverse_mapping = {0:0}
+    new_requests = []
+    for request in requests:
+        while request.weight > MIN_CAPACITY:
+            new_request = Request(request.start_place,request.end_place, MIN_CAPACITY, request.date, request.timeframe, split_id=1)
+            new_requests.append(new_request)
+            request.weight -= MIN_CAPACITY
+        new_requests.append(request)
+    mapped_requests = []
+    for request in new_requests:
+        if request.end_place[0] not in mapping:
+            mapping[request.end_place[0]] = [new_node]
+        else:
+            mapping[request.end_place[0]].append(new_node)
+        inverse_mapping[new_node] = request.end_place[0]
+        request.end_place[0] = new_node
+        new_node += 1
+        mapped_requests.append(request)
+    return mapped_requests, mapping, inverse_mapping
+
+
