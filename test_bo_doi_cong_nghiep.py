@@ -394,8 +394,8 @@ def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty)
 
 if __name__ == '__main__':
     # test = False
-    # multi_day_routing_real_ready_to_deploy(
-    #     num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)
+    multi_day_routing_real_ready_to_deploy(
+        num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)
     # test = true
     "#####################################################################"
     import utilities.gen_map as gen_map

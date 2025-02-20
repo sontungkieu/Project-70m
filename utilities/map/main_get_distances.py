@@ -3,7 +3,7 @@ import csv
 import time
 
 # 🔹 Replace with your actual Goong.io API key
-GOONG_API_KEY = ""
+GOONG_API_KEY = "O9v61ehl9z4ZQd5kaTLAMrwvLlKOrc54NA1muMMV"
 
 def is_plus_code(address):
     """Detects if an address is a Plus Code (contains '+', but is not a full address)."""
@@ -72,6 +72,7 @@ def batch_calculate_distance(origins, destinations):
                 # ✅ Remove "km" and convert to a number
                 distance_text = element["distance"]["text"]
                 numeric_distance = distance_text.replace(" km", "")  # ✅ Remove "km"
+                numeric_distance = numeric_distance.replace(" m", "")  # ✅ Remove "m"
                 row_distances.append(numeric_distance)
 
         distances.append(row_distances)

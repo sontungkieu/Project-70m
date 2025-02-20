@@ -1,6 +1,7 @@
 import re
 import requests
 import csv
+import json
 
 def get_coordinates(location):
     search_url = f"https://www.google.com/maps/search/{location.replace(' ', '+')}"
@@ -32,3 +33,27 @@ def save_to_csv(locations, filename):
     except Exception as e:
         print(f"Error saving to file: {e}")
 
+# def save_to_json(locations, filename):
+#     results = []
+#     try:
+#         for location in locations:
+#             coordinates = get_coordinates(location)
+#             if coordinates is not None:
+#                 results.append({
+#                     "Location": location,
+#                     "Latitude": coordinates[0],
+#                     "Longitude": coordinates[1]
+#                 })
+#             else:
+#                 results.append({
+#                     "Location": location,
+#                     "Latitude": "Not Found",
+#                     "Longitude": "Not Found"
+#                 })
+        
+#         with open(filename, 'w', encoding='utf-8') as file:
+#             json.dump(results, file, separators=(',', ':'), ensure_ascii=False)
+        
+#         print(f"Coordinates successfully saved to {filename}")
+#     except Exception as e:
+#         print(f"Error saving to file: {e}")
