@@ -1,9 +1,19 @@
+import json
+
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
-from utilities.split_data import split_customers
+
+import utilities.load_requests as load_requests
+import utilities.generator as generator
+from utilities.split_data import split_customers, split_requests
+from utilities.update_map import update_map
+from objects.driver import Driver
+from objects.request import Request
+from config import *
+import random
+
 # vehicle capacity phải là số nguyên
 # chuyển hết sang đơn vị (0.1m3)
 # xe 9.7 m3 thành 97 0.1m3
-from config import *
 
 search_strategy = [routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC,
                    routing_enums_pb2.FirstSolutionStrategy.AUTOMATIC,
@@ -34,8 +44,7 @@ def load_data(distance_file='data/distance.json', request_file='data/requests.js
     NUM_OF_VEHICLES = len(vehicle_capacities)
 
     # Đọc danh sách requests từ JSON
-    with open(request_file, 'r', encoding='utf-8') as f:
-        requests_data = json.load(f)
+    requests_data = load_requests.load_requests(request_file)
     print(f"requests_data: {requests_data}")
     # exit(0)
 
@@ -46,13 +55,46 @@ def load_data(distance_file='data/distance.json', request_file='data/requests.js
     for request in requests_data:
         print(f"request: {request}")
         # Truy xuất phần tử đầu tiên trong danh sách
-        end_place = int(request[1][0])
-        weight = request[2]
-        demands[end_place] += int(weight * 10)
-        time_windows[end_place] = tuple(
-            int(u * TIME_SCALE) for u in request[-1])
+        end_place = request.end_place[0]
+        weight = request.weight
+        demands[end_place] += int(weight * CAPACITY_SCALE)
+        time_windows[end_place] = (request.timeframe[0]*TIME_SCALE,request.timeframe[1]*TIME_SCALE)
 
     print(f"demands: {demands}")
+    # exit()
+    return distance_matrix, demands, vehicle_capacities, time_windows
+
+def load_data_real(distance_file='data/distance.json', request_file='data/requests.json', vehicle_file='data/vehicle.json'):
+    global NUM_OF_VEHICLES, NUM_OF_NODES
+
+    # Đọc danh sách vehicle từ JSON
+    with open(vehicle_file, 'r', encoding='utf-8') as f:
+        vehicle_capacities = json.load(f)
+    vehicle_capacities = [int(u * CAPACITY_SCALE) for u in vehicle_capacities]
+    NUM_OF_VEHICLES = len(vehicle_capacities)
+
+    # Đọc danh sách requests từ JSON
+    requests_data = load_requests.load_requests(request_file)
+    divided_mapped_requests,mapping, inverse_mapping = split_requests(requests_data)
+    print(f"requests_data: {requests_data}")
+    # exit(0)
+
+    #update map
+    distance_matrix = update_map(divided_mapped_requests, mapping, inverse_mapping)
+    NUM_OF_NODES = len(distance_matrix)
+    demands = [0 for _ in range(NUM_OF_NODES)]
+    time_windows = [(0, 24 * TIME_SCALE) for _ in range(NUM_OF_NODES)]
+
+    #convert requests to demands and time_windows
+    for request in divided_mapped_requests:
+        # print(f"request: {request}")
+        end_place = request.end_place[0]
+        weight = request.weight
+        demands[end_place] += int(weight * CAPACITY_SCALE)
+        time_windows[end_place] = (request.timeframe[0]*TIME_SCALE,request.timeframe[1]*TIME_SCALE)
+
+    # print(f"demands: {demands}")
+    # exit()
     return distance_matrix, demands, vehicle_capacities, time_windows
 
 
@@ -71,7 +113,6 @@ def create_data_model(*, distance_matrix=None, demands=None, vehicles=None, time
     global NUM_OF_VEHICLES
 
     data = {}
-
     
     data['distance_matrix'] =  DEFAULT_DISTANCE_MATRIX if not distance_matrix else distance_matrix
     
@@ -328,12 +369,9 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
     list_of_seed = []
     for day in range(num_days):
         print(f"\n--- Day {day+1} ---")
-
-        import utilities.gen_requests as gen_requests
-        import random
         seed = random.randint(10, 1000)
         list_of_seed.append(seed)
-        gen_requests.gen_requests_and_save(NUM_OF_REQUEST_PER_DAY, file_sufices=str(
+        generator.gen_requests_and_save(NUM_OF_REQUEST_PER_DAY, file_sufices=str(
             day), NUM_OF_NODES=NUM_OF_NODES, seed=seed)
         distance_matrix, demands, vehicle_capacities, time_windows = load_data(
             request_file=f"data/requests{day}.json")
@@ -367,15 +405,8 @@ def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty)
     # Khởi tạo historical_km cho NUM_OF_VEHICLE xe (trong thực tế có thể là 47 xe)
     historical_km = None
     for day in range(num_days):
-        print(f"\n--- Day {day+1} ---")
-        # Cập nhật số se available tại mỗi ngày
-        import utilities.update_list_vehicle as update_list_vehicle
-        # Load request từ file
-        import utilities.load_request as load_request
-        # Tạo bản đồ từ request
-        import utilities.update_map as update_map
 
-
+        load_data_real(request_file=f"data/requests{day}.json")
         # Trong thực tế, dữ liệu đơn hàng có thể khác mỗi ngày.
         data = create_data_model()
         if not historical_km:
@@ -395,16 +426,15 @@ def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty)
 
 if __name__ == '__main__':
     # test = False
-    multi_day_routing_real_ready_to_deploy(
-        num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)
+    # multi_day_routing_real_ready_to_deploy(
+    #     num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)
     # test = true
     "#####################################################################"
-    import utilities.gen_map as gen_map
-    import utilities.gen_vehicle as gen_vehicle
+    import utilities.generator as generator
     # gen map
-    gen_map.gen_map(NUM_OF_NODES=NUM_OF_NODES, seed=42)
+    generator.gen_map(NUM_OF_NODES=NUM_OF_NODES, seed=42)
     # gen vehicle
-    gen_vehicle.gen_list_vehicle(NUM_OF_VEHICLES=NUM_OF_VEHICLES, seed=42)
+    generator.gen_list_vehicle(NUM_OF_VEHICLES=NUM_OF_VEHICLES, seed=42)
 
 
     historical_km = multi_day_routing_gen_request(
