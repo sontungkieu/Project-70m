@@ -52,6 +52,11 @@ config = {
     'SEARCH_STRATEGY': SEARCH_STRATEGY               # chiến lược tìm kiếm
 }
 
+from datetime import datetime, timedelta
+now = datetime.now()
+# tomorrow = now + timedelta(days=random.randint(0,10))
+TODAY = now.strftime("%d%m%Y")
+
 """  #####  DEFAULT DATA  #####  """
 # Định nghĩa 7 node:
     # 0: depot

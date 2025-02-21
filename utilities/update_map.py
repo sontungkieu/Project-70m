@@ -1,7 +1,7 @@
 import csv
 
-from .map.main_get_distances import get_distances, process_destinations
-from ..config import INFINITY,MIN_CAPACITY
+from .map.main_get_distances import get_distances
+from ..config import INFINITY
 
 def update_map(requests, mapping, inverse_mapping):
     """
