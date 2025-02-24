@@ -1,6 +1,10 @@
 import pandas as pd
 import os
 
+from objects.request import Request
+from config import *
+id = {}
+
 # Đường dẫn đến file Excel (thay đổi nếu cần)
 file_path = os.path.join("data", "input", "Lenh_Dieu_Xe.xlsx")
 
@@ -39,9 +43,10 @@ if len(df) > 2:  # Kiểm tra xem có ít nhất 2 hàng không
             break
         valid_number_of_request = index
         # valid_data.append(row.to_dict())
-        df_new['STT'][index] = index
-        df_new['THU TIỀN LUÔN'][index] = 0
-        df_new["XUÁT HÓA ĐƠN"][index] = 0
+        df_new.loc[index, 'STT'] = index
+        df_new.loc[index, 'THU TIỀN LUÔN'] = 0
+        df_new.loc[index, 'XUÁT HÓA ĐƠN'] = 0
+
     
     errors = []
     for index, row in df_new.iterrows():
@@ -57,7 +62,20 @@ if len(df) > 2:  # Kiểm tra xem có ít nhất 2 hàng không
             print(error)
     else:
         print("\n✅ Dữ liệu hợp lệ, không có lỗi.")
+    for index,row in df_new.iterrows():
+        new_request = Request(
+            name = row['TÊN HÀNG'],
+            start_place = row['NƠI BỐC HÀNG'],
+            end_place = "depot",
+            weight = row['THỂ TÍCH (M3)'],
+            date = TODAY,
+            timeframe = [0, 24],
+            note = row['GHI CHÚ'],
+            staff_id = id.get(row['NV KẾ HOẠCH'],99),
+            split_id = 0
+        )
 
+#từ các ngày (các sheet) tạo ra file json để thuật toán chạy 
 
 else:
     print("Sheet không có đủ 2 hàng để hiển thị.")
