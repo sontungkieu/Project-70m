@@ -5,18 +5,9 @@ from typing import List
 from datetime import datetime, timedelta
 
 class Request:
-    def __init__(self, request_id:str, start_place:List[int], end_place:List[int], weight: int, date: str, timeframe: List[int],split_id:bool = False):
-        self.request_id = request_id
-        self.start_place = start_place
-        self.end_place = end_place
-        self.weight = weight
-        self.date = date
-        self.timeframe = timeframe
-        self.split_id = split_id
-        self.delivery_time = -1
-        self.delivery_status = 0
 
-    def __init__(self, start_place: List[int], end_place: List[int], weight: int, date: str, timeframe: List[int], split_id:bool = 1):
+    def __init__(self, name: str, start_place: List[int], end_place: List[int], weight: int, date: str, timeframe: List[int], split_id:bool = 1):
+        self.name = name
         self.start_place = start_place
         self.end_place = end_place
         self.weight = weight
