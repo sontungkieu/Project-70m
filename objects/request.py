@@ -6,13 +6,15 @@ from datetime import datetime, timedelta
 
 class Request:
 
-    def __init__(self, name: str, start_place: List[int], end_place: List[int], weight: int, date: str, timeframe: List[int], split_id:bool = 1):
+    def __init__(self, name: str, start_place: List[int], end_place: List[int], weight: int, date: str, timeframe: List[int], note:str = ".",staff_id:int = 0, split_id:bool = 1):
         self.name = name
         self.start_place = start_place
         self.end_place = end_place
         self.weight = weight
         self.date = date
         self.timeframe = timeframe
+        self.note = note
+        self.staff_id = staff_id
         self.split_id = split_id
         self.delivery_time = -1
         self.delivery_status = 0
@@ -25,7 +27,7 @@ class Request:
         request_id += str(self.start_place[0]).zfill(3) + "-"
         request_id += str(self.end_place[0]).zfill(3) + "-"
         request_id += str(int(self.weight * 10)).zfill(3) + "-"
-        request_id += str(random.randint(0, 99)).zfill(2) + "-"
+        request_id += str(self.staff_id).zfill(2) + "-"
         request_id += str(self.split_id).zfill(2)
         return request_id
         
@@ -68,11 +70,11 @@ class Request:
         # <ngày giao (ngày mai)>-<giờ1>-<giờ2>-<start_place[0]>-<end_place[0]>-<trọng lượng*10>-<id ngẫu nhiên 2 số>
         
         
-        return cls(start_place, end_place, weight, formatted_date, gen_timeframe)
+        return cls(".",start_place, end_place, weight, formatted_date, gen_timeframe)
     
     def to_list(self):
         """Chuyển đổi đối tượng Request về dạng list, giống như hàm gen_request() trả về."""
-        return [self.request_id, self.start_place, self.end_place, self.weight, self.date, self.timeframe]
+        return [self.name, self.request_id, self.start_place, self.end_place, self.weight, self.date, self.timeframe, self.note, self.staff_id, self.split_id]
     
     def __repr__(self):
         return f"Request({self.to_list()})"
@@ -85,7 +87,7 @@ class Request:
         """
         # Create a new instance without calling __init__ automatically
         obj = cls.__new__(cls)
-        obj.request_id, obj.start_place, obj.end_place, obj.weight, obj.date, obj.timeframe = req_list
+        obj.name, obj.request_id, obj.start_place, obj.end_place, obj.weight, obj.date, obj.timeframe, obj.note, obj.staff_id, obj.split_id = req_list
         return obj
 
 
