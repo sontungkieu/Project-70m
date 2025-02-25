@@ -4,7 +4,7 @@ from firebase_admin import credentials, firestore, messaging, auth
 import subprocess
 from time import perf_counter
 import psutil
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import os
 
@@ -36,10 +36,7 @@ def verify_firebase_token(request):
 # ---------------------------------------------------------------------------
 @app.route('/save-user-info', methods=['POST'])
 def save_user_info():
-    """
-    Lưu thông tin bổ sung của user vào Firestore.
-    Client (Flutter) gửi UID và additional_info sau khi đăng nhập thành công.
-    """
+    """Lưu thông tin bổ sung của user vào Firestore."""
     user = verify_firebase_token(request)
     if not user:
         return jsonify({"error": "Unauthorized"}), 401
@@ -60,10 +57,7 @@ def save_user_info():
 # ---------------------------------------------------------------------------
 @app.route('/send_notification', methods=['POST'])
 def send_notification():
-    """
-    Endpoint gửi thông báo FCM.
-    Client gửi danh sách driver_ids, title và body.
-    """
+    """Gửi thông báo FCM đến danh sách tài xế."""
     user = verify_firebase_token(request)
     if not user:
         return jsonify({"error": "Unauthorized"}), 401
@@ -100,15 +94,10 @@ def send_notification():
 # ---------------------------------------------------------------------------
 def save_to_firestore(job_id, vehicles_data):
     """
-    Lưu kết quả tối ưu hóa vào Firestore theo cấu trúc mới:
-      - Collection "Routes": Lưu lộ trình hoàn chỉnh của từng tài xế.
-      - Collection "Drivers": Cập nhật trường route_by_day của tài xế.
-      - Collection "Requests": Cập nhật trạng thái đơn hàng.
-    vehicles_data là dict với key là driver_id và value chứa:
-        - "vehicle_id": Mã xe.
-        - "route": Danh sách đơn hàng (mỗi đơn hàng là dict chứa request_id, …).
-        - "total_distance": Tổng quãng đường.
-        - "date": Ngày giao hàng.
+    Lưu kết quả tối ưu hóa vào Firestore:
+    - Collection "Routes": Lưu lộ trình hoàn chỉnh của từng tài xế.
+    - Collection "Drivers": Cập nhật trường route_by_day của tài xế.
+    - Collection "Requests": Cập nhật trạng thái đơn hàng.
     """
     for driver_id, driver_data in vehicles_data.items():
         route_doc_id = f"{driver_id}_{job_id}"
@@ -119,7 +108,7 @@ def save_to_firestore(job_id, vehicles_data):
             "vehicle_id": driver_data.get("vehicle_id", ""),
             "route": driver_data.get("route", []),
             "total_distance": driver_data.get("total_distance", 0),
-            "date": driver_data.get("date", datetime.utcnow().isoformat())
+            "date": datetime.now(timezone.utc).isoformat()  # ✅ Sửa lỗi utcnow()
         })
 
         # Cập nhật thông tin lộ trình của tài xế trong collection "Drivers"
@@ -135,16 +124,16 @@ def save_to_firestore(job_id, vehicles_data):
                 request_ref = db.collection("Requests").document(request_id)
                 request_ref.update({
                     "delivery_status": 1,  # Đã được lên lịch trình
-                    "delivery_time": datetime.utcnow().isoformat()
+                    "delivery_time": datetime.now(timezone.utc).isoformat()  # ✅ Sửa lỗi utcnow()
                 })
 
 def run_optimization(job_id):
+    """Chạy thuật toán tối ưu hóa và lưu kết quả vào Firestore."""
     tstart = perf_counter()
     if not os.path.exists('data'):
         os.makedirs('data')
 
     output_file = f"data/output_{job_id}.json"
-    # Chạy script tối ưu hóa (test_bo_doi_cong_nghiep.py)
     with open(output_file, 'w') as out_f:
         process = subprocess.Popen(
             ['python', 'test_bo_doi_cong_nghiep.py'],
@@ -179,13 +168,9 @@ def run_optimization(job_id):
 
 @app.route('/optimize', methods=['POST'])
 def optimize():
-    """
-    Endpoint chạy tối ưu hóa:
-      - Client gửi thông tin cần thiết (optionally job_id).
-      - Sau khi hoàn thành, gửi thông báo FCM đến topic "dispatch_updates".
-    """
+    """Chạy tối ưu hóa và gửi thông báo khi hoàn thành."""
     data = request.json or {}
-    job_id = data.get("job_id", str(datetime.utcnow().timestamp()))
+    job_id = data.get("job_id", str(datetime.now(timezone.utc).timestamp()))  # ✅ Sửa lỗi utcnow()
     run_time, memory_usage = run_optimization(job_id)
 
     msg = messaging.Message(
@@ -200,14 +185,11 @@ def optimize():
     return jsonify({"job_id": job_id, "status": "completed"}), 200
 
 # ---------------------------------------------------------------------------
-# 6) API CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
+# 6) CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
 # ---------------------------------------------------------------------------
 @app.route('/update_delivery_status', methods=['POST'])
 def update_delivery_status():
-    """
-    API cho tài xế cập nhật trạng thái đơn hàng.
-    delivery_status: 1 = Đã giao, 2 = Hoãn, 3 = Hủy.
-    """
+    """API cho tài xế cập nhật trạng thái đơn hàng."""
     user = verify_firebase_token(request)
     if not user:
         return jsonify({"error": "Unauthorized"}), 401
@@ -222,7 +204,7 @@ def update_delivery_status():
     request_ref = db.collection("Requests").document(request_id)
     request_ref.update({
         "delivery_status": new_status,
-        "delivery_time": datetime.utcnow().isoformat()
+        "delivery_time": datetime.now(timezone.utc).isoformat()  # ✅ Sửa lỗi utcnow()
     })
 
     return jsonify({"message": "Delivery status updated"}), 200
