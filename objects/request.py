@@ -87,7 +87,17 @@ class Request:
         """
         # Create a new instance without calling __init__ automatically
         obj = cls.__new__(cls)
-        obj.name, obj.request_id, obj.start_place, obj.end_place, obj.weight, obj.date, obj.timeframe, obj.note, obj.staff_id, obj.split_id = req_list
+        obj.name, 
+        obj.request_id, 
+        obj.start_place, 
+        obj.end_place, 
+        obj.weight, 
+        obj.date, 
+        obj.timeframe, 
+        obj.note, 
+        obj.staff_id, 
+        obj.split_id = req_list
+        print(f"len(req_list): {len(req_list)}")
         return obj
 
 

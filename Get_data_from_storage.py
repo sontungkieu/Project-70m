@@ -30,7 +30,7 @@ if __name__ == "__main__":
     storage_path = "Lệnh Điều Xe X5.xlsx"  # Đảm bảo đúng với Firebase Storage UI
 
     # 2️⃣ Đường dẫn lưu file cục bộ
-    local_path = "data\input\input.xlsx"  # Thay đổi nếu cần
+    local_path = "data\input\Lenh_Dieu_Xe.xlsx"  # Thay đổi nếu cần
 
     # 3️⃣ Tải file về
     download_file_from_storage(storage_path, local_path)

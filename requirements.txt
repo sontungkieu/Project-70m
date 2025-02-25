@@ -53,3 +53,5 @@ flask
 Flask-Cors
 Flask-Login
 Werkzeug
+
+firebase_admin

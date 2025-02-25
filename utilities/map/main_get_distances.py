@@ -1,9 +1,15 @@
 import requests
 import csv
 import time
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 # 🔹 Replace with your actual Goong.io API key
-GOONG_API_KEY = "O9v61ehl9z4ZQd5kaTLAMrwvLlKOrc54NA1muMMV"
+GOONG_DEBUG = False
+# GOONG_API_KEY = "O9v61ehl9z4ZQd5kaTLAMrwvLlKOrc54NA1muMMV" # chí bằng 
+GOONG_API_KEY = "frkCIq2OwEBzix72E0Mjynqy3YRxwK45pVjbpLl1" # Long 
+# GOONG_API_KEY = "869pTtPPVAKNdNresZVusUl37BYQsyZi7vKxAYoh" # Tung
 
 def is_plus_code(address):
     """Detects if an address is a Plus Code (contains '+', but is not a full address)."""
@@ -18,17 +24,20 @@ def get_coordinates(address, retry=3):
 
     for attempt in range(retry):
         response = requests.get(url).json()
-        
+        # print(response)
         if response["status"] == "OK":
             location = response["results"][0]["geometry"]["location"]
             return float(location["lat"]), float(location["lng"])
-        
-        print(f" Geocoding failed for '{address}', retrying ({attempt+1}/{retry})...")
+        if GOONG_DEBUG:
+            print(f" Geocoding failed for '{address}', retrying ({attempt+1}/{retry})...")
         time.sleep(2)  # Wait before retrying
-
-    print(f"Could not geocode address: {address}")
+    if GOONG_DEBUG:
+        print(f"Could not geocode address: {address}")
     return None  # Return None if geocoding fails after retries
 def batch_calculate_distance(origins, destinations):
+    # print(f"origins: {origins}")
+    # print(f"destinations: {destinations}")
+    # exit()
     """
     Uses Goong.io Distance Matrix API to calculate distances for multiple origins and destinations.
     Removes 'km' from the output.
@@ -48,21 +57,29 @@ def batch_calculate_distance(origins, destinations):
     try:
         response = requests.get(url, params=params, verify=False).json()
     except requests.exceptions.SSLError:
-        print("❌ SSL Error: Could not verify SSL connection to Goong.io.")
+        if GOONG_DEBUG:
+            # print("❌ SSL Error: Could not verify SSL connection to Goong.io.")
+            print("SSL Error: Could not verify SSL connection to Goong.io.")
         return None
 
     # Debugging: Print API response
-    print("🔍 API Response:", response)
+    if GOONG_DEBUG:
+        # print("🔍 API Response:", response)
+        print("API Response:", response)
 
     if "rows" not in response or not response["rows"]:
-        print(f"❌ API Error: 'rows' key is missing. Check API key or request format.")
+        if GOONG_DEBUG:
+            # print(f"❌ API Error: 'rows' key is missing. Check API key or request format.")
+            print(f"API Error: 'rows' key is missing. Check API key or request format.")
         return None
 
     distances = []
     for i, row in enumerate(response["rows"]):
         row_distances = []
         if "elements" not in row or not row["elements"]:
-            print(f"⚠️ Missing 'elements' in row {i}")
+            if GOONG_DEBUG:
+                # print(f"⚠️ Missing 'elements' in row {i}")
+                print(f"Missing 'elements' in row {i}")
             continue
 
         for j, element in enumerate(row["elements"]):
@@ -95,7 +112,9 @@ def process_destinations(input_csv, output_csv):
 
             # Convert Plus Codes to coordinates if needed
             if "+" in dest_address:
-                print(f"🔍 Converting Plus Code: {dest_address} → Coordinates")
+                if GOONG_DEBUG:
+                    # print(f"🔍 Converting Plus Code: {dest_address} → Coordinates")
+                    print(f"Converting Plus Code: {dest_address} -> Coordinates")
                 dest_coords = get_coordinates(dest_address)
             else:
                 dest_coords = get_coordinates(dest_address)
@@ -103,7 +122,9 @@ def process_destinations(input_csv, output_csv):
             if dest_coords:
                 destinations.append((dest_id, dest_name, dest_address, dest_coords))
             else:
-                print(f"⚠️ Could not get coordinates for {dest_name}")
+                if GOONG_DEBUG:
+                    # print(f"⚠️ Could not get coordinates for {dest_name}")
+                    print(f"Could not get coordinates for {dest_name}")
 
     num_destinations = len(destinations)
 
@@ -114,13 +135,17 @@ def process_destinations(input_csv, output_csv):
     distances = batch_calculate_distance(valid_destinations, valid_destinations)
 
     if not distances:
-        print("❌ Error: No distances received from API.")
+        if GOONG_DEBUG:
+            # print("❌ Error: No distances received from API.")
+            print("Error: No distances received from API.")
         return  # Stop execution if no data is received
 
     # ✅ Debugging: Print Matrix Before Writing
-    print("\n✅ Final Distance Matrix:")
-    for row in distances:
-        print(row)
+    if GOONG_DEBUG:
+        # print("\n✅ Final Distance Matrix:")
+        print("\n Final Distance Matrix:")
+        for row in distances:
+            print(row)
 
     # ✅ Write output CSV file (Distance Matrix Format)
     try:
@@ -134,12 +159,34 @@ def process_destinations(input_csv, output_csv):
             for i in range(num_destinations):
                 row = [destinations[i][0]] + distances[i]
                 writer.writerow(row)
-
-        print(f"✅ Distance matrix saved successfully to {output_csv}")
+        if GOONG_DEBUG:
+            # print(f"✅ Distance matrix saved successfully to {output_csv}")
+            print(f"Distance matrix saved successfully to {output_csv}")
 
     except Exception as e:
-        print(f"❌ Error writing to file: {e}")
+        if GOONG_DEBUG:
+            # print(f"❌ Error writing to file: {e}")
+            print(f"Error writing to file: {e}")
 
-  
+def update_map_helper(origin_ids,destination_ids):
+    matrix = []
+    with open(r"data\distance_matrix.csv", mode="r", encoding="utf-8", errors="replace") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            matrix.append(row[1:])
+    matrix = matrix[1:]
+    print(matrix)
+    new_matrix = []
+    for i,pi in enumerate(origin_ids):
+        c_matrix = []
+        for j,pj in enumerate(destination_ids):
+            c_matrix.append(matrix[pi][pj])
+        new_matrix.append(c_matrix)
+    return new_matrix
+    
 
-process_destinations("data\destinations.csv", "data\distance_matrix.csv")
+
+# update_map_helper(None,None)
+    
+
+# process_destinations(r"data\destinations.csv", r"data\distance_matrix.csv")
