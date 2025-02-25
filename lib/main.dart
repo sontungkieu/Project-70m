@@ -5,7 +5,7 @@ import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'pages/dashboard_page.dart';
 import 'pages/schedule_page.dart';
-import 'pages/drivers_page.dart';
+import 'pages/drivers/drivers_page.dart';
 import 'pages/payroll_page.dart';
 
 

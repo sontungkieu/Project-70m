@@ -12,11 +12,9 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> with SingleTickerProviderStateMixin {
-  // Biến lưu trữ thời gian hiện tại (theo GMT+7)
   late DateTime _currentTime;
   Timer? _timer;
 
-  // Animation controller và các hiệu ứng
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -25,7 +23,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    // Cập nhật thời gian hiện tại theo GMT+7
+    // Thời gian GMT+7
     _currentTime = DateTime.now().toUtc().add(const Duration(hours: 7));
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
@@ -33,23 +31,17 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       });
     });
 
-    // Khởi tạo AnimationController cho toàn bộ trang
+    // Animation
     _controller = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-
-    // Hiệu ứng fade cho toàn bộ nội dung
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
-
-    // Hiệu ứng slide nhẹ cho nội dung trang (từ dưới lên)
     _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
-
-    // Hiệu ứng slide riêng cho từng thẻ summary (để tạo cảm giác stagger)
     _cardSlideAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.3, 0.7, curve: Curves.easeOut)),
     );
@@ -66,7 +58,6 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    // Định dạng ngày và giờ sử dụng intl.
     final String formattedDate = DateFormat('MMMM dd, yyyy').format(_currentTime);
     final String formattedTime = DateFormat('HH:mm:ss').format(_currentTime);
 
@@ -94,9 +85,10 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Row thống kê: Active Drivers, Pending Orders, Date và Time
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // Thay Row bằng Wrap để tránh overflow
+                Wrap(
+                  spacing: 16.0, // Khoảng cách ngang giữa các thẻ
+                  runSpacing: 16.0, // Khoảng cách dọc nếu tự xuống hàng
                   children: [
                     _buildAnimatedSummaryCard("Active Drivers", "24", "Currently on duty"),
                     _buildAnimatedSummaryCard("Pending Orders", "156", "Awaiting dispatch"),
@@ -105,13 +97,11 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                   ],
                 ),
                 const SizedBox(height: 32),
-                // Tiêu đề phần Recent Orders
                 Text(
                   "Recent Orders",
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 16),
-                // Bảng dữ liệu đơn hàng với hiệu ứng fade và shadow nhẹ tạo cảm giác sang trọng
                 FadeTransition(
                   opacity: _fadeAnimation,
                   child: Container(
@@ -150,7 +140,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     );
   }
 
-  /// Hàm helper tạo thẻ thống kê với hiệu ứng hoạt ảnh tinh tế.
+  /// Bỏ chiều cao cố định, để Card tự co giãn
   Widget _buildAnimatedSummaryCard(String title, String value, String subtitle) {
     return SlideTransition(
       position: _cardSlideAnimation,
@@ -159,35 +149,30 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
         color: Colors.white,
         elevation: 3,
         shadowColor: Colors.black.withOpacity(0.1),
-        child: SizedBox(
-          width: 150,
-          height: 100,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Tự co giãn theo nội dung
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(title, style: const TextStyle(fontSize: 16, color: Colors.black87)),
+              if (subtitle.isNotEmpty)
                 Text(
-                  value,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  subtitle,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
-                const SizedBox(height: 8),
-                Text(title, style: const TextStyle(fontSize: 16, color: Colors.black87)),
-                if (subtitle.isNotEmpty)
-                  Text(
-                    subtitle,
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-              ],
-            ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  /// Hàm helper tạo dòng của DataTable.
   DataRow _buildDataRow(String orderId, String driver, String status, String deliveryTime, String actions) {
     return DataRow(cells: [
       DataCell(Text(orderId)),

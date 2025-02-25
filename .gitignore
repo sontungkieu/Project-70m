@@ -43,3 +43,41 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+
+# File .gitignore cho Flutter
+
+# Thư mục build và cache
+/build/
+/.dart_tool/
+/.pub-cache/
+/.flutter-plugins
+/.flutter-plugins-dependencies
+/.metadata
+*.iml
+*.lock
+*.log
+*.json
+
+# File môi trường nhạy cảm
+.env
+.env.*
+*.key
+*.keystore
+
+# File cấu hình IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# File native (Android/iOS)
+android/local.properties  # Chứa đường dẫn SDK cục bộ
+ios/Podfile.lock          # Phiên bản CocoaPods (tùy chọn)
+ios/Flutter/Flutter.podspec
+
+# File hệ điều hành
+.DS_Store
+Thumbs.db
+
+# File pubspec.lock (tùy chọn)
+# pubspec.lock          # Nếu muốn khóa phiên bản package, hãy giữ lại
