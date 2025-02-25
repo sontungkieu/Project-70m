@@ -2,6 +2,7 @@
 /data/intermediate/*
 /data/log/*
 /data/output/*
+/data/test/*
 
 /__pycache__/
 /utilities/__pycache__/
