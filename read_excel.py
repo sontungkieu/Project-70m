@@ -6,14 +6,14 @@ import csv
 
 def load_desdict():
     desdict = {}
-    file_path = os.path.join("utilities", "map", "destinations.csv")
+    file_path = os.path.join("data", "destinations.csv")
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 # Convert Name to uppercase and strip spaces
                 name = row["Name"].strip().upper()
-                desdict[name] = row["ID"].strip()
+                desdict[name] = int(row["ID"].strip())
                 print(f"Loaded destination: {name} -> {desdict[name]}")
     except Exception as e:
         print(f"Error reading {file_path}: {e}")
@@ -39,22 +39,22 @@ for sheet_name in xls.sheet_names[:-1]:
 
     # In hàng thứ 2 (chỉ số 1 trong DataFrame)
     if len(df) > 2:  # Kiểm tra xem có ít nhất 2 hàng không
-        print(f"Hàng thứ 2 trong sheet '{sheet_name}':")
-        print("+-----------------+")
-        for i in range(10):
-            print(f'"{df.iloc[2,i]}",',end="")  
-            # print("+-----------------+")
-        print()
+        # print(f"Hàng thứ 2 trong sheet '{sheet_name}':")
+        # print("+-----------------+")
+        # for i in range(10):
+        #     print(f'"{df.iloc[2,i]}",',end="")  
+        #     # print("+-----------------+")
+        # print()
         col = ["STT","TÊN HÀNG","THỂ TÍCH (M3)","LOẠI XE","THỜI GIAN GIAO HÀNG","GHI CHÚ","NƠI BỐC HÀNG","NV KẾ HOẠCH","THU TIỀN LUÔN","XUÁT HÓA ĐƠN"]
         new_header = df.iloc[2,:10]  # Lấy hàng thứ 2 làm tiêu đề cột
         df_new = df.iloc[3:,:10].copy()   # Lấy dữ liệu từ hàng thứ 3 trở đi
         df_new.columns = new_header  # Gán tiêu đề mới
         df_new.reset_index(drop=True, inplace=True)  
-        print(df_new.head())
-        print("+-----------------+")
-        for i in range(10):
-            print(df_new.iloc[2,i])  
-            print("+-----------------+")
+        # print(df_new.head())
+        # print("+-----------------+")
+        # for i in range(10):
+        #     print(df_new.iloc[2,i])  
+        #     print("+-----------------+")
         
 
         valid_number_of_request = 0
@@ -86,8 +86,8 @@ for sheet_name in xls.sheet_names[:-1]:
         for index,row in df_new.iterrows():
             if index>valid_number_of_request:
                 break
-            print(row['NƠI BỐC HÀNG'])
-            print(row)
+            # print(row['NƠI BỐC HÀNG'])
+            # print(row)
             for u in row['NƠI BỐC HÀNG'].upper().split("+"):
                 new_request = Request(
                     name = row['TÊN HÀNG'],

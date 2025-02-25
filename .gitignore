@@ -1,4 +1,8 @@
-/data/
+/data/input/*
+/data/intermediate/*
+/data/log/*
+/data/output/*
+
 /__pycache__/
 /utilities/__pycache__/
 /objects/__pycache__/
