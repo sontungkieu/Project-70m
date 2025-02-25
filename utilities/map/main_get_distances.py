@@ -142,4 +142,4 @@ def process_destinations(input_csv, output_csv):
 
   
 
-process_destinations("destinations.csv", "distance_matrix.csv")
+process_destinations("sync_data\destinations.csv", "sync_data\distance_matrix.csv")
