@@ -29,6 +29,6 @@ def csv_to_json(input_csv, output_json):
         print(f"Error: {e}")
 
 if __name__ == "__main__":
-    input_csv = os.path.join("utilities/map/distance_matrix.csv")
+    input_csv = os.path.join("distance_matrix.csv")
     output_json = os.path.join("sync_data", "distance.json")
     csv_to_json(input_csv, output_json)
