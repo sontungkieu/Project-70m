@@ -119,10 +119,9 @@ def read_requests(config):
             with open(request_filename, 'r', encoding='utf-8') as file:
                 # Load JSON data from file
                 data = json.load(file)
-                request = Request.from_list(data)
-                # print(data)
-                # exit()
-                requests_files.append(request)
+                # Convert data to list of Request objects
+                requests = [Request.from_list(u) for u in data]
+                requests_files.append(requests)
         except FileNotFoundError:
             print(f"Lỗi: Không tìm thấy file {request_filename}!")
         except Exception as e:
@@ -141,7 +140,7 @@ def check(outputs, queries, config):
         demand = [0 for _ in range(config['NUM_OF_NODES'])]
         delivered_weight = [0 for _ in range(config['NUM_OF_NODES'])]
         for query in querys[:config['NUM_OF_REQUEST_PER_DAY']]:
-            print(f"type(query): {type(query)}")
+            # print(f"type(query): {type(query)}")
             time_frame[query.end_place[0]] = (query.timeframe[0]*config['TIME_SCALE'], query.timeframe[1]*config['TIME_SCALE'])
             demand[query.end_place[0]] = int(query.weight*config['CAPACITY_SCALE'])
 
@@ -179,7 +178,7 @@ def check(outputs, queries, config):
             
 
 if __name__ == "__main__":
-    run_time, memory_usage, stdout_filename, config_filename = run_test_bo_doi_cong_nghiep_unicode(re_run=True)
+    run_time, memory_usage, stdout_filename, config_filename = run_test_bo_doi_cong_nghiep(re_run=True)
 
     #sau khi chạy
     config_data = read_config(config_filename)
