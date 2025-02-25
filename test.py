@@ -13,8 +13,8 @@ def run_test_bo_doi_cong_nghiep(re_run=False):
         current_time = "2025-02-19_10-49-26"
         if not os.path.exists('data'):
             os.makedirs('data')
-        stdout_filename = f"data/stdout_output_{current_time}.txt"
-        config_filename = f"data/config_{current_time}.txt"
+        stdout_filename = f"data/output/{current_time}.txt"
+        config_filename = f"data/log/config_{current_time}.txt"
 
         return -1, -1, stdout_filename, config_filename
     
@@ -24,8 +24,8 @@ def run_test_bo_doi_cong_nghiep(re_run=False):
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     if not os.path.exists('data'):
         os.makedirs('data')
-    stdout_filename = f"data/stdout_output_{current_time}.txt"
-    config_filename = f"data/config_{current_time}.txt"
+    stdout_filename = f"data/output/{current_time}.txt"
+    config_filename = f"data/log/config_{current_time}.txt"
 
     # Chạy process và ghi stdout + config (thay vì stderr)
     with open(stdout_filename, 'wb') as stdout_file, open(config_filename, 'wb') as config_file:
@@ -45,6 +45,47 @@ def run_test_bo_doi_cong_nghiep(re_run=False):
 
     return perf_counter() - tin, memory_usage, stdout_filename, config_filename
 
+...
+def run_test_bo_doi_cong_nghiep_unicode(re_run=False):
+    if re_run == False:
+        current_time = "2025-02-19_10-49-26"
+        if not os.path.exists('data'):
+            os.makedirs('data')
+        stdout_filename = f"data/output/{current_time}.txt"
+        config_filename = f"data/log/config_{current_time}.txt"
+        return -1, -1, stdout_filename, config_filename
+
+    tin = perf_counter()
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    if not os.path.exists('data'):
+        os.makedirs('data')
+    stdout_filename = f"data/output/{current_time}.txt"
+    config_filename = f"data/log/config_{current_time}.txt"
+
+    # Open files in text mode with utf-8 encoding and ask subprocess to use text mode
+    with open(stdout_filename, 'w', encoding='utf-8') as stdout_file, \
+         open(config_filename, 'w', encoding='utf-8') as config_file:
+        process = subprocess.Popen(
+            ['python', 'test_bo_doi_cong_nghiep.py'],
+            stdout=stdout_file,
+            stderr=config_file,
+            text=True,
+            encoding='utf-8'
+        )
+
+        memory_usage = 0
+        while process.poll() is None:
+            try:
+                memory_info = psutil.Process(process.pid).memory_info()
+                memory_usage = max(memory_usage, memory_info.rss)
+            except psutil.NoSuchProcess:
+                break
+
+        process.wait()
+
+    return perf_counter() - tin, memory_usage, stdout_filename, config_filename
+
+
 def read_config(config_filename):
     global config
     try:
@@ -54,6 +95,7 @@ def read_config(config_filename):
         # Chuyển đổi nội dung file sang dictionary
         config = ast.literal_eval(config_str)
         # print("Config đọc được:", config)
+        print("Đọc file config thành công!{}".format(config))
         return config
 
     except (SyntaxError, ValueError):
@@ -72,16 +114,20 @@ def read_requests(config):
     NUM_OF_DAY_REPETION = config['NUM_OF_DAY_REPETION']
     requests_files = []
     for i in range(NUM_OF_DAY_REPETION):
-        request_filename = f"data/requests{i}.json"
+        request_filename = f"data/intermediate/requests{i}.json"
         try:
             with open(request_filename, 'r', encoding='utf-8') as file:
                 # Load JSON data from file
                 data = json.load(file)
-                requests_files.append(data)
+                request = Request.from_list(data)
+                # print(data)
+                # exit()
+                requests_files.append(request)
         except FileNotFoundError:
             print(f"Lỗi: Không tìm thấy file {request_filename}!")
         except Exception as e:
             print(f"Lỗi khi đọc file {request_filename}: {e}")
+            exit()
     return requests_files
 
 def check(outputs, queries, config):
@@ -95,6 +141,7 @@ def check(outputs, queries, config):
         demand = [0 for _ in range(config['NUM_OF_NODES'])]
         delivered_weight = [0 for _ in range(config['NUM_OF_NODES'])]
         for query in querys[:config['NUM_OF_REQUEST_PER_DAY']]:
+            print(f"type(query): {type(query)}")
             time_frame[query.end_place[0]] = (query.timeframe[0]*config['TIME_SCALE'], query.timeframe[1]*config['TIME_SCALE'])
             demand[query.end_place[0]] = int(query.weight*config['CAPACITY_SCALE'])
 
@@ -132,7 +179,7 @@ def check(outputs, queries, config):
             
 
 if __name__ == "__main__":
-    run_time, memory_usage, stdout_filename, config_filename = run_test_bo_doi_cong_nghiep(re_run=True)
+    run_time, memory_usage, stdout_filename, config_filename = run_test_bo_doi_cong_nghiep_unicode(re_run=True)
 
     #sau khi chạy
     config_data = read_config(config_filename)

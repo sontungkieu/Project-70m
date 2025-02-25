@@ -81,6 +81,7 @@ def load_data_real(distance_file='data/distance.json', request_file='data/reques
 
     #update map
     distance_matrix = update_map(divided_mapped_requests, mapping, inverse_mapping)
+    # exit()
     NUM_OF_NODES = len(distance_matrix)
     demands = [0 for _ in range(NUM_OF_NODES)]
     time_windows = [(0, 24 * TIME_SCALE) for _ in range(NUM_OF_NODES)]
@@ -374,7 +375,7 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
         generator.gen_requests_and_save(NUM_OF_REQUEST_PER_DAY, file_sufices=str(
             day), NUM_OF_NODES=NUM_OF_NODES, seed=seed)
         distance_matrix, demands, vehicle_capacities, time_windows = load_data(
-            request_file=f"data/requests{day}.json")
+            request_file=f"data/intermediate/requests{day}.json")
         if not historical_km:
             historical_km = [0 for _ in range(NUM_OF_VEHICLES)]
         # Trong thực tế, dữ liệu đơn hàng có thể khác mỗi ngày.
@@ -406,7 +407,7 @@ def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty)
     historical_km = None
     for day in range(num_days):
 
-        load_data_real(request_file=f"data/requests{day}.json")
+        load_data_real(request_file=f"data/intermediate/requests{day}.json")
         # Trong thực tế, dữ liệu đơn hàng có thể khác mỗi ngày.
         data = create_data_model()
         if not historical_km:
