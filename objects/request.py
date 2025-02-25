@@ -5,6 +5,19 @@ from typing import List
 from datetime import datetime, timedelta
 
 class Request:
+    # def __init__(self, name: str=".", start_place: List[int]= [0], end_place: List[int] = [10], weight: int = 100, date: str = "12122025", timeframe: List[int] = [0,24], note:str = ".",staff_id:int = 0, split_id:bool = 1):
+    #     self.name = name
+    #     self.start_place = start_place
+    #     self.end_place = end_place
+    #     self.weight = weight
+    #     self.date = date
+    #     self.timeframe = timeframe
+    #     self.note = note
+    #     self.staff_id = staff_id
+    #     self.split_id = split_id
+    #     self.delivery_time = -1
+    #     self.delivery_status = 0
+    #     self.request_id = self.gen_id()
 
     def __init__(self, name: str, start_place: List[int], end_place: List[int], weight: int, date: str, timeframe: List[int], note:str = ".",staff_id:int = 0, split_id:bool = 1):
         self.name = name
@@ -74,7 +87,16 @@ class Request:
     
     def to_list(self):
         """Chuyển đổi đối tượng Request về dạng list, giống như hàm gen_request() trả về."""
-        return [self.name, self.request_id, self.start_place, self.end_place, self.weight, self.date, self.timeframe, self.note, self.staff_id, self.split_id]
+        return [self.name, 
+                self.start_place, 
+                self.end_place, 
+                self.weight, 
+                self.date, 
+                self.timeframe, 
+                self.note, 
+                self.staff_id, 
+                self.split_id, 
+                self.request_id,]
     
     def __repr__(self):
         return f"Request({self.to_list()})"
@@ -87,7 +109,16 @@ class Request:
         """
         # Create a new instance without calling __init__ automatically
         obj = cls.__new__(cls)
-        obj.name, obj.request_id, obj.start_place, obj.end_place, obj.weight, obj.date, obj.timeframe, obj.note, obj.staff_id, obj.split_id = req_list
+        (obj.name, 
+        obj.start_place, 
+        obj.end_place, 
+        obj.weight, 
+        obj.date, 
+        obj.timeframe, 
+        obj.note, 
+        obj.staff_id, 
+        obj.split_id,
+        obj.request_id,) = req_list
         return obj
 
 
@@ -128,3 +159,4 @@ if __name__ == "__main__":
         json.dump(filtered_requests, file, separators=(',', ': '))
     
     print("Đã lưu danh sách yêu cầu vào file JSON.")
+    # u = Request()

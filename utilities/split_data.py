@@ -74,8 +74,11 @@ def split_customers(data):
 
 from typing import List
 from objects.request import Request
-from ..config import MIN_CAPACITY
-
+try:
+    from ..config import MIN_CAPACITY
+except:
+    from config import MIN_CAPACITY
+    
 def split_requests(requests:List[Request]):
     #maping, inverse_mapping
     new_node = 1
