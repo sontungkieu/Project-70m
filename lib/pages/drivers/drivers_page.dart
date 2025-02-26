@@ -22,6 +22,16 @@ class _DriversPageState extends State<DriversPage> {
   final CollectionReference _driversCollection =
       FirebaseFirestore.instance.collection('Drivers');
 
+  List<Driver> _filterDrivers(List<Driver> drivers, String query) {
+  final searchQuery = query.toLowerCase().trim();
+  
+  return drivers.where((driver) {
+    final nameMatch = driver.name.toLowerCase().contains(searchQuery);
+    final licenseMatch = driver.vehicleId.toLowerCase().contains(searchQuery);
+    return nameMatch || licenseMatch;
+  }).toList();
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,52 +96,73 @@ class _DriversPageState extends State<DriversPage> {
           prefixIcon: const Icon(Icons.search, color: Colors.grey),
           contentPadding: const EdgeInsets.symmetric(vertical: 14),
         ),
+         onChanged: (value) => setState(() {}), 
       ),
     );
   }
 
   Widget _buildDriverList() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: _driversCollection.snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) return _buildErrorWidget();
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoading();
-        }
+  return StreamBuilder<QuerySnapshot>(
+    stream: _driversCollection.snapshots(),
+    builder: (context, snapshot) {
+      if (snapshot.hasError) return _buildErrorWidget();
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return _buildLoading();
+      }
 
-        final drivers = _parseDrivers(snapshot.data!.docs);
-        if (drivers.isEmpty) return _buildEmptyState();
+      final allDrivers = _parseDrivers(snapshot.data!.docs);
+      final filteredDrivers = _filterDrivers(allDrivers, _searchController.text);
 
-        return _buildRefreshableList(drivers);
-      },
-    );
-  }
+      if (filteredDrivers.isEmpty) return _buildEmptySearch();
+      
+      return _buildRefreshableList(filteredDrivers);
+    },
+  );
+}
 
   List<Driver> _parseDrivers(List<QueryDocumentSnapshot> docs) {
     return docs.map((doc) => Driver.fromFirestore(doc)).toList();
   }
 
   /// Đã thay thế AnimatedList bằng ListView.builder
-  Widget _buildRefreshableList(List<Driver> drivers) {
-    return SmartRefresher(
-      controller: _refreshController,
-      onRefresh: _refreshData,
-      header: CustomHeader(
-        builder: (context, status) =>
-            _buildRefreshIndicator(status ?? RefreshStatus.idle),
-      ),
-      child: ListView.builder(
-        itemCount: drivers.length,
-        itemBuilder: (context, index) {
-          return DriverCard(
-            driver: drivers[index],
-            onTap: () => _showDriverDetails(context, drivers[index]),
-            onDelete: () => _handleDelete(drivers[index]),
-          );
-        },
-      ),
-    );
-  }
+ Widget _buildRefreshableList(List<Driver> drivers) {
+  return SmartRefresher(
+    controller: _refreshController,
+    onRefresh: _refreshData,
+    header: CustomHeader(
+      builder: (context, status) => _buildRefreshIndicator(status ?? RefreshStatus.idle),
+    ),
+    child: ListView.builder(
+      itemCount: drivers.length,
+      itemBuilder: (context, index) {
+        return DriverCard(
+          driver: drivers[index],
+          onTap: () => _showDriverDetails(context, drivers[index]),
+          onDelete: () => _handleDelete(drivers[index]),
+        );
+      },
+    ),
+  );
+}
+
+  Widget _buildEmptySearch() {
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.search_off, size: 50, color: Colors.grey.shade400),
+        const SizedBox(height: 16),
+        Text(
+          "Không tìm thấy tài xế phù hợp",
+          style: TextStyle(
+            color: Colors.grey.shade600,
+            fontSize: 16,
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   /// Chỉ xóa trên Firestore, không còn removeItem như AnimatedList
   void _handleDelete(Driver driver) async {

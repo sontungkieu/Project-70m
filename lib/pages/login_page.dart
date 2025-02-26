@@ -221,7 +221,7 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       body: AnimatedContainer(
-        duration: const Duration(seconds: 4),
+        duration: const Duration(seconds: 1),
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
           gradient: _toggleGradient ? gradient1 : gradient2,

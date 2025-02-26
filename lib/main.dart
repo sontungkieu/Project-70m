@@ -7,6 +7,7 @@ import 'pages/dashboard_page.dart';
 import 'pages/schedule_page.dart';
 import 'pages/drivers/drivers_page.dart';
 import 'pages/payroll_page.dart';
+import 'pages/requests_page.dart'; // Sửa đường dẫn tùy vị trí file
 
 
 
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
         '/drivers': (context) => const DriversPage(),
         '/schedule': (context) => const SchedulePage(),
         '/payroll': (context) => const PayrollPage(),
+        '/requests': (context) => const RequestsPage(),
          
       },
     );
