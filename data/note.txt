@@ -28,3 +28,7 @@
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.01)#[1671, 1566, 1574, 2209, 2136]
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=1, mu_penalty=0.0001)#[1522, 1543, 1530, 2292, 2197]
     # multi_day_routing_gen_request(num_days=30, lambda_penalty=0.1, mu_penalty=1)#[1615, 1577, 1685, 2115, 2046]
+
+
+#tối ưu lại cách tra map, thay vì tra nxn, khi thêm điểm mới sẽ thêm hàng 1xn và cột nx1
+#khi log, log ngày hiện tại sẽ được lưu riêng, hết ngày sẽ append vào file của tháng
