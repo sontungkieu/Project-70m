@@ -129,7 +129,7 @@ def gen_requests_and_save(num_requests=10, file_sufices="", NUM_OF_NODES=55, sta
         os.makedirs(data_dir)
     
     # Save the requests to a JSON file using the json library
-    with open(os.path.join(data_dir,f'intermediate/requests{file_sufices}.json'), 'w') as file:
+    with open(os.path.join(data_dir,f'intermediate/{file_sufices}.json'), 'w') as file:
         json.dump(requests, file, separators=(',', ': '))
 
     return requests
