@@ -59,7 +59,7 @@ def read_output(filename):
         # exit()
     return days
 
-def read_and_save_json_output(filename=r"data\stdout_output_2025-02-15_18-06-43.txt"):
+def read_and_save_json_output(filename=r"data\stdout_output_2025-02-19_00-00-00.txt"):
     print("hukgakigasehukgkhufewaeb")
     output = read_output(filename=filename)
     if output is not None:
@@ -69,6 +69,6 @@ def read_and_save_json_output(filename=r"data\stdout_output_2025-02-15_18-06-43.
         test_folder = os.path.join('data', 'test')
         if not os.path.exists(test_folder):
             os.makedirs(test_folder)
-        with open(os.path.join(test_folder, "output.json"), "w", encoding='utf-8') as jsonfile:
+        with open(os.path.join(test_folder, "2025-02-19_00-00-00.json"), "w", encoding='utf-8') as jsonfile:
             json.dump(output, jsonfile, indent=4)
     return output
