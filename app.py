@@ -1,40 +1,40 @@
 from flask import Flask, request, jsonify
-import firebase_admin #SDK của Firebase
-from firebase_admin import credentials, firestore, messaging, auth #credentials: Xác thực Firebase.
-import subprocess #subprocess: Chạy script Python khác (dùng để chạy thuật toán tối ưu hóa).
-from time import perf_counter #đo thời gian thực thi của thuật toán
-import psutil #psutil: Đo lường tài nguyên hệ thống (RAM, CPU, Disk).
-from datetime import datetime, timezone 
+import firebase_admin
+from firebase_admin import credentials, firestore, messaging, auth
+import subprocess
+from time import perf_counter
+import psutil
+from datetime import datetime, timezone
 import json
 import os
 
 # ---------------------------------------------------------------------------
 # 1) KHỞI ĐỘNG FIREBASE ADMIN
 # ---------------------------------------------------------------------------
-cred = credentials.Certificate("firebase-key.json") #Tạo đối tượng chứng chỉ từ file JSON
-firebase_admin.initialize_app(cred) #Khởi tạo Firebase Admin SDK
-db = firestore.client() # Kết nối Firestore để thao tác với cơ sở dữ liệu
+cred = credentials.Certificate("firebase-key.json")
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
-app = Flask(__name__) #Khởi tạo Flask app
+app = Flask(__name__)
 
 # ---------------------------------------------------------------------------
 # 2) XÁC THỰC FIREBASE ID TOKEN
 # ---------------------------------------------------------------------------
 def verify_firebase_token(request):
     """Xác thực Firebase ID Token từ header Authorization"""
-    id_token = request.headers.get("Authorization") 
+    id_token = request.headers.get("Authorization")
     if not id_token:
         return None
     try:
-        decoded_token = auth.verify_id_token(id_token) #Xác thực token bằng auth.verify_id_token(id_token).
+        decoded_token = auth.verify_id_token(id_token)
         return decoded_token
-    except Exception as e:
+    except Exception:
         return None
 
 # ---------------------------------------------------------------------------
 # 3) LƯU THÔNG TIN NGƯỜI DÙNG
 # ---------------------------------------------------------------------------
-@app.route('/save-user-info', methods=['POST']) 
+@app.route('/save-user-info', methods=['POST'])
 def save_user_info():
     """Lưu thông tin bổ sung của user vào Firestore."""
     user = verify_firebase_token(request)
@@ -42,17 +42,7 @@ def save_user_info():
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.json
-    uid = user["uid"] #uid là một chuỗi ID duy nhất của mỗi tài khoản Firebase.
-    """
-    db.collection("Users").document(uid).set({...}, merge=True):
-    Truy cập collection "Users" trong Firestore.
-    Lấy document tương ứng với uid (người dùng hiện tại).
-    Cập nhật dữ liệu bằng phương thức .set().
-    merge=True: Nếu document đã tồn tại, chỉ cập nhật dữ liệu mới mà không ghi đè toàn bộ document.
-    data.get("additional_info", {}):
-    Lấy giá trị của additional_info từ request JSON.
-    Nếu additional_info không tồn tại, mặc định là {} (từ điển rỗng).
-    """
+    uid = user["uid"]
     try:
         db.collection("Users").document(uid).set({
             "additional_info": data.get("additional_info", {})
@@ -99,42 +89,50 @@ def send_notification():
     return jsonify({"message": f"Notification sent to {response.success_count} drivers"}), 200
 
 # ---------------------------------------------------------------------------
-# 5) CHẠY TỐI ƯU HÓA VÀ LƯU KẾT QUẢ THEO CẤU TRÚC MỚI
+# 5) LƯU KẾT QUẢ VÀO FIRESTORE (GIỮ NGUYÊN CẤU TRÚC OUTPUT)
 # ---------------------------------------------------------------------------
 def save_to_firestore(job_id, vehicles_data):
+    """
+    Lưu kết quả tối ưu hóa vào Firestore, 
+    GIỮ nguyên trường "distance_of_route" và "list_of_route".
+    """
     for vehicle_id, driver_data in vehicles_data.items():
-        route_doc_id = f"{vehicle_id}_{job_id}" #
+        route_doc_id = f"{vehicle_id}_{job_id}"
 
-        # Lưu tuyến đường vào collection "Routes"
+        # 🔸 Lưu vào collection "Routes"
         db.collection("Routes").document(route_doc_id).set({
             "vehicle_id": vehicle_id,
-            "route": driver_data.get("route", []),
-            "total_distance": driver_data.get("total_distance", 0),
-            "date": datetime.now(timezone.utc).isoformat()  # ✅ Sửa lỗi utcnow()
+            "distance_of_route": driver_data.get("distance_of_route", 0),   # GIỮ NGUYÊN TÊN
+            "list_of_route": driver_data.get("list_of_route", []),         # GIỮ NGUYÊN TÊN
+            "finished_at": datetime.now(timezone.utc).isoformat()          # Thêm thời gian
         })
 
-        # Cập nhật thông tin lộ trình của tài xế trong collection "Drivers"
+        # 🔸 Cập nhật "Drivers"
         driver_ref = db.collection("Drivers").document(vehicle_id)
         driver_ref.set({
-            "route_by_day": {job_id: driver_data.get("route", [])}
+            "route_by_day": {job_id: driver_data.get("list_of_route", [])}
         }, merge=True)
         driver_ref.update({
             "available": True,
-            "last_update": datetime.now(timezone.utc).isoformat()  # ✅ Sửa lỗi utcnow()
+            "last_update": datetime.now(timezone.utc).isoformat()
         })
 
-
+# ---------------------------------------------------------------------------
+# 6) CHẠY THUẬT TOÁN, THÊM "THỜI GIAN THỰC" VÀ CẬP NHẬT FILE OUTPUT
+# ---------------------------------------------------------------------------
 def run_optimization(job_id):
-    """Chạy thuật toán tối ưu hóa và lưu kết quả vào Firestore."""
+    """Chạy thuật toán, giữ nguyên output, thêm thời gian thực, rồi lưu Firestore."""
     tstart = perf_counter()
     if not os.path.exists('data'):
         os.makedirs('data')
 
     output_file = f"data/output_{job_id}.json"
-    with open(output_file, 'w') as out_f:
+    
+    # 🔸 Chạy file test_bo_doi_cong_nghiep.py, lưu stdout vào output_file
+    with open(output_file, 'w', encoding='utf-8') as out_f:
         process = subprocess.Popen(
             ['python', 'test_bo_doi_cong_nghiep.py'],
-            stdout=out_f #chuyển hướng đầu ra (output) của chương trình test_bo_doi_cong_nghiep.py vào file output_file
+            stdout=out_f
         )
         memory_usage = 0
         while process.poll() is None:
@@ -147,29 +145,51 @@ def run_optimization(job_id):
 
     run_time = perf_counter() - tstart
 
-    # Đọc kết quả từ file output
+    # 🔸 Đọc output gốc (GIỮ NGUYÊN) 
     with open(output_file, 'r', encoding='utf-8') as f:
         full_results = json.load(f)
 
+    # 🔸 Thêm "execution_time" & "finished_at" vào từng day_result
+    finished_at = datetime.now(timezone.utc).isoformat()
+    for day_result in full_results:
+        day_result["execution_time"] = f"{run_time:.2f} s"
+        day_result["finished_at"] = finished_at
+
+    # 🔸 Ghi lại file output (đã thêm thời gian) - vẫn giữ nguyên cấu trúc vehicles
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(full_results, f, ensure_ascii=False, indent=2)
+
+    # 🔸 Tạo dict vehicles_data để lưu Firestore
     vehicles_data = {}
     for day_result in full_results:
         vehicles = day_result.get("vehicles", {})
         for drv_id, drv_info in vehicles.items():
-            if drv_id in vehicles_data:
-                vehicles_data[drv_id]["route"].extend(drv_info.get("route", []))
-                vehicles_data[drv_id]["total_distance"] += drv_info.get("total_distance", 0) ############
+            if drv_id not in vehicles_data:
+                # GIỮ NGUYÊN: "distance_of_route" & "list_of_route"
+                vehicles_data[drv_id] = {
+                    "distance_of_route": drv_info.get("distance_of_route", 0),
+                    "list_of_route": drv_info.get("list_of_route", [])
+                }
             else:
-                vehicles_data[drv_id] = drv_info
+                # Cộng dồn distance_of_route & nối list_of_route
+                vehicles_data[drv_id]["distance_of_route"] += drv_info.get("distance_of_route", 0)
+                vehicles_data[drv_id]["list_of_route"].extend(drv_info.get("list_of_route", []))
+
+    # 🔸 Lưu vào Firestore
     save_to_firestore(job_id, vehicles_data)
     return run_time, memory_usage
 
+# ---------------------------------------------------------------------------
+# 7) API /optimize: GỌI THUẬT TOÁN, GỬI THÔNG BÁO
+# ---------------------------------------------------------------------------
 @app.route('/optimize', methods=['POST'])
 def optimize():
-    """Chạy tối ưu hóa và gửi thông báo khi hoàn thành."""
+    """Chạy tối ưu hóa, thêm thời gian thực, lưu Firestore, gửi thông báo."""
     data = request.json or {}
-    job_id = data.get("job_id", str(datetime.now(timezone.utc).timestamp()))  # ✅ Sửa lỗi utcnow()
+    job_id = data.get("job_id", str(datetime.now(timezone.utc).timestamp()))
     run_time, memory_usage = run_optimization(job_id)
 
+    # 🔸 Gửi thông báo FCM
     msg = messaging.Message(
         notification=messaging.Notification(
             title="Optimization Completed",
@@ -179,10 +199,15 @@ def optimize():
     )
     messaging.send(msg)
 
-    return jsonify({"job_id": job_id, "status": "completed"}), 200
+    return jsonify({
+        "job_id": job_id,
+        "status": "completed",
+        "execution_time": f"{run_time:.2f} s",
+        "memory_usage": memory_usage
+    }), 200
 
 # ---------------------------------------------------------------------------
-# 6) CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
+# 8) CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
 # ---------------------------------------------------------------------------
 @app.route('/update_delivery_status', methods=['POST'])
 def update_delivery_status():
@@ -201,7 +226,7 @@ def update_delivery_status():
     request_ref = db.collection("Requests").document(request_id)
     request_ref.update({
         "delivery_status": new_status,
-        "delivery_time": datetime.now(timezone.utc).isoformat()  # ✅ Sửa lỗi utcnow()
+        "delivery_time": datetime.now(timezone.utc).isoformat()
     })
 
     return jsonify({"message": "Delivery status updated"}), 200
