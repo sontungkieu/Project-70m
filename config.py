@@ -1,3 +1,4 @@
+IS_TESTING = True
 NUM_OF_VEHICLES = 41                   # số xe
 NUM_OF_NODES = 30               # số đỉnh của đồ thị
 NUM_OF_REQUEST_PER_DAY = 30        #
@@ -25,9 +26,10 @@ LAMBDA = 2
 # 0: PATH_CHEAPEST_ARC, 1: AUTOMATIC, 2: GLOBAL_CHEAPEST_ARC, 3: SAVINGS
 SEARCH_STRATEGY = 0   # chọn chiến lược tìm kiếm
 INFINITY = 999_999_999_999_999_999
-
+RUNTIME = None
 
 config = {
+    'IS_TESTING': IS_TESTING,
     'NUM_OF_VEHICLES': NUM_OF_VEHICLES,              # số xe
     'NUM_OF_NODES': NUM_OF_NODES,                    # số đỉnh của đồ thị
     'NUM_OF_REQUEST_PER_DAY': NUM_OF_REQUEST_PER_DAY,  # số yêu cầu mỗi ngày
@@ -49,13 +51,33 @@ config = {
     'GLOBAL_SPAN_COST_COEFFICIENT': GLOBAL_SPAN_COST_COEFFICIENT,  # hệ số chi phí toàn cầu
     'MU': MU,                                        # hệ số MU
     'LAMBDA': LAMBDA,                                # hệ số LAMBDA
-    'SEARCH_STRATEGY': SEARCH_STRATEGY               # chiến lược tìm kiếm
+    'SEARCH_STRATEGY': SEARCH_STRATEGY,
+    'RUNTIME':RUNTIME        # chiến lược tìm kiếm
 }
 
 from datetime import datetime, timedelta
 now = datetime.now()
 # tomorrow = now + timedelta(days=random.randint(0,10))
 TODAY = now.strftime("%d%m%Y")
+# print(now.strftime("%d%m%Y%H%M%S"))
+# print(TODAY,type(TODAY))
+
+if IS_TESTING:
+    TODAY = "19022025"
+# Convert string back to datetime
+TODAY_DT = datetime.strptime(TODAY, "%d%m%Y")
+
+# print(f"String format: {TODAY}, type: {type(TODAY)}")
+# print(f"Datetime format: {TODAY_DT}, type: {type(TODAY_DT)}")
+DATES = []
+for i in range(NUM_OF_DAY_REPETION):
+    next_date = TODAY_DT + timedelta(days=i)
+    # DATES.append(next_date)
+    DATES.append(next_date.strftime("%d.%m.%Y"))
+    # DATES.append(datetime.strptime(, "%d%m%Y"))
+
+# Add to config dictionary
+config['DATES'] = DATES
 
 """  #####  DEFAULT DATA  #####  """
 # Định nghĩa 7 node:

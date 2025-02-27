@@ -33,10 +33,9 @@ xls = pd.ExcelFile(file_path)
 # Lấy tên của sheet đầu tiên
 for sheet_name in xls.sheet_names[:-1]:
 # first_sheet_name = xls.sheet_names[0]
-
     # Đọc nội dung của sheet đầu tiên
     df = pd.read_excel(xls, sheet_name=sheet_name)
-
+    sheet_name = sheet_name[:-1]+("00"+sheet_name[-1])[-2:]
     # In hàng thứ 2 (chỉ số 1 trong DataFrame)
     if len(df) > 2:  # Kiểm tra xem có ít nhất 2 hàng không
         # print(f"Hàng thứ 2 trong sheet '{sheet_name}':")

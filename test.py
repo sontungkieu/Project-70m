@@ -8,6 +8,8 @@ import json
 from objects.request import Request
 
 config = []
+NUM_OF_DAY_REPETION = None
+DATES = None
 def run_test_bo_doi_cong_nghiep(re_run=False):
     if re_run == False:
         current_time = "2025-02-19_10-49-26"
@@ -96,6 +98,9 @@ def read_config(config_filename):
         config = ast.literal_eval(config_str)
         # print("Config đọc được:", config)
         print("Đọc file config thành công!{}".format(config))
+        global DATES, NUM_OF_DAY_REPETION
+        NUM_OF_DAY_REPETION = config['NUM_OF_DAY_REPETION']
+        DATES = config['DATES']
         return config
 
     except (SyntaxError, ValueError):
@@ -111,10 +116,9 @@ def read_output(output_filename):
 
 
 def read_requests(config):
-    NUM_OF_DAY_REPETION = config['NUM_OF_DAY_REPETION']
     requests_files = []
-    for i in range(NUM_OF_DAY_REPETION):
-        request_filename = f"data/intermediate/requests{i}.json"
+    for day in DATES:
+        request_filename = f"data/intermediate/{day}.json"
         try:
             with open(request_filename, 'r', encoding='utf-8') as file:
                 # Load JSON data from file
@@ -127,13 +131,15 @@ def read_requests(config):
         except Exception as e:
             print(f"Lỗi khi đọc file {request_filename}: {e}")
             exit()
+    print(requests_files)
     return requests_files
 
 def check(outputs, queries, config):
+    print(outputs)
     print("Kiểm tra kết quả...")
     day_id = 0
     for output, querys in zip(outputs[1:],queries): #zip by day
-        print(f"Day {day_id}")
+        print(f"Day {DATES[day_id]}")
         day_id += 1
         # init time frame and demand
         time_frame = [(0,24*config['TIME_SCALE']) for _ in range(config['NUM_OF_NODES'])]
@@ -141,6 +147,8 @@ def check(outputs, queries, config):
         delivered_weight = [0 for _ in range(config['NUM_OF_NODES'])]
         for query in querys[:config['NUM_OF_REQUEST_PER_DAY']]:
             # print(f"type(query): {type(query)}")
+            # print(query)
+            # exit(0)
             time_frame[query.end_place[0]] = (query.timeframe[0]*config['TIME_SCALE'], query.timeframe[1]*config['TIME_SCALE'])
             demand[query.end_place[0]] = int(query.weight*config['CAPACITY_SCALE'])
 
@@ -154,7 +162,7 @@ def check(outputs, queries, config):
             arrival_time = [route['arrival_time'] for route in list_of_route]
             capacity = [route['capacity'] for route in list_of_route]
             delivered = [route['delivered'] for route in list_of_route]
-
+            print(precomputed_distance,nodes,delivered)
             for i,_ in enumerate(nodes[:-1]):
                 if delivered[i] > 0:
                     if arrival_time[i] < time_frame[nodes[i]][0] or arrival_time[i] > time_frame[nodes[i]][1]:

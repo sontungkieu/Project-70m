@@ -101,6 +101,13 @@ def split_requests(requests:List[Request]):
         request.end_place[0] = new_node
         new_node += 1
         mapped_requests.append(request)
+        json_data = {
+            "mapped_requests":mapped_requests,
+            "mapping":mapping,
+            "inverse_mapping":inverse_mapping
+        }
+        import json
+        json.dump(json_data,"data/intermediate/mapping.json")
     return mapped_requests, mapping, inverse_mapping
 
 

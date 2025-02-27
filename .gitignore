@@ -3,6 +3,7 @@
 /data/log/*
 /data/output/*
 /data/test/*
+.vscode
 
 /__pycache__/
 /utilities/__pycache__/

@@ -24,7 +24,7 @@ search_strategy = [routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC,
 # Phần "daily": tạo dữ liệu và mô hình định tuyến cho một ngày giao hàng
 
 
-def load_data(distance_file='data/distance.json', request_file='data/requests.json', vehicle_file='data/vehicle.json'):
+def load_data(distance_file='data/distance.json', request_file='data/intermediate/{TODAY}.json', vehicle_file='data/vehicle.json'):
     import json
     global NUM_OF_VEHICLES, NUM_OF_NODES
 
@@ -64,7 +64,7 @@ def load_data(distance_file='data/distance.json', request_file='data/requests.js
     # exit()
     return distance_matrix, demands, vehicle_capacities, time_windows
 
-def load_data_real(distance_file='data/distance.json', request_file='data/requests.json', vehicle_file='data/vehicle.json'):
+def load_data_real(distance_file='data/distance.json', request_file='data/intermediate/{TODAY}.json', vehicle_file='data/vehicle.json'):
     global NUM_OF_VEHICLES, NUM_OF_NODES
 
     # Đọc danh sách vehicle từ JSON
@@ -368,14 +368,14 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
     # Khởi tạo historical_km cho 4 xe (trong thực tế có thể là 47 xe)
     historical_km = None
     list_of_seed = []
-    for day in range(num_days):
-        print(f"\n--- Day {day+1} ---")
+    for day in DATES:
+        print(f"\n--- Day {day} ---")
         seed = random.randint(10, 1000)
         list_of_seed.append(seed)
         generator.gen_requests_and_save(NUM_OF_REQUEST_PER_DAY, file_sufices=str(
             day), NUM_OF_NODES=NUM_OF_NODES, seed=seed)
         distance_matrix, demands, vehicle_capacities, time_windows = load_data(
-            request_file=f"data/intermediate/requests{day}.json")
+            request_file=f"data/intermediate/{day}.json")
         if not historical_km:
             historical_km = [0 for _ in range(NUM_OF_VEHICLES)]
         # Trong thực tế, dữ liệu đơn hàng có thể khác mỗi ngày.
@@ -407,7 +407,7 @@ def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty)
     historical_km = None
     for day in range(num_days):
 
-        load_data_real(request_file=f"data/intermediate/requests{day}.json")
+        load_data_real(request_file=f"data/intermediate/{day}.json")
         # Trong thực tế, dữ liệu đơn hàng có thể khác mỗi ngày.
         data = create_data_model()
         if not historical_km:
@@ -426,23 +426,26 @@ def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty)
     return historical_km
 
 if __name__ == '__main__':
-    # test = False
-    # multi_day_routing_real_ready_to_deploy(
-    #     num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)
-    # test = true
+    if IS_TESTING:
+        import utilities.generator as generator
+        # gen map
+        generator.gen_map(NUM_OF_NODES=NUM_OF_NODES, seed=42)
+        # gen vehicle
+        generator.gen_list_vehicle(NUM_OF_VEHICLES=NUM_OF_VEHICLES, seed=42)
+
+        # run main algorithm
+        historical_km = multi_day_routing_gen_request(
+            num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)  # [1638, 1577, 1567, 2201, 2136]
+    else:
+        # run main algorithm
+        multi_day_routing_real_ready_to_deploy(
+        num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)
     "#####################################################################"
-    import utilities.generator as generator
-    # gen map
-    generator.gen_map(NUM_OF_NODES=NUM_OF_NODES, seed=42)
-    # gen vehicle
-    generator.gen_list_vehicle(NUM_OF_VEHICLES=NUM_OF_VEHICLES, seed=42)
-
-
-    historical_km = multi_day_routing_gen_request(
-        num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)  # [1638, 1577, 1567, 2201, 2136]
     print(
         f"max km: {max(historical_km)}, mim km: {min(historical_km)}, sum km: {sum(historical_km)}")
     import sys
     # ffile = open("trollC=.txt","a")
     # print(config, file=ffile)
+    from datetime import datetime, timedelta
+    config['RUNTIME'] = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
     print(config, file=sys.stderr)
