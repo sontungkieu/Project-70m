@@ -1,6 +1,8 @@
 import json
 import os
+
 from objects.request import Request
+
 
 def load_requests(file_path):
     # Construct the path to the JSON file
@@ -14,6 +16,7 @@ def load_requests(file_path):
     except Exception as e:
         print(f"Error reading {file_path}: {e}")
         return []
+
 
 if __name__ == "__main__":
     requests_list = load_requests()
