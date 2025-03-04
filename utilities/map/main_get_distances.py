@@ -1,19 +1,25 @@
-import requests
 import csv
 import time
+
+import requests
 import urllib3
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 # 🔹 Replace with your actual Goong.io API key
 GOONG_DEBUG = False
-# GOONG_API_KEY = "REDACTED" # chí bằng 
-GOONG_API_KEY = "REDACTED" # Long 
+# GOONG_API_KEY = "REDACTED" # chí bằng
+GOONG_API_KEY = "REDACTED"  # Long
 # GOONG_API_KEY = "REDACTED" # Tung
+
 
 def is_plus_code(address):
     """Detects if an address is a Plus Code (contains '+', but is not a full address)."""
-    return "+" in address and "," not in address  # No comma means it's likely a Plus Code
+    return (
+        "+" in address and "," not in address
+    )  # No comma means it's likely a Plus Code
+
 
 def get_coordinates(address, retry=3):
     """
@@ -29,11 +35,15 @@ def get_coordinates(address, retry=3):
             location = response["results"][0]["geometry"]["location"]
             return float(location["lat"]), float(location["lng"])
         if GOONG_DEBUG:
-            print(f" Geocoding failed for '{address}', retrying ({attempt+1}/{retry})...")
+            print(
+                f" Geocoding failed for '{address}', retrying ({attempt + 1}/{retry})..."
+            )
         time.sleep(2)  # Wait before retrying
     if GOONG_DEBUG:
         print(f"Could not geocode address: {address}")
     return None  # Return None if geocoding fails after retries
+
+
 def batch_calculate_distance(origins, destinations):
     # print(f"origins: {origins}")
     # print(f"destinations: {destinations}")
@@ -45,13 +55,13 @@ def batch_calculate_distance(origins, destinations):
     origins_str = "|".join([f"{lat},{lng}" for lat, lng in origins])
     destinations_str = "|".join([f"{lat},{lng}" for lat, lng in destinations])
 
-    url = f"https://rsapi.goong.io/DistanceMatrix"
+    url = "https://rsapi.goong.io/DistanceMatrix"
 
     params = {
         "origins": origins_str,
         "destinations": destinations_str,
         "vehicle": "car",
-        "api_key": GOONG_API_KEY
+        "api_key": GOONG_API_KEY,
     }
 
     try:
@@ -70,7 +80,7 @@ def batch_calculate_distance(origins, destinations):
     if "rows" not in response or not response["rows"]:
         if GOONG_DEBUG:
             # print(f"❌ API Error: 'rows' key is missing. Check API key or request format.")
-            print(f"API Error: 'rows' key is missing. Check API key or request format.")
+            print("API Error: 'rows' key is missing. Check API key or request format.")
         return None
 
     distances = []
@@ -95,6 +105,7 @@ def batch_calculate_distance(origins, destinations):
         distances.append(row_distances)
 
     return distances
+
 
 def process_destinations(input_csv, output_csv):
     """
@@ -168,25 +179,30 @@ def process_destinations(input_csv, output_csv):
             # print(f"❌ Error writing to file: {e}")
             print(f"Error writing to file: {e}")
 
-def update_map_helper(origin_ids,destination_ids):
+
+def update_map_helper(origin_ids, destination_ids):
     matrix = []
-    with open(r"data\distance_matrix.csv", mode="r", encoding="utf-8", errors="replace") as file:
+    with open(
+        r"data\distance_matrix.csv",
+        mode="r",
+        encoding="utf-8",
+        errors="replace",
+    ) as file:
         reader = csv.reader(file)
         for row in reader:
             matrix.append(row[1:])
     matrix = matrix[1:]
     print(matrix)
     new_matrix = []
-    for i,pi in enumerate(origin_ids):
+    for i, pi in enumerate(origin_ids):
         c_matrix = []
-        for j,pj in enumerate(destination_ids):
+        for j, pj in enumerate(destination_ids):
             c_matrix.append(matrix[pi][pj])
         new_matrix.append(c_matrix)
     return new_matrix
-    
 
 
 # update_map_helper(None,None)
-    
+
 
 # process_destinations(r"data\destinations.csv", r"data\distance_matrix.csv")
