@@ -5,10 +5,12 @@ import csv
 #     print("Imported from map.main_get_distances")
 # except:
 from utilities.map.main_get_distances import update_map_helper
+
 try:
     from ..config import INFINITY
-except:
+except ImportError:
     from config import INFINITY
+
 
 def update_map(requests, mapping, inverse_mapping):
     """
@@ -20,7 +22,7 @@ def update_map(requests, mapping, inverse_mapping):
         nodes.add(request.start_place[0])
         nodes.add(request.end_place[0])
     nodes = sorted(list(nodes))
-    
+
     # Get the list of unique nodes in the original data
     orig_nodes = set()
     for node in nodes:
@@ -29,11 +31,11 @@ def update_map(requests, mapping, inverse_mapping):
     print(f"update_map:orig_nodes: {orig_nodes}")
     # Get the distance matrix for the original nodes
     orig_distance_matrix = update_map_helper(orig_nodes, orig_nodes)
-    
+
     # Initialize the new distance matrix
     n_new = len(nodes)
     new_distance_matrix = [[0 for _ in range(n_new)] for _ in range(n_new)]
-    
+
     # Update the new distance matrix
     for i in range(n_new):
         for j in range(n_new):
@@ -45,5 +47,5 @@ def update_map(requests, mapping, inverse_mapping):
                 new_distance_matrix[i][j] = 0
             else:
                 new_distance_matrix[i][j] = INFINITY
-    
+
     return new_distance_matrix

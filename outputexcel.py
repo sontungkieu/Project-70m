@@ -1,13 +1,15 @@
 import json
+
 import pandas as pd
+
 
 def json_routes_to_excel(input_json_path, output_excel_path):
     """
     Chuyển đổi dữ liệu từ file JSON chứa thông tin vehicles sang file Excel.
-    
+
     File JSON có cấu trúc dạng danh sách, mỗi phần tử chứa key "vehicles"
     là dictionary mapping vehicle_id -> { "distance_of_route": ..., "list_of_route": [...] }.
-    
+
     File Excel sẽ có các cột:
       - Day: Số thứ tự nhóm (mỗi phần tử JSON được xem là 1 ngày hoặc 1 nhóm).
       - Vehicle_ID: ID của xe.
@@ -22,7 +24,7 @@ def json_routes_to_excel(input_json_path, output_excel_path):
         # Đọc dữ liệu từ file JSON
         with open(input_json_path, "r", encoding="utf-8") as f:
             data = json.load(f)
-        
+
         rows = []
         # Mỗi phần tử trong danh sách JSON được xem là 1 "day" hoặc 1 nhóm.
         for day_index, group in enumerate(data, start=1):
@@ -41,18 +43,19 @@ def json_routes_to_excel(input_json_path, output_excel_path):
                         "Node": route.get("node"),
                         "Arrival_time": route.get("arrival_time"),
                         "Capacity": route.get("capacity"),
-                        "Delivered": route.get("delivered")
+                        "Delivered": route.get("delivered"),
                     }
                     rows.append(row)
-        
+
         # Tạo DataFrame từ các dòng dữ liệu
         df = pd.DataFrame(rows)
-        
+
         # Ghi DataFrame ra file Excel
         df.to_excel(output_excel_path, index=False)
         print(f"✅ File Excel đã được lưu tại: {output_excel_path}")
     except Exception as e:
         print(f"❌ Lỗi khi chuyển đổi từ JSON sang Excel: {e}")
+
 
 if __name__ == "__main__":
     # Đường dẫn file JSON đầu vào (thay đổi nếu cần)
