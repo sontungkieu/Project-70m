@@ -1,3 +1,13 @@
+from typing import List
+
+from objects.request import Request
+
+try:
+    from ..config import MIN_CAPACITY
+except ImportError:
+    from config import MIN_CAPACITY
+
+
 def split_customers(data):
     """
     Tiền xử lý: Nếu demand của một khách hàng (node > 0) vượt quá tải trọng nhỏ nhất,
@@ -9,9 +19,9 @@ def split_customers(data):
       - 'time_windows'
     và trả về data cùng với mapping: danh sách mapping từ chỉ số của new node sang chỉ số khách hàng gốc.
     """
-    NUM_OF_NODES = len(data['demands'])
+    NUM_OF_NODES = len(data["demands"])
     #  2. Áp dụng Floyd-Warshall để đảm bảo không vi phạm bất đẳng thức tam giác
-    matrix = data['distance_matrix']
+    matrix = data["distance_matrix"]
     for k in range(NUM_OF_NODES):
         for i in range(NUM_OF_NODES):
             for j in range(NUM_OF_NODES):
@@ -19,20 +29,20 @@ def split_customers(data):
                 if matrix[i][k] + matrix[k][j] < matrix[i][j]:
                     matrix[i][j] = matrix[i][k] + matrix[k][j]
     # Tạo danh sách mới để lưu các demand sau khi tách và mapping của các node.
-    data['distance_matrix'] = matrix
+    data["distance_matrix"] = matrix
     new_demands = []
     node_mapping = []  # mapping: new node index -> original customer index
 
     # Đầu tiên, thêm depot (node 0)
-    new_demands.append(data['demands'][0])
+    new_demands.append(data["demands"][0])
     node_mapping.append(0)
 
     # Xác định tải trọng nhỏ nhất
-    min_capacity = min(data['vehicle_capacities'])
+    min_capacity = min(data["vehicle_capacities"])
 
     # Duyệt qua các khách hàng (node 1..n)
-    for i in range(1, len(data['demands'])):
-        demand = data['demands'][i]
+    for i in range(1, len(data["demands"])):
+        demand = data["demands"][i]
         if demand <= min_capacity:
             new_demands.append(demand)
             node_mapping.append(i)
@@ -47,7 +57,7 @@ def split_customers(data):
             node_mapping.append(i)
 
     # Cập nhật 'demands'
-    data['demands'] = new_demands
+    data["demands"] = new_demands
 
     # Xây dựng distance_matrix mới:
     n_new = len(new_demands)
@@ -59,35 +69,36 @@ def split_customers(data):
             if orig_i == orig_j and i != j:
                 new_distance_matrix[i][j] = 0
             else:
-                new_distance_matrix[i][j] = data['distance_matrix'][orig_i][orig_j]
-    data['distance_matrix'] = new_distance_matrix
+                new_distance_matrix[i][j] = data["distance_matrix"][orig_i][orig_j]
+    data["distance_matrix"] = new_distance_matrix
 
     # Xây dựng time_windows mới theo mapping (đối với depot và khách hàng gốc)
     new_time_windows = []
     for i in range(n_new):
         orig = node_mapping[i]
-        new_time_windows.append(data['time_windows'][orig])
-    data['time_windows'] = new_time_windows
+        new_time_windows.append(data["time_windows"][orig])
+    data["time_windows"] = new_time_windows
 
     # Lưu ý: Các thông số khác như 'vehicle_capacities' và 'num_vehicles' không thay đổi.
     return data, node_mapping
 
-from typing import List
-from objects.request import Request
-try:
-    from ..config import MIN_CAPACITY
-except:
-    from config import MIN_CAPACITY
-    
-def split_requests(requests:List[Request]):
-    #maping, inverse_mapping
+
+def split_requests(requests: List[Request]):
+    # maping, inverse_mapping
     new_node = 1
-    mapping = {0:[0]}
-    inverse_mapping = {0:0}
+    mapping = {0: [0]}
+    inverse_mapping = {0: 0}
     new_requests = []
     for request in requests:
         while request.weight > MIN_CAPACITY:
-            new_request = Request(request.start_place,request.end_place, MIN_CAPACITY, request.date, request.timeframe, split_id=1)
+            new_request = Request(
+                request.start_place,
+                request.end_place,
+                MIN_CAPACITY,
+                request.date,
+                request.timeframe,
+                split_id=1,
+            )
             new_requests.append(new_request)
             request.weight -= MIN_CAPACITY
         new_requests.append(request)
@@ -102,12 +113,11 @@ def split_requests(requests:List[Request]):
         new_node += 1
         mapped_requests.append(request)
         json_data = {
-            "mapped_requests":mapped_requests,
-            "mapping":mapping,
-            "inverse_mapping":inverse_mapping
+            "mapped_requests": mapped_requests,
+            "mapping": mapping,
+            "inverse_mapping": inverse_mapping,
         }
         import json
-        json.dump(json_data,"data/intermediate/mapping.json")
+
+        json.dump(json_data, "data/intermediate/mapping.json")
     return mapped_requests, mapping, inverse_mapping
-
-

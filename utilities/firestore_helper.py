@@ -1,4 +1,5 @@
 from typing import List
+
 import firebase_admin
 from firebase_admin import credentials, firestore
 
@@ -9,11 +10,23 @@ cred = credentials.Certificate("firebase-key.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
+
 # ---------------------------------------------------------------------------
 # CLASS REQUEST - ĐƠN HÀNG
 # ---------------------------------------------------------------------------
 class Request:
-    def __init__(self, request_id: str, start_place: List[int], end_place: List[int], weight: int, date: str, timeframe: List[int], split_id: bool = False, delivery_time: int = -1, delivery_status: int = 0):
+    def __init__(
+        self,
+        request_id: str,
+        start_place: List[int],
+        end_place: List[int],
+        weight: int,
+        date: str,
+        timeframe: List[int],
+        split_id: bool = False,
+        delivery_time: int = -1,
+        delivery_status: int = 0,
+    ):
         self.request_id = request_id
         self.start_place = start_place
         self.end_place = end_place
@@ -34,18 +47,31 @@ class Request:
             "timeframe": self.timeframe,
             "split_id": self.split_id,
             "delivery_time": self.delivery_time,
-            "delivery_status": self.delivery_status
+            "delivery_status": self.delivery_status,
         }
+
 
 # ---------------------------------------------------------------------------
 # CLASS DRIVER - TÀI XẾ
 # ---------------------------------------------------------------------------
 class Driver:
-    def __init__(self, name="Nguyen Van A", cccd="001000000000", vehicle_id="30A-12345", vehicle_load=97, salary=0, route_by_day=None, phone_number="098789JQKA", fcm_token=""):
+    def __init__(
+        self,
+        name="Nguyen Van A",
+        cccd="001000000000",
+        vehicle_id="30A-12345",
+        vehicle_load=97,
+        salary=0,
+        route_by_day=None,
+        phone_number="098789JQKA",
+        fcm_token="",
+    ):
         self.name = name
         self.cccd = cccd
         self.vehicle_id = vehicle_id
-        self.route_by_day = route_by_day if route_by_day else {}  # Dictionary lưu danh sách tuyến đường theo ngày
+        self.route_by_day = (
+            route_by_day if route_by_day else {}
+        )  # Dictionary lưu danh sách tuyến đường theo ngày
         self.phone_number = phone_number
         self.vehicle_load = vehicle_load
         self.available = True
@@ -60,8 +86,9 @@ class Driver:
             "phone_number": self.phone_number,
             "vehicle_load": self.vehicle_load,
             "available": self.available,
-            "fcm_token": self.fcm_token
+            "fcm_token": self.fcm_token,
         }
+
 
 # ---------------------------------------------------------------------------
 # CLASS ROUTE - LỘ TRÌNH
@@ -78,8 +105,9 @@ class Route:
             "route": [req.to_dict() for req in self.route],  # Lưu danh sách request
             "total_distance": self.total_distance,
             "driver_id": self.driver_id,
-            "vehicle_id": self.vehicle_id
+            "vehicle_id": self.vehicle_id,
         }
+
 
 # ---------------------------------------------------------------------------
 # LƯU DỮ LIỆU VÀO FIRESTORE
@@ -88,13 +116,16 @@ def save_request_to_firestore(request: Request):
     db.collection("Requests").document(request.request_id).set(request.to_dict())
     print(f"✅ Request {request.request_id} đã được lưu vào Firestore.")
 
+
 def save_driver_to_firestore(driver: Driver):
     db.collection("Drivers").document(driver.cccd).set(driver.to_dict())
     print(f"✅ Driver {driver.name} đã được lưu vào Firestore.")
 
+
 def save_route_to_firestore(route: Route, route_id: str):
     db.collection("Routes").document(route_id).set(route.to_dict())
     print(f"✅ Route {route_id} đã được lưu vào Firestore.")
+
 
 # ---------------------------------------------------------------------------
 # LẤY DỮ LIỆU TỪ FIRESTORE
@@ -108,6 +139,7 @@ def get_request_from_firestore(request_id: str) -> Request:
         print(f"⚠ Request {request_id} không tồn tại.")
         return None
 
+
 def get_driver_from_firestore(driver_id: str) -> Driver:
     doc = db.collection("Drivers").document(driver_id).get()
     if doc.exists:
@@ -116,6 +148,7 @@ def get_driver_from_firestore(driver_id: str) -> Driver:
     else:
         print(f"⚠ Driver {driver_id} không tồn tại.")
         return None
+
 
 def get_route_from_firestore(route_id: str) -> Route:
     doc = db.collection("Routes").document(route_id).get()
@@ -129,6 +162,7 @@ def get_route_from_firestore(route_id: str) -> Route:
     else:
         print(f"⚠ Route {route_id} không tồn tại.")
         return None
+
 
 # ---------------------------------------------------------------------------
 # KIỂM TRA HOẠT ĐỘNG (BỎ COMMENT ĐỂ CHẠY)
@@ -170,6 +204,8 @@ print(retrieved_route.__dict__) if retrieved_route else print("Không có route"
    ├── 📂 Routes
    │      ├── 📄 route_001 { driver_id: "002000000001", route: [ ... ] }
 """
+
+
 ### Lưu đơn hàng theo batch
 def save_requests_batch(requests_list):
     """Lưu danh sách đơn hàng vào Firestore bằng batch để tối ưu tốc độ"""
@@ -183,11 +219,33 @@ def save_requests_batch(requests_list):
     batch.commit()  # Gửi toàn bộ dữ liệu lên Firestore trong một lần
     print(f"✅ Đã lưu {len(requests_list)} đơn hàng vào Firestore.")
 
+
 # Danh sách request giả lập
 requests_data = [
-    {"request_id": "req_001", "start_place": [10, 20], "end_place": [30, 40], "weight": 50, "date": "2025-02-20", "timeframe": [8, 18]},
-    {"request_id": "req_002", "start_place": [15, 25], "end_place": [35, 45], "weight": 30, "date": "2025-02-21", "timeframe": [9, 17]},
-    {"request_id": "req_003", "start_place": [12, 22], "end_place": [32, 42], "weight": 40, "date": "2025-02-22", "timeframe": [10, 16]},
+    {
+        "request_id": "req_001",
+        "start_place": [10, 20],
+        "end_place": [30, 40],
+        "weight": 50,
+        "date": "2025-02-20",
+        "timeframe": [8, 18],
+    },
+    {
+        "request_id": "req_002",
+        "start_place": [15, 25],
+        "end_place": [35, 45],
+        "weight": 30,
+        "date": "2025-02-21",
+        "timeframe": [9, 17],
+    },
+    {
+        "request_id": "req_003",
+        "start_place": [12, 22],
+        "end_place": [32, 42],
+        "weight": 40,
+        "date": "2025-02-22",
+        "timeframe": [10, 16],
+    },
 ]
 
 # Lưu danh sách đơn hàng

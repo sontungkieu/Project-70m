@@ -1,7 +1,9 @@
-import pandas as pd
 import json
 import os
 import random
+
+import pandas as pd
+
 
 def generate_time_window():
     """Sinh khoảng thời gian giao hàng ngẫu nhiên từ 6h đến 19h, kéo dài từ 1-3 giờ."""
@@ -9,9 +11,11 @@ def generate_time_window():
     end_hour = start_hour + random.randint(1, 3)
     return [f"{start_hour}:00", f"{end_hour}:00"]
 
+
 def generate_delay_days():
     """Sinh số ngày delay ngẫu nhiên trong khoảng từ 0 đến 3 ngày."""
     return random.randint(0, 3)
+
 
 def load_location_id_map(location_id_file):
     """
@@ -21,11 +25,12 @@ def load_location_id_map(location_id_file):
     :return: Dictionary ánh xạ địa điểm với ID.
     """
     location_df = pd.read_csv(location_id_file)
-    
+
     # Chuyển dữ liệu thành dictionary: {address: id}
     location_id_map = dict(zip(location_df["Address"], location_df["ID"]))
-    
+
     return location_id_map
+
 
 def excel_to_json(input_excel_path, sheet_name, location_id_file, output_json_path):
     """
@@ -46,16 +51,26 @@ def excel_to_json(input_excel_path, sheet_name, location_id_file, output_json_pa
         df = pd.read_excel(input_excel_path, sheet_name=sheet_name)
 
         # Đổi tên các cột để dễ thao tác
-        df = df.rename(columns={
-            "TÊN KHÁCH HÀNG": "customer_name",
-            "ĐỊA CHỈ GIAO HÀNG": "delivery_address",
-            "Khối lượng hàng (m3)": "cargo_volume",
-            "Nơi bốc": "pickup_location",
-            "Thời gian giao hàng": "delivery_time"
-        })
+        df = df.rename(
+            columns={
+                "TÊN KHÁCH HÀNG": "customer_name",
+                "ĐỊA CHỈ GIAO HÀNG": "delivery_address",
+                "Khối lượng hàng (m3)": "cargo_volume",
+                "Nơi bốc": "pickup_location",
+                "Thời gian giao hàng": "delivery_time",
+            }
+        )
 
         # Chỉ giữ lại các cột cần thiết
-        df = df[["customer_name", "delivery_address", "cargo_volume", "pickup_location", "delivery_time"]]
+        df = df[
+            [
+                "customer_name",
+                "delivery_address",
+                "cargo_volume",
+                "pickup_location",
+                "delivery_time",
+            ]
+        ]
 
         # Tải ID của các địa điểm (cả start_point và delivery_point)
         location_id_map = load_location_id_map(location_id_file)
@@ -75,7 +90,7 @@ def excel_to_json(input_excel_path, sheet_name, location_id_file, output_json_pa
                 "delivery_point": delivery_id,
                 "weight": row["cargo_volume"],
                 "time_window": generate_time_window(),
-                "delay_days": generate_delay_days()
+                "delay_days": generate_delay_days(),
             }
             processed_data.append(processed_entry)
 
@@ -87,6 +102,7 @@ def excel_to_json(input_excel_path, sheet_name, location_id_file, output_json_pa
 
     except Exception as e:
         print(f"❌ Lỗi khi chuyển đổi file Excel sang JSON: {e}")
+
 
 # ==========================
 # 🚀 Chạy chương trình
