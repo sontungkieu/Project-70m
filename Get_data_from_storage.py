@@ -29,7 +29,7 @@ def download_file_from_storage(storage_path: str, local_path: str):
 
 if __name__ == "__main__":
     # 1️⃣ Đường dẫn file trên Storage (Kiểm tra chính xác tên file)
-    storage_path = "Lệnh Điều Xe X5.xlsx"  # Đảm bảo đúng với Firebase Storage UI
+    storage_path = "Lenh_Dieu_Xe.xlsx"  # Đảm bảo đúng với Firebase Storage UI
 
     # 2️⃣ Đường dẫn lưu file cục bộ
     local_path = r"data\input\Lenh_Dieu_Xe.xlsx"  # Thay đổi nếu cần
