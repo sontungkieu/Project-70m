@@ -55,7 +55,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '539439381396',
     projectId: 'logistic-project-30dcd',
     authDomain: 'logistic-project-30dcd.firebaseapp.com',
-    storageBucket: 'logistic-project-30dcd.firebasestorage.app',
+    storageBucket: 'logistic-project-30dcd.appspot.com', // Đã sửa ở đây
     measurementId: 'G-VDG22PTSF3',
   );
 
@@ -65,7 +65,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '539439381396',
     projectId: 'logistic-project-30dcd',
     authDomain: 'logistic-project-30dcd.firebaseapp.com',
-    storageBucket: 'logistic-project-30dcd.firebasestorage.app',
+    storageBucket: 'logistic-project-30dcd.appspot.com', // Đã sửa ở đây
     measurementId: 'G-2XKEK17XZF',
   );
 }

@@ -1,0 +1,590 @@
+
+--- Day 19.02.2025 ---
+requests_data: [Request(['.', [0], [28], 7.8, '08032025', [10, 11], '.', 0, 1, '08032025-10-11-000-028-078-00-01']), Request(['.', [0], [24], 3.4, '04032025', [9, 23], '.', 0, 1, '04032025-09-23-000-024-034-00-01']), Request(['.', [0], [20], 5.8, '05032025', [7, 12], '.', 0, 1, '05032025-07-12-000-020-058-00-01']), Request(['.', [0], [15], 2.9, '03032025', [8, 23], '.', 0, 1, '03032025-08-23-000-015-029-00-01']), Request(['.', [0], [22], 8.1, '03032025', [11, 17], '.', 0, 1, '03032025-11-17-000-022-081-00-01']), Request(['.', [0], [16], 1.1, '07032025', [1, 8], '.', 0, 1, '07032025-01-08-000-016-011-00-01']), Request(['.', [0], [14], 8.7, '02032025', [3, 15], '.', 0, 1, '02032025-03-15-000-014-087-00-01']), Request(['.', [0], [26], 5.3, '03032025', [18, 21], '.', 0, 1, '03032025-18-21-000-026-053-00-01']), Request(['.', [0], [7], 4.6, '07032025', [0, 5], '.', 0, 1, '07032025-00-05-000-007-046-00-01']), Request(['.', [0], [5], 0.8, '28022025', [7, 17], '.', 0, 1, '28022025-07-17-000-005-008-00-01']), Request(['.', [0], [2], 2.0, '05032025', [19, 22], '.', 0, 1, '05032025-19-22-000-002-020-00-01']), Request(['.', [0], [9], 3.8, '07032025', [7, 22], '.', 0, 1, '07032025-07-22-000-009-038-00-01']), Request(['.', [0], [29], 2.8, '07032025', [7, 16], '.', 0, 1, '07032025-07-16-000-029-028-00-01']), Request(['.', [0], [1], 1.3, '07032025', [6, 19], '.', 0, 1, '07032025-06-19-000-001-013-00-01']), Request(['.', [0], [8], 0.5, '04032025', [14, 23], '.', 0, 1, '04032025-14-23-000-008-005-00-01']), Request(['.', [0], [18], 3.6, '05032025', [5, 20], '.', 0, 1, '05032025-05-20-000-018-036-00-01']), Request(['.', [0], [6], 6.6, '03032025', [7, 8], '.', 0, 1, '03032025-07-08-000-006-066-00-01']), Request(['.', [0], [23], 9.2, '06032025', [6, 7], '.', 0, 1, '06032025-06-07-000-023-092-00-01']), Request(['.', [0], [3], 4.7, '09032025', [2, 5], '.', 0, 1, '09032025-02-05-000-003-047-00-01']), Request(['.', [0], [10], 4.3, '01032025', [4, 9], '.', 0, 1, '01032025-04-09-000-010-043-00-01']), Request(['.', [0], [11], 9.7, '01032025', [5, 9], '.', 0, 1, '01032025-05-09-000-011-097-00-01']), Request(['.', [0], [13], 9.1, '03032025', [3, 7], '.', 0, 1, '03032025-03-07-000-013-091-00-01']), Request(['.', [0], [4], 6.5, '27022025', [13, 17], '.', 0, 1, '27022025-13-17-000-004-065-00-01']), Request(['.', [0], [17], 0.3, '27022025', [5, 20], '.', 0, 1, '27022025-05-20-000-017-003-00-01'])]
+request: Request(['.', [0], [28], 7.8, '08032025', [10, 11], '.', 0, 1, '08032025-10-11-000-028-078-00-01'])
+request: Request(['.', [0], [24], 3.4, '04032025', [9, 23], '.', 0, 1, '04032025-09-23-000-024-034-00-01'])
+request: Request(['.', [0], [20], 5.8, '05032025', [7, 12], '.', 0, 1, '05032025-07-12-000-020-058-00-01'])
+request: Request(['.', [0], [15], 2.9, '03032025', [8, 23], '.', 0, 1, '03032025-08-23-000-015-029-00-01'])
+request: Request(['.', [0], [22], 8.1, '03032025', [11, 17], '.', 0, 1, '03032025-11-17-000-022-081-00-01'])
+request: Request(['.', [0], [16], 1.1, '07032025', [1, 8], '.', 0, 1, '07032025-01-08-000-016-011-00-01'])
+request: Request(['.', [0], [14], 8.7, '02032025', [3, 15], '.', 0, 1, '02032025-03-15-000-014-087-00-01'])
+request: Request(['.', [0], [26], 5.3, '03032025', [18, 21], '.', 0, 1, '03032025-18-21-000-026-053-00-01'])
+request: Request(['.', [0], [7], 4.6, '07032025', [0, 5], '.', 0, 1, '07032025-00-05-000-007-046-00-01'])
+request: Request(['.', [0], [5], 0.8, '28022025', [7, 17], '.', 0, 1, '28022025-07-17-000-005-008-00-01'])
+request: Request(['.', [0], [2], 2.0, '05032025', [19, 22], '.', 0, 1, '05032025-19-22-000-002-020-00-01'])
+request: Request(['.', [0], [9], 3.8, '07032025', [7, 22], '.', 0, 1, '07032025-07-22-000-009-038-00-01'])
+request: Request(['.', [0], [29], 2.8, '07032025', [7, 16], '.', 0, 1, '07032025-07-16-000-029-028-00-01'])
+request: Request(['.', [0], [1], 1.3, '07032025', [6, 19], '.', 0, 1, '07032025-06-19-000-001-013-00-01'])
+request: Request(['.', [0], [8], 0.5, '04032025', [14, 23], '.', 0, 1, '04032025-14-23-000-008-005-00-01'])
+request: Request(['.', [0], [18], 3.6, '05032025', [5, 20], '.', 0, 1, '05032025-05-20-000-018-036-00-01'])
+request: Request(['.', [0], [6], 6.6, '03032025', [7, 8], '.', 0, 1, '03032025-07-08-000-006-066-00-01'])
+request: Request(['.', [0], [23], 9.2, '06032025', [6, 7], '.', 0, 1, '06032025-06-07-000-023-092-00-01'])
+request: Request(['.', [0], [3], 4.7, '09032025', [2, 5], '.', 0, 1, '09032025-02-05-000-003-047-00-01'])
+request: Request(['.', [0], [10], 4.3, '01032025', [4, 9], '.', 0, 1, '01032025-04-09-000-010-043-00-01'])
+request: Request(['.', [0], [11], 9.7, '01032025', [5, 9], '.', 0, 1, '01032025-05-09-000-011-097-00-01'])
+request: Request(['.', [0], [13], 9.1, '03032025', [3, 7], '.', 0, 1, '03032025-03-07-000-013-091-00-01'])
+request: Request(['.', [0], [4], 6.5, '27022025', [13, 17], '.', 0, 1, '27022025-13-17-000-004-065-00-01'])
+request: Request(['.', [0], [17], 0.3, '27022025', [5, 20], '.', 0, 1, '27022025-05-20-000-017-003-00-01'])
+demands: [0, 13, 20, 47, 65, 8, 66, 46, 5, 38, 43, 97, 0, 91, 87, 29, 11, 3, 36, 0, 58, 0, 81, 92, 34, 0, 53, 0, 78, 28]
+node_mapping: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
+Route for vehicle 0:
+ Node 0 (Arrival Time: 0, Capacity: 102, Delivered: 0) -> Node 19 (Arrival Time: 0, Capacity: 102, Delivered: 0) -> Node 13 (Arrival Time: 3, Capacity: 102, Delivered: 91) -> Node 16 (Arrival Time: 4, Capacity: 11, Delivered: 11) -> Node 0 (Arrival Time: 6, Capacity: 0, Delivered: 0)
+Distance of the route: 131
+
+Route for vehicle 1:
+ Node 0 (Arrival Time: 0, Capacity: 93, Delivered: 0) -> Node 3 (Arrival Time: 2, Capacity: 93, Delivered: 47) -> Node 7 (Arrival Time: 3, Capacity: 46, Delivered: 46) -> Node 27 (Arrival Time: 4, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 5, Capacity: 0, Delivered: 0)
+Distance of the route: 124
+
+Route for vehicle 2:
+ Node 0 (Arrival Time: 7, Capacity: 115, Delivered: 0) -> Node 15 (Arrival Time: 10, Capacity: 115, Delivered: 29) -> Node 8 (Arrival Time: 14, Capacity: 86, Delivered: 5) -> Node 22 (Arrival Time: 15, Capacity: 81, Delivered: 81) -> Node 0 (Arrival Time: 16, Capacity: 0, Delivered: 0)
+Distance of the route: 109
+
+Route for vehicle 3:
+ Node 0 (Arrival Time: 7, Capacity: 111, Delivered: 0) -> Node 20 (Arrival Time: 10, Capacity: 111, Delivered: 58) -> Node 21 (Arrival Time: 14, Capacity: 53, Delivered: 0) -> Node 26 (Arrival Time: 18, Capacity: 53, Delivered: 53) -> Node 0 (Arrival Time: 19, Capacity: 0, Delivered: 0)
+Distance of the route: 109
+
+Route for vehicle 4:
+ Node 0 (Arrival Time: 7, Capacity: 143, Delivered: 0) -> Node 28 (Arrival Time: 10, Capacity: 143, Delivered: 78) -> Node 4 (Arrival Time: 13, Capacity: 65, Delivered: 65) -> Node 25 (Arrival Time: 14, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 15, Capacity: 0, Delivered: 0)
+Distance of the route: 85
+
+Route for vehicle 5:
+ Node 0 (Arrival Time: 16, Capacity: 92, Delivered: 0) -> Node 2 (Arrival Time: 19, Capacity: 92, Delivered: 20) -> Node 24 (Arrival Time: 20, Capacity: 72, Delivered: 34) -> Node 9 (Arrival Time: 21, Capacity: 38, Delivered: 38) -> Node 0 (Arrival Time: 22, Capacity: 0, Delivered: 0)
+Distance of the route: 96
+
+Route for vehicle 6:
+ Node 0 (Arrival Time: 3, Capacity: 131, Delivered: 0) -> Node 23 (Arrival Time: 6, Capacity: 131, Delivered: 92) -> Node 18 (Arrival Time: 7, Capacity: 39, Delivered: 36) -> Node 17 (Arrival Time: 8, Capacity: 3, Delivered: 3) -> Node 0 (Arrival Time: 9, Capacity: 0, Delivered: 0)
+Distance of the route: 87
+
+Route for vehicle 7:
+ Node 0 (Arrival Time: 4, Capacity: 123, Delivered: 0) -> Node 29 (Arrival Time: 7, Capacity: 123, Delivered: 28) -> Node 5 (Arrival Time: 8, Capacity: 95, Delivered: 8) -> Node 14 (Arrival Time: 9, Capacity: 87, Delivered: 87) -> Node 0 (Arrival Time: 10, Capacity: 0, Delivered: 0)
+Distance of the route: 112
+
+Route for vehicle 8:
+ Node 0 (Arrival Time: 1, Capacity: 43, Delivered: 0) -> Node 10 (Arrival Time: 4, Capacity: 43, Delivered: 43) -> Node 12 (Arrival Time: 5, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 6, Capacity: 0, Delivered: 0)
+Distance of the route: 20
+
+Route for vehicle 9:
+ Node 0 (Arrival Time: 4, Capacity: 176, Delivered: 0) -> Node 6 (Arrival Time: 7, Capacity: 176, Delivered: 66) -> Node 1 (Arrival Time: 8, Capacity: 110, Delivered: 13) -> Node 11 (Arrival Time: 9, Capacity: 97, Delivered: 97) -> Node 0 (Arrival Time: 10, Capacity: 0, Delivered: 0)
+Distance of the route: 89
+
+Route for vehicle 10:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 11:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 12:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 13:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 14:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 15:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 16:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 17:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 18:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 19:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 20:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 21:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 22:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 23:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 24:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 25:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 26:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 27:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 28:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 29:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 30:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 31:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 32:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 33:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 34:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 35:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 36:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 37:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 38:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 39:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 40:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Total distance of all routes: 962
+Updated historical km: [85, 89, 77, 70, 43, 64, 48, 68, 10, 69, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+--- Day 20.02.2025 ---
+requests_data: [Request(['.', [0], [4], 6.0, '03032025', [1, 14], '.', 0, 1, '03032025-01-14-000-004-060-00-01']), Request(['.', [0], [13], 0.9, '09032025', [3, 21], '.', 0, 1, '09032025-03-21-000-013-009-00-01']), Request(['.', [0], [9], 4.1, '07032025', [5, 18], '.', 0, 1, '07032025-05-18-000-009-041-00-01']), Request(['.', [0], [28], 9.3, '27022025', [4, 9], '.', 0, 1, '27022025-04-09-000-028-093-00-01']), Request(['.', [0], [10], 7.0, '27022025', [15, 23], '.', 0, 1, '27022025-15-23-000-010-070-00-01']), Request(['.', [0], [2], 5.0, '06032025', [14, 21], '.', 0, 1, '06032025-14-21-000-002-050-00-01']), Request(['.', [0], [1], 9.5, '05032025', [7, 17], '.', 0, 1, '05032025-07-17-000-001-095-00-01']), Request(['.', [0], [16], 2.5, '07032025', [6, 17], '.', 0, 1, '07032025-06-17-000-016-025-00-01']), Request(['.', [0], [17], 2.0, '07032025', [6, 14], '.', 0, 1, '07032025-06-14-000-017-020-00-01']), Request(['.', [0], [24], 4.0, '03032025', [12, 15], '.', 0, 1, '03032025-12-15-000-024-040-00-01']), Request(['.', [0], [29], 5.9, '05032025', [5, 14], '.', 0, 1, '05032025-05-14-000-029-059-00-01']), Request(['.', [0], [27], 2.2, '08032025', [5, 20], '.', 0, 1, '08032025-05-20-000-027-022-00-01']), Request(['.', [0], [15], 1.0, '03032025', [1, 8], '.', 0, 1, '03032025-01-08-000-015-010-00-01']), Request(['.', [0], [26], 1.4, '09032025', [2, 17], '.', 0, 1, '09032025-02-17-000-026-014-00-01']), Request(['.', [0], [7], 7.5, '06032025', [9, 13], '.', 0, 1, '06032025-09-13-000-007-075-00-01']), Request(['.', [0], [19], 3.6, '09032025', [1, 20], '.', 0, 1, '09032025-01-20-000-019-036-00-01']), Request(['.', [0], [6], 2.0, '01032025', [1, 16], '.', 0, 1, '01032025-01-16-000-006-020-00-01']), Request(['.', [0], [18], 0.1, '03032025', [15, 17], '.', 0, 1, '03032025-15-17-000-018-001-00-01']), Request(['.', [0], [11], 3.6, '03032025', [0, 15], '.', 0, 1, '03032025-00-15-000-011-036-00-01']), Request(['.', [0], [25], 9.7, '09032025', [4, 5], '.', 0, 1, '09032025-04-05-000-025-097-00-01']), Request(['.', [0], [12], 7.1, '05032025', [18, 21], '.', 0, 1, '05032025-18-21-000-012-071-00-01']), Request(['.', [0], [23], 3.9, '07032025', [10, 15], '.', 0, 1, '07032025-10-15-000-023-039-00-01']), Request(['.', [0], [5], 3.6, '28022025', [17, 19], '.', 0, 1, '28022025-17-19-000-005-036-00-01']), Request(['.', [0], [21], 8.3, '05032025', [12, 14], '.', 0, 1, '05032025-12-14-000-021-083-00-01'])]
+request: Request(['.', [0], [4], 6.0, '03032025', [1, 14], '.', 0, 1, '03032025-01-14-000-004-060-00-01'])
+request: Request(['.', [0], [13], 0.9, '09032025', [3, 21], '.', 0, 1, '09032025-03-21-000-013-009-00-01'])
+request: Request(['.', [0], [9], 4.1, '07032025', [5, 18], '.', 0, 1, '07032025-05-18-000-009-041-00-01'])
+request: Request(['.', [0], [28], 9.3, '27022025', [4, 9], '.', 0, 1, '27022025-04-09-000-028-093-00-01'])
+request: Request(['.', [0], [10], 7.0, '27022025', [15, 23], '.', 0, 1, '27022025-15-23-000-010-070-00-01'])
+request: Request(['.', [0], [2], 5.0, '06032025', [14, 21], '.', 0, 1, '06032025-14-21-000-002-050-00-01'])
+request: Request(['.', [0], [1], 9.5, '05032025', [7, 17], '.', 0, 1, '05032025-07-17-000-001-095-00-01'])
+request: Request(['.', [0], [16], 2.5, '07032025', [6, 17], '.', 0, 1, '07032025-06-17-000-016-025-00-01'])
+request: Request(['.', [0], [17], 2.0, '07032025', [6, 14], '.', 0, 1, '07032025-06-14-000-017-020-00-01'])
+request: Request(['.', [0], [24], 4.0, '03032025', [12, 15], '.', 0, 1, '03032025-12-15-000-024-040-00-01'])
+request: Request(['.', [0], [29], 5.9, '05032025', [5, 14], '.', 0, 1, '05032025-05-14-000-029-059-00-01'])
+request: Request(['.', [0], [27], 2.2, '08032025', [5, 20], '.', 0, 1, '08032025-05-20-000-027-022-00-01'])
+request: Request(['.', [0], [15], 1.0, '03032025', [1, 8], '.', 0, 1, '03032025-01-08-000-015-010-00-01'])
+request: Request(['.', [0], [26], 1.4, '09032025', [2, 17], '.', 0, 1, '09032025-02-17-000-026-014-00-01'])
+request: Request(['.', [0], [7], 7.5, '06032025', [9, 13], '.', 0, 1, '06032025-09-13-000-007-075-00-01'])
+request: Request(['.', [0], [19], 3.6, '09032025', [1, 20], '.', 0, 1, '09032025-01-20-000-019-036-00-01'])
+request: Request(['.', [0], [6], 2.0, '01032025', [1, 16], '.', 0, 1, '01032025-01-16-000-006-020-00-01'])
+request: Request(['.', [0], [18], 0.1, '03032025', [15, 17], '.', 0, 1, '03032025-15-17-000-018-001-00-01'])
+request: Request(['.', [0], [11], 3.6, '03032025', [0, 15], '.', 0, 1, '03032025-00-15-000-011-036-00-01'])
+request: Request(['.', [0], [25], 9.7, '09032025', [4, 5], '.', 0, 1, '09032025-04-05-000-025-097-00-01'])
+request: Request(['.', [0], [12], 7.1, '05032025', [18, 21], '.', 0, 1, '05032025-18-21-000-012-071-00-01'])
+request: Request(['.', [0], [23], 3.9, '07032025', [10, 15], '.', 0, 1, '07032025-10-15-000-023-039-00-01'])
+request: Request(['.', [0], [5], 3.6, '28022025', [17, 19], '.', 0, 1, '28022025-17-19-000-005-036-00-01'])
+request: Request(['.', [0], [21], 8.3, '05032025', [12, 14], '.', 0, 1, '05032025-12-14-000-021-083-00-01'])
+demands: [0, 95, 50, 0, 60, 36, 20, 75, 0, 41, 70, 36, 71, 9, 0, 10, 25, 20, 1, 36, 0, 83, 0, 39, 40, 97, 14, 22, 93, 59]
+node_mapping: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
+Route for vehicle 0:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 1:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 2:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 3:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 4:
+ Node 0 (Arrival Time: 12, Capacity: 141, Delivered: 0) -> Node 10 (Arrival Time: 15, Capacity: 141, Delivered: 70) -> Node 12 (Arrival Time: 18, Capacity: 71, Delivered: 71) -> Node 0 (Arrival Time: 19, Capacity: 0, Delivered: 0)
+Distance of the route: 20
+
+Route for vehicle 5:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 6:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 7:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 8:
+ Node 0 (Arrival Time: 4, Capacity: 76, Delivered: 0) -> Node 11 (Arrival Time: 7, Capacity: 76, Delivered: 36) -> Node 23 (Arrival Time: 11, Capacity: 40, Delivered: 39) -> Node 18 (Arrival Time: 15, Capacity: 1, Delivered: 1) -> Node 0 (Arrival Time: 16, Capacity: 0, Delivered: 0)
+Distance of the route: 82
+
+Route for vehicle 9:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 10:
+ Node 0 (Arrival Time: 2, Capacity: 34, Delivered: 0) -> Node 16 (Arrival Time: 6, Capacity: 34, Delivered: 25) -> Node 13 (Arrival Time: 7, Capacity: 9, Delivered: 9) -> Node 20 (Arrival Time: 8, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 9, Capacity: 0, Delivered: 0)
+Distance of the route: 128
+
+Route for vehicle 11:
+ Node 0 (Arrival Time: 10, Capacity: 56, Delivered: 0) -> Node 17 (Arrival Time: 13, Capacity: 56, Delivered: 20) -> Node 5 (Arrival Time: 17, Capacity: 36, Delivered: 36) -> Node 14 (Arrival Time: 18, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 19, Capacity: 0, Delivered: 0)
+Distance of the route: 126
+
+Route for vehicle 12:
+ Node 0 (Arrival Time: 2, Capacity: 97, Delivered: 0) -> Node 27 (Arrival Time: 5, Capacity: 97, Delivered: 22) -> Node 7 (Arrival Time: 9, Capacity: 75, Delivered: 75) -> Node 3 (Arrival Time: 10, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 11, Capacity: 0, Delivered: 0)
+Distance of the route: 124
+
+Route for vehicle 13:
+ Node 0 (Arrival Time: 5, Capacity: 157, Delivered: 0) -> Node 4 (Arrival Time: 8, Capacity: 157, Delivered: 60) -> Node 21 (Arrival Time: 12, Capacity: 97, Delivered: 83) -> Node 26 (Arrival Time: 13, Capacity: 14, Delivered: 14) -> Node 0 (Arrival Time: 14, Capacity: 0, Delivered: 0)
+Distance of the route: 112
+
+Route for vehicle 14:
+ Node 0 (Arrival Time: 1, Capacity: 91, Delivered: 0) -> Node 15 (Arrival Time: 4, Capacity: 91, Delivered: 10) -> Node 9 (Arrival Time: 8, Capacity: 81, Delivered: 41) -> Node 24 (Arrival Time: 12, Capacity: 40, Delivered: 40) -> Node 0 (Arrival Time: 14, Capacity: 0, Delivered: 0)
+Distance of the route: 106
+
+Route for vehicle 15:
+ Node 0 (Arrival Time: 0, Capacity: 97, Delivered: 0) -> Node 22 (Arrival Time: 0, Capacity: 97, Delivered: 0) -> Node 8 (Arrival Time: 1, Capacity: 97, Delivered: 0) -> Node 25 (Arrival Time: 4, Capacity: 97, Delivered: 97) -> Node 0 (Arrival Time: 5, Capacity: 0, Delivered: 0)
+Distance of the route: 100
+
+Route for vehicle 16:
+ Node 0 (Arrival Time: 2, Capacity: 188, Delivered: 0) -> Node 29 (Arrival Time: 5, Capacity: 188, Delivered: 59) -> Node 19 (Arrival Time: 6, Capacity: 129, Delivered: 36) -> Node 28 (Arrival Time: 7, Capacity: 93, Delivered: 93) -> Node 0 (Arrival Time: 8, Capacity: 0, Delivered: 0)
+Distance of the route: 72
+
+Route for vehicle 17:
+ Node 0 (Arrival Time: 11, Capacity: 165, Delivered: 0) -> Node 2 (Arrival Time: 14, Capacity: 165, Delivered: 50) -> Node 1 (Arrival Time: 15, Capacity: 115, Delivered: 95) -> Node 6 (Arrival Time: 16, Capacity: 20, Delivered: 20) -> Node 0 (Arrival Time: 17, Capacity: 0, Delivered: 0)
+Distance of the route: 89
+
+Route for vehicle 18:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 19:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 20:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 21:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 22:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 23:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 24:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 25:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 26:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 27:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 28:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 29:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 30:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 31:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 32:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 33:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 34:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 35:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 36:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 37:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 38:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 39:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 40:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Total distance of all routes: 959
+Updated historical km: [85, 89, 77, 70, 53, 64, 48, 68, 54, 69, 95, 82, 88, 73, 60, 58, 48, 69, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+--- Day 21.02.2025 ---
+requests_data: [Request(['.', [0], [5], 9.7, '07032025', [12, 20], '.', 0, 1, '07032025-12-20-000-005-097-00-01']), Request(['.', [0], [12], 0.6, '07032025', [3, 4], '.', 0, 1, '07032025-03-04-000-012-006-00-01']), Request(['.', [0], [24], 3.7, '03032025', [0, 3], '.', 0, 1, '03032025-00-03-000-024-037-00-01']), Request(['.', [0], [25], 4.9, '03032025', [3, 8], '.', 0, 1, '03032025-03-08-000-025-049-00-01']), Request(['.', [0], [1], 3.4, '03032025', [7, 14], '.', 0, 1, '03032025-07-14-000-001-034-00-01']), Request(['.', [0], [13], 1.4, '05032025', [0, 7], '.', 0, 1, '05032025-00-07-000-013-014-00-01']), Request(['.', [0], [16], 6.2, '02032025', [17, 18], '.', 0, 1, '02032025-17-18-000-016-062-00-01']), Request(['.', [0], [21], 3.2, '01032025', [1, 7], '.', 0, 1, '01032025-01-07-000-021-032-00-01']), Request(['.', [0], [8], 2.7, '03032025', [1, 4], '.', 0, 1, '03032025-01-04-000-008-027-00-01']), Request(['.', [0], [6], 0.2, '06032025', [15, 23], '.', 0, 1, '06032025-15-23-000-006-002-00-01']), Request(['.', [0], [23], 6.9, '01032025', [0, 18], '.', 0, 1, '01032025-00-18-000-023-069-00-01']), Request(['.', [0], [10], 1.4, '04032025', [6, 21], '.', 0, 1, '04032025-06-21-000-010-014-00-01']), Request(['.', [0], [28], 5.5, '06032025', [9, 18], '.', 0, 1, '06032025-09-18-000-028-055-00-01']), Request(['.', [0], [14], 5.3, '06032025', [10, 11], '.', 0, 1, '06032025-10-11-000-014-053-00-01']), Request(['.', [0], [18], 3.4, '08032025', [9, 21], '.', 0, 1, '08032025-09-21-000-018-034-00-01']), Request(['.', [0], [26], 4.3, '06032025', [1, 22], '.', 0, 1, '06032025-01-22-000-026-043-00-01']), Request(['.', [0], [29], 9.2, '06032025', [7, 20], '.', 0, 1, '06032025-07-20-000-029-092-00-01']), Request(['.', [0], [9], 6.4, '02032025', [1, 4], '.', 0, 1, '02032025-01-04-000-009-064-00-01']), Request(['.', [0], [15], 4.6, '05032025', [6, 20], '.', 0, 1, '05032025-06-20-000-015-046-00-01']), Request(['.', [0], [17], 3.5, '01032025', [0, 8], '.', 0, 1, '01032025-00-08-000-017-035-00-01']), Request(['.', [0], [11], 0.4, '08032025', [3, 6], '.', 0, 1, '08032025-03-06-000-011-004-00-01']), Request(['.', [0], [3], 6.5, '05032025', [10, 20], '.', 0, 1, '05032025-10-20-000-003-065-00-01']), Request(['.', [0], [2], 1.6, '09032025', [15, 19], '.', 0, 1, '09032025-15-19-000-002-016-00-01']), Request(['.', [0], [27], 1.7, '08032025', [18, 22], '.', 0, 1, '08032025-18-22-000-027-017-00-01']), Request(['.', [0], [4], 2.1, '09032025', [16, 23], '.', 0, 1, '09032025-16-23-000-004-021-00-01']), Request(['.', [0], [7], 5.3, '07032025', [15, 20], '.', 0, 1, '07032025-15-20-000-007-053-00-01']), Request(['.', [0], [19], 4.8, '08032025', [14, 18], '.', 0, 1, '08032025-14-18-000-019-048-00-01'])]
+request: Request(['.', [0], [5], 9.7, '07032025', [12, 20], '.', 0, 1, '07032025-12-20-000-005-097-00-01'])
+request: Request(['.', [0], [12], 0.6, '07032025', [3, 4], '.', 0, 1, '07032025-03-04-000-012-006-00-01'])
+request: Request(['.', [0], [24], 3.7, '03032025', [0, 3], '.', 0, 1, '03032025-00-03-000-024-037-00-01'])
+request: Request(['.', [0], [25], 4.9, '03032025', [3, 8], '.', 0, 1, '03032025-03-08-000-025-049-00-01'])
+request: Request(['.', [0], [1], 3.4, '03032025', [7, 14], '.', 0, 1, '03032025-07-14-000-001-034-00-01'])
+request: Request(['.', [0], [13], 1.4, '05032025', [0, 7], '.', 0, 1, '05032025-00-07-000-013-014-00-01'])
+request: Request(['.', [0], [16], 6.2, '02032025', [17, 18], '.', 0, 1, '02032025-17-18-000-016-062-00-01'])
+request: Request(['.', [0], [21], 3.2, '01032025', [1, 7], '.', 0, 1, '01032025-01-07-000-021-032-00-01'])
+request: Request(['.', [0], [8], 2.7, '03032025', [1, 4], '.', 0, 1, '03032025-01-04-000-008-027-00-01'])
+request: Request(['.', [0], [6], 0.2, '06032025', [15, 23], '.', 0, 1, '06032025-15-23-000-006-002-00-01'])
+request: Request(['.', [0], [23], 6.9, '01032025', [0, 18], '.', 0, 1, '01032025-00-18-000-023-069-00-01'])
+request: Request(['.', [0], [10], 1.4, '04032025', [6, 21], '.', 0, 1, '04032025-06-21-000-010-014-00-01'])
+request: Request(['.', [0], [28], 5.5, '06032025', [9, 18], '.', 0, 1, '06032025-09-18-000-028-055-00-01'])
+request: Request(['.', [0], [14], 5.3, '06032025', [10, 11], '.', 0, 1, '06032025-10-11-000-014-053-00-01'])
+request: Request(['.', [0], [18], 3.4, '08032025', [9, 21], '.', 0, 1, '08032025-09-21-000-018-034-00-01'])
+request: Request(['.', [0], [26], 4.3, '06032025', [1, 22], '.', 0, 1, '06032025-01-22-000-026-043-00-01'])
+request: Request(['.', [0], [29], 9.2, '06032025', [7, 20], '.', 0, 1, '06032025-07-20-000-029-092-00-01'])
+request: Request(['.', [0], [9], 6.4, '02032025', [1, 4], '.', 0, 1, '02032025-01-04-000-009-064-00-01'])
+request: Request(['.', [0], [15], 4.6, '05032025', [6, 20], '.', 0, 1, '05032025-06-20-000-015-046-00-01'])
+request: Request(['.', [0], [17], 3.5, '01032025', [0, 8], '.', 0, 1, '01032025-00-08-000-017-035-00-01'])
+request: Request(['.', [0], [11], 0.4, '08032025', [3, 6], '.', 0, 1, '08032025-03-06-000-011-004-00-01'])
+request: Request(['.', [0], [3], 6.5, '05032025', [10, 20], '.', 0, 1, '05032025-10-20-000-003-065-00-01'])
+request: Request(['.', [0], [2], 1.6, '09032025', [15, 19], '.', 0, 1, '09032025-15-19-000-002-016-00-01'])
+request: Request(['.', [0], [27], 1.7, '08032025', [18, 22], '.', 0, 1, '08032025-18-22-000-027-017-00-01'])
+request: Request(['.', [0], [4], 2.1, '09032025', [16, 23], '.', 0, 1, '09032025-16-23-000-004-021-00-01'])
+request: Request(['.', [0], [7], 5.3, '07032025', [15, 20], '.', 0, 1, '07032025-15-20-000-007-053-00-01'])
+request: Request(['.', [0], [19], 4.8, '08032025', [14, 18], '.', 0, 1, '08032025-14-18-000-019-048-00-01'])
+demands: [0, 34, 16, 65, 21, 97, 2, 53, 27, 64, 14, 4, 6, 14, 53, 46, 62, 35, 34, 48, 0, 32, 0, 69, 37, 49, 43, 17, 55, 92]
+node_mapping: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
+Route for vehicle 0:
+ Node 0 (Arrival Time: 12, Capacity: 147, Delivered: 0) -> Node 2 (Arrival Time: 15, Capacity: 147, Delivered: 16) -> Node 18 (Arrival Time: 16, Capacity: 131, Delivered: 34) -> Node 5 (Arrival Time: 17, Capacity: 97, Delivered: 97) -> Node 0 (Arrival Time: 18, Capacity: 0, Delivered: 0)
+Distance of the route: 111
+
+Route for vehicle 1:
+ Node 0 (Arrival Time: 0, Capacity: 196, Delivered: 0) -> Node 23 (Arrival Time: 0, Capacity: 196, Delivered: 69) -> Node 17 (Arrival Time: 3, Capacity: 127, Delivered: 35) -> Node 29 (Arrival Time: 7, Capacity: 92, Delivered: 92) -> Node 0 (Arrival Time: 8, Capacity: 0, Delivered: 0)
+Distance of the route: 87
+
+Route for vehicle 2:
+ Node 0 (Arrival Time: 15, Capacity: 135, Delivered: 0) -> Node 27 (Arrival Time: 18, Capacity: 135, Delivered: 17) -> Node 7 (Arrival Time: 19, Capacity: 118, Delivered: 53) -> Node 3 (Arrival Time: 20, Capacity: 65, Delivered: 65) -> Node 0 (Arrival Time: 21, Capacity: 0, Delivered: 0)
+Distance of the route: 124
+
+Route for vehicle 3:
+ Node 0 (Arrival Time: 0, Capacity: 135, Delivered: 0) -> Node 9 (Arrival Time: 1, Capacity: 135, Delivered: 64) -> Node 24 (Arrival Time: 3, Capacity: 71, Delivered: 37) -> Node 1 (Arrival Time: 7, Capacity: 34, Delivered: 34) -> Node 0 (Arrival Time: 8, Capacity: 0, Delivered: 0)
+Distance of the route: 119
+
+Route for vehicle 4:
+ Node 0 (Arrival Time: 0, Capacity: 81, Delivered: 0) -> Node 12 (Arrival Time: 3, Capacity: 81, Delivered: 6) -> Node 21 (Arrival Time: 4, Capacity: 75, Delivered: 32) -> Node 26 (Arrival Time: 5, Capacity: 43, Delivered: 43) -> Node 0 (Arrival Time: 6, Capacity: 0, Delivered: 0)
+Distance of the route: 112
+
+Route for vehicle 5:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 6:
+ Node 0 (Arrival Time: 0, Capacity: 67, Delivered: 0) -> Node 20 (Arrival Time: 2, Capacity: 67, Delivered: 0) -> Node 13 (Arrival Time: 6, Capacity: 67, Delivered: 14) -> Node 14 (Arrival Time: 10, Capacity: 53, Delivered: 53) -> Node 0 (Arrival Time: 11, Capacity: 0, Delivered: 0)
+Distance of the route: 118
+
+Route for vehicle 7:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 8:
+ Node 0 (Arrival Time: 9, Capacity: 35, Delivered: 0) -> Node 10 (Arrival Time: 12, Capacity: 35, Delivered: 14) -> Node 4 (Arrival Time: 16, Capacity: 21, Delivered: 21) -> Node 0 (Arrival Time: 17, Capacity: 0, Delivered: 0)
+Distance of the route: 66
+
+Route for vehicle 9:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 10:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 11:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 12:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 13:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 14:
+ Node 0 (Arrival Time: 11, Capacity: 105, Delivered: 0) -> Node 19 (Arrival Time: 14, Capacity: 105, Delivered: 48) -> Node 28 (Arrival Time: 15, Capacity: 57, Delivered: 55) -> Node 6 (Arrival Time: 16, Capacity: 2, Delivered: 2) -> Node 0 (Arrival Time: 17, Capacity: 0, Delivered: 0)
+Distance of the route: 72
+
+Route for vehicle 15:
+ Node 0 (Arrival Time: 0, Capacity: 80, Delivered: 0) -> Node 11 (Arrival Time: 3, Capacity: 80, Delivered: 4) -> Node 8 (Arrival Time: 4, Capacity: 76, Delivered: 27) -> Node 25 (Arrival Time: 5, Capacity: 49, Delivered: 49) -> Node 0 (Arrival Time: 6, Capacity: 0, Delivered: 0)
+Distance of the route: 86
+
+Route for vehicle 16:
+ Node 0 (Arrival Time: 10, Capacity: 108, Delivered: 0) -> Node 22 (Arrival Time: 13, Capacity: 108, Delivered: 0) -> Node 16 (Arrival Time: 17, Capacity: 108, Delivered: 62) -> Node 15 (Arrival Time: 18, Capacity: 46, Delivered: 46) -> Node 0 (Arrival Time: 19, Capacity: 0, Delivered: 0)
+Distance of the route: 123
+
+Route for vehicle 17:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 18:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 19:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 20:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 21:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 22:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 23:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 24:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 25:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 26:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 27:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 28:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 29:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 30:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 31:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 32:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 33:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 34:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 35:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 36:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 37:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 38:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 39:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Route for vehicle 40:
+ Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0) -> Node 0 (Arrival Time: 0, Capacity: 0, Delivered: 0)
+Distance of the route: 0
+
+Total distance of all routes: 1018
+Updated historical km: [160, 155, 165, 152, 126, 64, 122, 68, 87, 69, 95, 82, 88, 73, 112, 102, 133, 69, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[351, 326, 994]
+max km: 165, mim km: 0, sum km: 1922
