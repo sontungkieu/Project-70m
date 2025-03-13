@@ -73,7 +73,7 @@ Future<void> _uploadExcelAndRun() async {
   try {
     // Upload file lên Firebase Storage (thư mục "requests_xlsx")
     final firebase_storage.Reference storageRef = firebase_storage.FirebaseStorage.instance
-        .ref('requests_xlsx/$fileName');
+        .ref('gs://logistic-project-30dcd.firebasestorage.app/requests_xlsx/$fileName');
     await storageRef.putData(
       fileBytes,
       firebase_storage.SettableMetadata(
@@ -88,7 +88,7 @@ Future<void> _uploadExcelAndRun() async {
 
     // Gửi HTTP request tới backend để chạy thuật toán OR-Tools
     final response = await http.post(
-      Uri.parse('https://9f00-202-191-58-161.ngrok-free.app/optimize'),
+      Uri.parse('https://602f-202-191-58-161.ngrok-free.app/optimize'),   
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "job_id": jobId,
@@ -97,13 +97,14 @@ Future<void> _uploadExcelAndRun() async {
     );
 
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Algorithm triggered successfully"),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } else {
+    final responseData = jsonDecode(response.body);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Algorithm triggered successfully. Job ID: ${responseData['job_id']}"),
+        backgroundColor: Colors.green,
+      ),
+    );
+} else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Error triggering algorithm: ${response.body}"),
@@ -113,10 +114,10 @@ Future<void> _uploadExcelAndRun() async {
     }
   } on firebase_storage.FirebaseException catch (e) {
     // Debug chi tiết lỗi của Firebase Storage
-    print("Firebase Storage Error: ${e.code} - ${e.message}1111111");
+    print("Firebase Storage Error: ${e.code} - ${e.message}");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("Upload failed: ${e.code} - ${e.message}1111111111"),
+        content: Text("Upload failed: ${e.code} - ${e.message}"),
         backgroundColor: Colors.red,
       ),
     );
