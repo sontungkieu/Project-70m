@@ -81,3 +81,6 @@ Thumbs.db
 
 # File pubspec.lock (tùy chọn)
 # pubspec.lock          # Nếu muốn khóa phiên bản package, hãy giữ lại
+
+generated*
+Generated*
