@@ -1,6 +1,5 @@
-from  objects.driver import Driver
-    
-   
+from objects.driver import Driver
+
 driver_list = []
 vehicle_list = []
 
@@ -90,8 +89,8 @@ vehicle_list = []
 #             driver_id = i
 #             break
 #     else:
-#         to_json() 
-#         return 
+#         to_json()
+#         return
 #     for i in range(len(vehicle_list)):
 #         if driver_list[driver_id].cccd == vehicle_list[i].driver_cccd:
 #             vehicle_list[i].driver_cccd = ""
@@ -104,8 +103,8 @@ vehicle_list = []
 #             driver_id = i
 #             break
 #     else:
-#         to_json() 
-#         return 
+#         to_json()
+#         return
 #     vehicle_id = driver_list[driver_id].vehicle_id
 #     for i in range(len(vehicle_list)):
 #         if vehicle_id == vehicle_list[i].vehicle_id:
