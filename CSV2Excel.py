@@ -74,10 +74,13 @@ def sync_csv_to_excel(csv_file, excel_file, sheet2_name="Dia_Chi", sheet1_range=
     # Truy cập Sheet1 để cập nhật drop-down list
     ws1 = wb["Sheet1"]
     
-    # Kiểm tra và khởi tạo data_validations nếu cần
     if ws1.data_validations is None:
-        from openpyxl.worksheet.datavalidation import DataValidationList
-        ws1.data_validations = DataValidationList()
+        try:
+            from openpyxl.worksheet.datavalidation import DataValidationList
+            ws1.data_validations = DataValidationList()
+        except ImportError as e:
+            print(f"Error importing DataValidationList: {e}")
+            return  # Or raise the exception if you want to halt execution
     
     # Xóa data validation cũ (nếu có)
     ws1.data_validations.dataValidation = []  # Xóa danh sách validation cũ
