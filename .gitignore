@@ -184,4 +184,13 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+.flutter-plugins-dependencies
+.flutter-plugins
+/windows/
+/.dart_tool/
+/android/
+/build/
+/ios/
+/linux/
+/macos/
 results.json
