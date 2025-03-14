@@ -193,3 +193,4 @@ cython_debug/
 /ios/
 /linux/
 /macos/
+results.json

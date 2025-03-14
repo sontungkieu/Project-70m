@@ -1,16 +1,24 @@
 import csv
 import time
+import os
+from pathlib import Path
 
 import requests
 import urllib3
+from dotenv import load_dotenv
 
+project_path = Path(__file__)#.parent.parent.parent
+while str(project_path)[-3:]!="70m": #nhảy đến file to
+    project_path = project_path.parent
+env_path = project_path / ".env"
+
+load_dotenv(dotenv_path=env_path)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
 
 # 🔹 Replace with your actual Goong.io API key
 GOONG_DEBUG = False
 # GOONG_API_KEY = "REDACTED" # chí bằng
-GOONG_API_KEY = "REDACTED"  # Long
+GOONG_API_KEY = os.getenv("GOONG_API_KEY")  # Long
 # GOONG_API_KEY = "REDACTED" # Tung
 
 
