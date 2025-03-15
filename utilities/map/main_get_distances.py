@@ -1,17 +1,19 @@
 import csv
-import time
 import os
+import time
 from pathlib import Path
 
 import requests
 import urllib3
 from dotenv import load_dotenv
 
-project_path = Path(__file__)#.parent.parent.parent
+project_path = Path(__file__)  # .parent.parent.parent
 
 PROJECT_ROOT_MARKER = "70m"
 
-while str(project_path)[-len(PROJECT_ROOT_MARKER):]!=PROJECT_ROOT_MARKER: #nhảy đến file to
+while (
+    str(project_path)[-len(PROJECT_ROOT_MARKER) :] != PROJECT_ROOT_MARKER
+):  # nhảy đến file to
     project_path = project_path.parent
 
 env_path = project_path / ".env"
