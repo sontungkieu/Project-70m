@@ -18,17 +18,18 @@ data = [
     ("KCN Bắc Thăng Long", "Hà Nội"),
 ]
 
-# Điền dữ liệu vào Sheet2
+# Điền dữ liệu vào Sheet2 và tính cột C
 for row, (kcn, address) in enumerate(data, start=1):
-    ws2[f"A{row}"] = kcn
-    ws2[f"B{row}"] = address
+    ws2[f"A{row}"] = kcn  # Cột A: Tên KCN
+    ws2[f"B{row}"] = address  # Cột B: Địa chỉ
+    ws2[f"C{row}"] = f"{kcn} - {address}"  # Cột C: KCN + Địa chỉ
 
 # Tạo tiêu đề cho Sheet1
-ws1["A1"] = "Tên Khu Công Nghiệp"
-ws1["B1"] = "Địa chỉ"
-
-# Tạo drop-down list cho cột A ở Sheet1 (từ A2 đến A10)
-dv = DataValidation(type="list", formula1="Sheet2!$A$1:$A$5", allow_blank=True)
+# ws1["A1"] = "Tên Khu Công Nghiệp"
+# ws1["B1"] = "Địa chỉ"
+ws1["A1"] = "Khách hàng"
+# Tạo drop-down list cho cột A ở Sheet1 (dùng cột C từ Dia_Chi)
+dv = DataValidation(type="list", formula1="Dia_Chi!$C$1:$C$5", allow_blank=True)
 dv.add("A2:A10")  # Áp dụng cho A2:A10
 
 # Thêm data validation vào Sheet1
