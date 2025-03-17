@@ -1,41 +1,33 @@
-from openpyxl import Workbook
+from openpyxl import load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation
 
-# Tạo workbook
-wb = Workbook()
+# Load file Excel thực tế
+excel_file = "Lenh_Dieu_Xe.xlsx"
+wb = load_workbook(excel_file)
 
-# Tạo Sheet2 và điền dữ liệu mẫu
-ws2 = wb.create_sheet("Dia_Chi")
-ws1 = wb.active  # Sheet1 là sheet mặc định
-ws1.title = "Sheet1"
+# Truy cập sheet "Dia_Chi"
+ws2 = wb["Dia_Chi"]
 
-# Dữ liệu mẫu cho Sheet2 (cột A: Tên KCN, cột B: Địa chỉ)
-data = [
-    ("KCN Hòa Khánh", "Đà Nẵng"),
-    ("KCN VSIP", "Quảng Ngãi"),
-    ("KCN Long Hậu", "Long An"),
-    ("KCN Tân Bình", "TP.HCM"),
-    ("KCN Bắc Thăng Long", "Hà Nội"),
-]
+# Truy cập sheet "3.3" (Sheet1)
+ws1 = wb["3.3"]
 
-# Điền dữ liệu vào Sheet2 và tính cột C
-for row, (kcn, address) in enumerate(data, start=1):
-    ws2[f"A{row}"] = kcn  # Cột A: Tên KCN
-    ws2[f"B{row}"] = address  # Cột B: Địa chỉ
-    ws2[f"C{row}"] = f"{kcn} - {address}"  # Cột C: KCN + Địa chỉ
+# Tính cột C trong sheet "Dia_Chi" (A + B)
+max_row = ws2.max_row  # Lấy số dòng tối đa có dữ liệu trong sheet
+for row in range(1, max_row + 1):
+    kcn = ws2[f"A{row}"].value
+    address = ws2[f"B{row}"].value
+    if kcn and address:  # Chỉ thêm vào cột C nếu cả A và B có giá trị
+        ws2[f"C{row}"] = f"{kcn} - {address}"
+    elif kcn:  # Nếu chỉ có A, dùng A
+        ws2[f"C{row}"] = kcn
 
-# Tạo tiêu đề cho Sheet1
-# ws1["A1"] = "Tên Khu Công Nghiệp"
-# ws1["B1"] = "Địa chỉ"
-ws1["A1"] = "Khách hàng"
-# Tạo drop-down list cho cột A ở Sheet1 (dùng cột C từ Dia_Chi)
-dv = DataValidation(type="list", formula1="Dia_Chi!$C$1:$C$5", allow_blank=True)
-dv.add("A2:A10")  # Áp dụng cho A2:A10
+# Tạo drop-down list cho A5:A55 trong sheet "3.3", dùng cột C từ "Dia_Chi"
+dv = DataValidation(type="list", formula1="Dia_Chi!$C$1:$C$52", allow_blank=True)
+dv.add("B5:B55")  # Áp dụng cho A5:A55
 
-# Thêm data validation vào Sheet1
+# Thêm data validation vào sheet "3.3"
 ws1.add_data_validation(dv)
 
 # Lưu file
-wb.save("kcn_dropdown.xlsx")
-
-print("File Excel đã được tạo!")
+wb.save("Lenh_Dieu_Xe_updated.xlsx")
+print("File Excel đã được cập nhật với cột C và drop-down list!")
