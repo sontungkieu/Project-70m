@@ -48,7 +48,7 @@ ID,Name,Address
 47,Yalena,"Thon Ha Cau, xa Quoc Tuan, huyen An Lao, TP Hai Phong, Viet Nam"
 48,yuzhan,"KCN Que Vo, Huyen Que Vo, Tinh Bac Ninh"
 49,Yura,"Moc Ty, Trung Trac , Van Lam"
-50,Truong Xuan,"KCN Dai Dong Hoan Son Tien Du"
+50,Truong Xuan,KCN Dai Dong Hoan Son Tien Du
 51,TQT,"My Hao, Hung Yen"
 52,CONG TY CO PHAN SYV," Km 22, cum cong nghiep Ngoc Liep, xa Ngoc Liep, huyen Quoc Oai, thanh pho Ha Noi, Viet Nam"
 53,CONG TY CO PHAN SMK VIET NAM,"Cum cong nghiep Xuan Lam, Xa Xuan Lam, Huyen Thuan Thanh, Tinh Bac Ninh"
@@ -57,3 +57,4 @@ ID,Name,Address
 56,CONG TY TNHH SANJEON VIET NAM,"KCN Que Vo, tinh Bac Ninh"
 57,CONG TY TNHH ZION VINA,"Yura bac Ninh,Cum Cong Nghiep Tan Chi, Xa Tan Chi, Huyen Tien Du, Bac Ninh"
 58,Cong ty co phan thuc pham nhat minh,"duong lieu, hoai duc, ha noi"
+59,GGG,GGG
