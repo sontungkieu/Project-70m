@@ -4,8 +4,50 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.worksheet.datavalidation import DataValidation
 
 
+def create_dropdown_list(
+    workbook,
+    target_sheet_name,
+    target_range,
+    source_sheet_name,
+    source_column="A",
+    num_rows=0,
+    allow_blank=True,
+):
+    """
+    Thêm dropdown list vào sheet mục tiêu dựa trên dữ liệu từ sheet nguồn.
+
+    Args:
+        workbook: Đối tượng Workbook của openpyxl.
+        target_sheet_name (str): Tên sheet sẽ thêm dropdown.
+        target_range (str): Vùng ô (ví dụ: "A2:A12") được áp dụng dropdown.
+        source_sheet_name (str): Tên sheet chứa dữ liệu cho dropdown.
+        source_column (str): Cột chứa dữ liệu (mặc định "A").
+        num_rows (int): Số dòng dữ liệu trong sheet nguồn.
+        allow_blank (bool): Có cho phép giá trị rỗng hay không.
+    """
+    ws_target = workbook[target_sheet_name]
+
+    # Xóa các data validation cũ (nếu có)
+    if ws_target.data_validations is not None:
+        ws_target.data_validations.dataValidation = []
+
+    # Tạo data validation kiểu list với công thức tham chiếu đến sheet nguồn
+    dv = DataValidation(
+        type="list",
+        formula1=f"'{source_sheet_name}'!${source_column}$1:${source_column}${num_rows}",
+        allow_blank=allow_blank,
+    )
+    dv.add(target_range)
+    ws_target.add_data_validation(dv)
+
+
 def sync_csv_to_excel(
-    csv_file, excel_file, sheet2_name="Dia_Chi", sheet1_range="A2:A12"
+    csv_file,
+    excel_file,
+    sheet2_name="Dia_Chi",
+    add_drop_down=False,
+    sheet1_name="3.3",
+    sheet1_range="A2:A12",
 ):
     # Đọc file CSV
     df = pd.read_csv(csv_file)
@@ -13,7 +55,7 @@ def sync_csv_to_excel(
     # Load file Excel hiện có
     wb = load_workbook(excel_file)
 
-    # Truy cập Sheet2
+    # Truy cập Sheet2 (tạo mới nếu chưa tồn tại)
     if sheet2_name not in wb.sheetnames:
         ws2 = wb.create_sheet(sheet2_name)
     else:
@@ -22,40 +64,29 @@ def sync_csv_to_excel(
     # Xóa dữ liệu cũ trong Sheet2 (nếu có)
     ws2.delete_rows(1, ws2.max_row)
 
-    # Điền dữ liệu từ CSV vào Sheet2 (cột A: Name, cột B: Address)
+    # Điền dữ liệu từ CSV vào Sheet2 (cột A: Name, cột B: Address, cột C: Name + Address)
     for row, (name, address) in enumerate(zip(df["Name"], df["Address"]), start=1):
         ws2[f"A{row}"] = name
         ws2[f"B{row}"] = address
+        ws2[f"C{row}"] = f"{name} - {address}"  # Tạo cột C bằng cách nối A và B
 
-    # Truy cập Sheet1 để cập nhật drop-down list
-    ws1 = wb["Sheet1"]
-
-    if ws1.data_validations is None:
-        try:
-            from openpyxl.worksheet.datavalidation import DataValidationList
-
-            ws1.data_validations = DataValidationList()
-        except ImportError as e:
-            print(f"Error importing DataValidationList: {e}")
-            return  # Or raise the exception if you want to halt execution
-
-    # Xóa data validation cũ (nếu có)
-    ws1.data_validations.dataValidation = []  # Xóa danh sách validation cũ
-
-    # Tạo drop-down list mới dựa trên số dòng trong CSV
+    # Sử dụng hàm create_dropdown_list để cập nhật dropdown trên Sheet "3.3"
     num_rows = len(df)
-    dv = DataValidation(
-        type="list", formula1=f"{sheet2_name}!$A$1:$A${num_rows}", allow_blank=True
-    )
-    dv.add(sheet1_range)  # Áp dụng cho vùng A2:A12 (hoặc tùy chỉnh)
-
-    # Thêm data validation vào Sheet1
-    ws1.add_data_validation(dv)
+    if add_drop_down:
+        create_dropdown_list(
+            workbook=wb,
+            target_sheet_name=sheet1_name,  # Sheet "3.3" chứa dropdown
+            target_range=sheet1_range,  # Vùng ô áp dụng dropdown
+            source_sheet_name=sheet2_name,  # Sheet chứa danh sách giá trị
+            source_column="C",  # Sử dụng cột C làm nguồn
+            num_rows=num_rows,
+            allow_blank=True,
+        )
 
     # Lưu file Excel
     wb.save(excel_file)
     print(
-        f"Đã đồng bộ dữ liệu từ {csv_file} vào {excel_file}, Sheet2 và cập nhật drop-down list!"
+        f"Đã đồng bộ dữ liệu từ {csv_file} vào {excel_file}, cập nhật {sheet2_name} và dropdown list trong {sheet1_name}!"
     )
 
 
@@ -94,5 +125,12 @@ def excel_sheet2_to_csv(excel_file, csv_file, sheet2_name="Dia_Chi"):
 
 # Sử dụng hàm
 csv_file = "data/destinations.csv"
-excel_file = "kcn_dropdown.xlsx"
-sync_csv_to_excel(csv_file, excel_file)
+excel_file = "Lenh_Dieu_Xe.xlsx"
+sync_csv_to_excel(
+    csv_file,
+    excel_file,
+    "Dia_Chi",
+    add_drop_down=True,
+    sheet1_name="3.3",
+    sheet1_range="B5:B55",
+)
