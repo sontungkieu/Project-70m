@@ -126,12 +126,12 @@ def excel_sheet2_to_csv(excel_file, csv_file, sheet2_name="Dia_Chi"):
 # Sử dụng hàm
 csv_file = "data/destinations.csv"
 excel_file = "Lenh_Dieu_Xe.xlsx"
-excel_sheet2_to_csv(excel_file, csv_file)
-# sync_csv_to_excel(
-#     csv_file,
-#     excel_file,
-#     "Dia_Chi",
-#     add_drop_down=True,
-#     sheet1_name="3.3",
-#     sheet1_range="B5:B55",
-# )
+# excel_sheet2_to_csv(excel_file, csv_file)
+sync_csv_to_excel(
+    csv_file,
+    excel_file,
+    "Dia_Chi",
+    add_drop_down=True,
+    sheet1_name="3.4",
+    sheet1_range="B5:B55",
+)
