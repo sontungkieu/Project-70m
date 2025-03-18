@@ -1,13 +1,14 @@
 from copy import copy
 
 from openpyxl import load_workbook
-from openpyxl.formatting.rule import Rule
-from openpyxl.styles.differential import DifferentialStyle
 from openpyxl.worksheet.datavalidation import DataValidation
 
 
 def copy_excel_sheet_fully(
-    file_path="Lenh_Dieu_Xe.xlsx", origin_sheet="Sheet1", sheet_name="NewSheet"
+    file_path="Lenh_Dieu_Xe.xlsx",
+    origin_sheet="Sheet1",
+    sheet_name="NewSheet",
+    skip_cf=False,
 ):
     try:
         # Load file Excel
@@ -74,57 +75,67 @@ def copy_excel_sheet_fully(
         if source_sheet.freeze_panes:
             target_sheet.freeze_panes = source_sheet.freeze_panes
 
-        # Copy conditional formatting
-        for (
-            cf
-        ) in source_sheet.conditional_formatting:  # Lặp qua các ConditionalFormatting
-            for cell_range in cf.cells:  # Lấy phạm vi áp dụng
-                range_string = str(cell_range)
-                for rule in cf.rules:  # Lấy các rule trong ConditionalFormatting
-                    # Nếu rule có dxf (DifferentialStyle), sao chép nó
-                    if hasattr(rule, "dxf") and rule.dxf:
-                        dxf = DifferentialStyle(
-                            font=copy(rule.dxf.font) if rule.dxf.font else None,
-                            border=copy(rule.dxf.border) if rule.dxf.border else None,
-                            fill=copy(rule.dxf.fill) if rule.dxf.fill else None,
-                            alignment=copy(rule.dxf.alignment)
-                            if rule.dxf.alignment
+        # Copy conditional formatting (nếu không skip)
+        if not skip_cf:
+            from openpyxl.formatting.rule import Rule
+            from openpyxl.styles.differential import DifferentialStyle
+
+            for cf in source_sheet.conditional_formatting:
+                for cell_range in cf.cells:
+                    range_string = str(cell_range)
+                    for rule in cf.rules:
+                        if hasattr(rule, "dxf") and rule.dxf:
+                            dxf = DifferentialStyle(
+                                font=copy(rule.dxf.font) if rule.dxf.font else None,
+                                border=copy(rule.dxf.border)
+                                if rule.dxf.border
+                                else None,
+                                fill=copy(rule.dxf.fill) if rule.dxf.fill else None,
+                                alignment=copy(rule.dxf.alignment)
+                                if rule.dxf.alignment
+                                else None,
+                            )
+                        else:
+                            dxf = None
+
+                        new_rule = Rule(
+                            type=rule.type,
+                            dxf=dxf,
+                            formula=rule.formula if hasattr(rule, "formula") else None,
+                            stopIfTrue=rule.stopIfTrue
+                            if hasattr(rule, "stopIfTrue")
                             else None,
+                            priority=rule.priority
+                            if hasattr(rule, "priority")
+                            else None,
+                            operator=rule.operator
+                            if hasattr(rule, "operator")
+                            else None,
+                            text=rule.text if hasattr(rule, "text") else None,
                         )
-                    else:
-                        dxf = None
 
-                    # Tạo Rule mới
-                    new_rule = Rule(
-                        type=rule.type,
-                        dxf=dxf,
-                        formula=rule.formula if hasattr(rule, "formula") else None,
-                        stopIfTrue=rule.stopIfTrue
-                        if hasattr(rule, "stopIfTrue")
-                        else None,
-                        priority=rule.priority if hasattr(rule, "priority") else None,
-                        operator=rule.operator if hasattr(rule, "operator") else None,
-                        text=rule.text if hasattr(rule, "text") else None,
-                    )
+                        target_sheet.conditional_formatting.add(range_string, new_rule)
 
-                    # Thêm Rule vào sheet đích
-                    target_sheet.conditional_formatting.add(range_string, new_rule)
-
-        # Copy data validation
+        # Copy data validation (bao gồm dropdown list)
         for dv in source_sheet.data_validations.dataValidation:
+            # Tạo mới DataValidation
             new_dv = DataValidation(
-                type=dv.type,
-                formula1=dv.formula1,
-                formula2=dv.formula2,
+                type=dv.type,  # Loại xác thực (ví dụ: "list")
+                formula1=dv.formula1,  # Công thức hoặc giá trị danh sách
+                formula2=dv.formula2
+                if dv.formula2
+                else None,  # Công thức thứ hai (nếu có)
                 allow_blank=dv.allow_blank,
                 validationOperator=dv.operator,
             )
+            # Sao chép phạm vi áp dụng
             new_dv.ranges = dv.ranges
+            # Thêm vào sheet đích
             target_sheet.add_data_validation(new_dv)
 
         # Copy sheet properties
         target_sheet.sheet_properties.tabColor = source_sheet.sheet_properties.tabColor
-        target_sheet.views = source_sheet.views  # Bao gồm zoom level
+        target_sheet.views = source_sheet.views
 
         # Lưu file
         wb.save(file_path)
