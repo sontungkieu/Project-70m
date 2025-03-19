@@ -94,7 +94,7 @@ def initialize_driver_timetable(
         print(f"Đã khởi tạo/cập nhật sheet '{sheet_name}' trong {file_path}")
 
 
-def initialize_driver_schedule(
+def initialize_driver_list(
     filename="Lenh_Dieu_Xe.xlsx", sheet_name="Tai_Xe", is_testing=False
 ):
     # Danh sách cột theo thứ tự

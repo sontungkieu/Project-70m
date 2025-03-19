@@ -54,3 +54,4 @@ brotli
 
 
 pre-commit
+faker
