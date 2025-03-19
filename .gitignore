@@ -195,4 +195,3 @@ cython_debug/
 /macos/
 results.json
 output_*
-*.xlsx
