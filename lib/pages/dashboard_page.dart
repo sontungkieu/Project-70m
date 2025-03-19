@@ -1,26 +1,12 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../widgets/side_drawer.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:webview_flutter/webview_flutter.dart'; // Thêm import cho WebView
+import 'dart:typed_data';
 
-/// Hàm ghi log vào file txt
-Future<void> writeLog(String logMessage) async {
-  try {
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/app_log.txt');
-    final sink = file.openWrite(mode: FileMode.append);
-    sink.write('${DateTime.now()}: $logMessage\n');
-    await sink.flush();
-    await sink.close();
-  } catch (e) {
-    print("Error writing log: $e");
-  }
-}
 
 /// Hàm lấy URL của file Excel từ Firebase Storage
 Future<String?> _getExcelFileUrl() async {
@@ -28,10 +14,10 @@ Future<String?> _getExcelFileUrl() async {
     final firebase_storage.Reference storageRef = firebase_storage.FirebaseStorage.instance
         .ref('requests_xlsx/Lenh_Dieu_Xe.xlsx');
     final String fileUrl = await storageRef.getDownloadURL();
-    await writeLog("Excel file URL: $fileUrl");
+    print("Excel file URL: $fileUrl");
     return fileUrl;
   } catch (e) {
-    await writeLog("Error getting Excel file URL: $e");
+    print("Error getting Excel file URL: $e");
     return null;
   }
 }
@@ -43,6 +29,7 @@ Widget _buildExcelViewer(BuildContext context) {
       if (snapshot.connectionState == ConnectionState.waiting) {
         return const Center(child: CircularProgressIndicator());
       } else if (snapshot.hasError || !snapshot.hasData) {
+        // Hiển thị AlertDialog khi có lỗi
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(
             context: context,
@@ -58,17 +45,19 @@ Widget _buildExcelViewer(BuildContext context) {
             ),
           );
         });
-        return Container();
+        return Container(); // Trả về một widget rỗng
       } else {
         final fileUrl = snapshot.data!;
+        // Tạo URL Google Docs Viewer
         final viewerUrl = "https://docs.google.com/gview?embedded=true&url=${Uri.encodeComponent(fileUrl)}";
         
+        // Tạo WebViewController
         final controller = WebViewController()
           ..setJavaScriptMode(JavaScriptMode.unrestricted)
           ..loadRequest(Uri.parse(viewerUrl));
 
         return Container(
-          height: MediaQuery.of(context).size.height * 0.6,
+          height: MediaQuery.of(context).size.height * 0.6, // Chiếm 60% chiều cao màn hình
           decoration: BoxDecoration(
             border: Border.all(color: Colors.black12),
             borderRadius: BorderRadius.circular(12),
@@ -80,7 +69,6 @@ Widget _buildExcelViewer(BuildContext context) {
     },
   );
 }
-
 /// Lớp chứa dữ liệu cho Dashboard
 class DashboardData {
   final int activeDrivers;
@@ -103,19 +91,22 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> with SingleTickerProviderStateMixin {
   late DateTime _currentTime;
-  Timer? _timer;
-  Timer? _reloadTimer;
+  Timer? _timer;  // Timer 1s để cập nhật thời gian
+  Timer? _reloadTimer; // Timer 10 phút để reload future
 
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<Offset> _cardSlideAnimation;
 
+  // Future chứa dữ liệu Dashboard
   Future<DashboardData>? _dashboardFuture;
 
   @override
   void initState() {
     super.initState();
+
+    // Thiết lập thời gian GMT+7 và cập nhật mỗi giây
     _currentTime = DateTime.now().toUtc().add(const Duration(hours: 7));
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() {
@@ -123,6 +114,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       });
     });
 
+    // Khởi tạo animation controller
     _controller = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -144,6 +136,8 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     );
 
     _controller.forward();
+
+    // Lần đầu load dữ liệu Dashboard
     _dashboardFuture = fetchDashboardData();
   }
 
@@ -155,19 +149,23 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     super.dispose();
   }
 
+  /// Gọi các query Firestore để lấy dữ liệu Dashboard
   Future<DashboardData> fetchDashboardData() async {
+    // 1) active drivers
     final activeSnap = await FirebaseFirestore.instance
         .collection('Drivers')
         .where('available', isEqualTo: true)
         .get();
     final activeCount = activeSnap.size;
 
+    // 2) pending orders
     final pendingSnap = await FirebaseFirestore.instance
         .collection('Requests')
         .where('delivery_status', isEqualTo: false)
         .get();
     final pendingCount = pendingSnap.size;
 
+    // 3) today’s orders
     final now = DateTime.now();
     final startOfToday = DateTime(now.year, now.month, now.day);
     final endOfToday = startOfToday.add(const Duration(days: 1));
@@ -215,58 +213,59 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
         ),
       ),
       body: FutureBuilder<DashboardData>(
-        future: _dashboardFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text("Lỗi: ${snapshot.error}"));
-          }
-          final data = snapshot.data!;
+  future: _dashboardFuture,
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (snapshot.hasError) {
+      return Center(child: Text("Lỗi: ${snapshot.error}"));
+    }
+    final data = snapshot.data!;
 
-          if (_reloadTimer == null) {
-            _reloadTimer = Timer(const Duration(minutes: 10), () {
-              setState(() {
-                _dashboardFuture = fetchDashboardData();
-              });
-              _reloadTimer = null;
-            });
-          }
+    // Lên lịch reload dữ liệu sau 10 phút nếu chưa có timer
+    if (_reloadTimer == null) {
+      _reloadTimer = Timer(const Duration(minutes: 10), () {
+        setState(() {
+          _dashboardFuture = fetchDashboardData();
+        });
+        _reloadTimer = null;
+      });
+    }
 
-          return FadeTransition(
-            opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
-                      children: [
-                        _buildSummaryCard("Tài xế hoạt động", data.activeDrivers.toString(), "Đang làm việc"),
-                        _buildSummaryCard("Đơn hàng đang chờ", data.pendingOrders.toString(), "Chờ điều phối"),
-                        _buildSummaryCard("Ngày", dateStr, ""),
-                        _buildSummaryCard("Giờ", timeStr, ""),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    const Text(
-                      "Lệnh điều xe hôm nay",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildExcelViewer(context),
-                  ],
-                ),
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: [
+                  _buildSummaryCard("Tài xế hoạt động", data.activeDrivers.toString(), "Đang làm việc"),
+                  _buildSummaryCard("Đơn hàng đang chờ", data.pendingOrders.toString(), "Chờ điều phối"),
+                  _buildSummaryCard("Ngày", dateStr, ""),
+                  _buildSummaryCard("Giờ", timeStr, ""),
+                ],
               ),
-            ),
-          );
-        },
+              const SizedBox(height: 32),
+              const Text(
+                "Lệnh điều xe hôm nay",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              _buildExcelViewer(context),
+            ],
+          ),
+        ),
       ),
+    );
+  },
+),
     );
   }
 
@@ -295,4 +294,6 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       ),
     );
   }
+
+  
 }
