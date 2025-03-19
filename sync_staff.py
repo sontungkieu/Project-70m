@@ -366,6 +366,9 @@ def check_driver_availability(
     return driver_availability
 
 
+# đọc sheet driver, staff, chuyển thành driver object và staff object
+
+
 # Gọi hàm để thực thi
 if __name__ == "__main__":
     # Chạy bình thường

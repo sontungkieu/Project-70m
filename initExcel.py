@@ -11,7 +11,7 @@ from openpyxl.worksheet.datavalidation import DataValidation
 
 from config import *
 from sync_destinations import sync_csv_to_excel
-from sync_driver import (
+from sync_staff import (
     copy_driver_data_to_timetable,
     initialize_driver_list,
     initialize_driver_timetable,
@@ -515,7 +515,7 @@ def init_staff(file_path="Lenh_Dieu_Xe.xlsx", number_of_random_staff=0):
 def create_dropdowns(
     range_e="CONFIG!AA1:AA4656",
     range_ijk="CONFIG!AB1:AB2",
-    range_g="Dia_Chi!C1:C6",
+    range_g="Dia_Chi!A1:A6",
     range_h="CONFIG!B3:B100",
     range_d="CONFIG!F1:F6",
 ):
@@ -605,13 +605,15 @@ def create_dropdowns(
     dropdown_values_g = ",".join(address_values)
 
     # Tạo dropdown cho cột G (mới thêm)
-    # print(f"Dữ liệu tìm thấy trong {range_g}: {address_values}")
-    # if address_values:
-    #     dv_g = DataValidation(type="list", formula1=f'"{dropdown_values_g}"', allow_blank=True)
-    #     dv_g.add("G5:G55")
-    #     ws.add_data_validation(dv_g)
-    # else:
-    #     print("Không có dữ liệu hợp lệ trong range C1:C6 của sheet Dia_Chi")
+    print(f"Dữ liệu tìm thấy trong {range_g}: {address_values}")
+    if address_values:
+        dv_g = DataValidation(
+            type="list", formula1=f'"{dropdown_values_g}"', allow_blank=True
+        )
+        dv_g.add("G5:G55")
+        ws.add_data_validation(dv_g)
+    else:
+        print("Không có dữ liệu hợp lệ trong range C1:C6 của sheet Dia_Chi")
 
     # Xử lý range cho cột H
     if "!" in range_h:
@@ -668,7 +670,7 @@ def create_dropdowns(
     # Lưu file
     try:
         wb.save(filename)
-        print(f"Đã thêm dropdown vào sheet 19022025 trong file {filename}")
+        print(f"Đã thêm dropdown vào sheet {TODAY} trong file {filename}")
         print(f"Dropdown cột I,J,K: {dropdown_values_ijk} từ {range_ijk}")
         # print(f"Dropdown cột G: {len(address_values)} giá trị từ {range_g}")
         print(f"Dropdown cột H: {len(h_values)} giá trị từ {range_h}")
