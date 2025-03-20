@@ -15,6 +15,14 @@ DATES = None
 
 
 def run_test_bo_doi_cong_nghiep(re_run=False):
+    # Kiểm tra và tạo thư mục "data", "data/output", "data/log" nếu chưa tồn tại
+    if not os.path.exists("data"):
+        os.makedirs("data")
+    if not os.path.exists("data/output"):
+        os.makedirs("data/output")
+    if not os.path.exists("data/log"):
+        os.makedirs("data/log")
+
     if re_run is False:
         current_time = "2025-02-19_10-49-26"
         if not os.path.exists("data"):
