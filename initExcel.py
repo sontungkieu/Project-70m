@@ -513,23 +513,23 @@ def init_staff(file_path="Lenh_Dieu_Xe.xlsx", number_of_random_staff=0):
 
 
 def create_dropdowns(
+    filename = "Lenh_Dieu_Xe.xlsx",
+    object_sheet = TODAY,
     range_e="CONFIG!AA1:AA4656",
     range_ijk="CONFIG!AB1:AB2",
     range_g="Dia_Chi!A1:A2",
     range_h="CONFIG!B3:B100",
     range_d="CONFIG!F1:F6",
 ):
-    filename = "Lenh_Dieu_Xe.xlsx"
-
     try:
         wb = openpyxl.load_workbook(filename)
     except FileNotFoundError:
         wb = openpyxl.Workbook()
 
-    if "19022025" not in wb.sheetnames:
-        ws = wb.create_sheet("19022025")
+    if object_sheet not in wb.sheetnames:
+        ws = wb.create_sheet(object_sheet)
     else:
-        ws = wb["19022025"]
+        ws = wb[object_sheet]
 
     # Xử lý range cho cột E
     if "!" in range_e:
