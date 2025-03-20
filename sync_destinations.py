@@ -34,7 +34,7 @@ def create_dropdown_list(
     # Tạo data validation kiểu list với công thức tham chiếu đến sheet nguồn
     dv = DataValidation(
         type="list",
-        formula1=f"'{source_sheet_name}'!${source_column}$7:${source_column}${num_rows}",
+        formula1=f"'{source_sheet_name}'!${source_column}$3:${source_column}${num_rows}",
         allow_blank=allow_blank,
     )
     dv.add(target_range)
@@ -121,12 +121,12 @@ if __name__ == "__main__":
     # Sử dụng hàm
     csv_file = "data/destinations.csv"
     excel_file = "Lenh_Dieu_Xe.xlsx"
-    # excel_sheet2_to_csv(excel_file, csv_file)
-    sync_csv_to_excel(
-        csv_file,
-        excel_file,
-        "Dia_Chi",
-        add_drop_down=True,
-        sheet1_name="3.4",
-        sheet1_range="B5:B55",
-    )
+    excel_sheet2_to_csv(excel_file, csv_file)
+    # sync_csv_to_excel(
+    #     csv_file,
+    #     excel_file,
+    #     "Dia_Chi",
+    #     add_drop_down=True,
+    #     sheet1_name="3.4",
+    #     sheet1_range="B5:B55",
+    # )

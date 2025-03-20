@@ -515,7 +515,7 @@ def init_staff(file_path="Lenh_Dieu_Xe.xlsx", number_of_random_staff=0):
 def create_dropdowns(
     range_e="CONFIG!AA1:AA4656",
     range_ijk="CONFIG!AB1:AB2",
-    range_g="Dia_Chi!A1:A6",
+    range_g="Dia_Chi!A1:A2",
     range_h="CONFIG!B3:B100",
     range_d="CONFIG!F1:F6",
 ):
