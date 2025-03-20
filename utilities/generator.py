@@ -152,7 +152,6 @@ def gen_requests_and_save(
     return requests
 
 
-
 if __name__ == "__main__":
     gen_map()
     gen_list_vehicle(5)

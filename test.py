@@ -67,9 +67,6 @@ def run_test_bo_doi_cong_nghiep(re_run=False):
     return perf_counter() - tin, memory_usage, stdout_filename, config_filename
 
 
-...
-
-
 def run_test_bo_doi_cong_nghiep_unicode(re_run=False):
     if re_run is False:
         current_time = "2025-02-19_10-49-26"

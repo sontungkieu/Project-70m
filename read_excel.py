@@ -58,8 +58,7 @@ def read_dropdown_info(
     }
 
 
-def read_excel_file(file_path = os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name = TODAY):
-
+def read_excel_file(file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name=TODAY):
     wb = load_workbook(file_path, data_only=True)
     if sheet_name not in wb.sheetnames:
         raise ValueError(f"Sheet '{sheet_name}' không tồn tại trong file {file_path}")
@@ -244,9 +243,11 @@ def convert_to_object(df: pd.DataFrame, day: str) -> List[Request]:
 
     return requests
 
-def excel_to_requests(file_path = os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name = TODAY):
-    df = read_excel_file(file_path=file_path,sheet_name=sheet_name)
-    return convert_to_object(df=df,day=sheet_name)
+
+def excel_to_requests(file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name=TODAY):
+    df = read_excel_file(file_path=file_path, sheet_name=sheet_name)
+    return convert_to_object(df=df, day=sheet_name)
+
 
 if __name__ == "__main__":
     try:
