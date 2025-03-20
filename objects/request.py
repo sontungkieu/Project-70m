@@ -6,20 +6,6 @@ from typing import List
 
 
 class Request:
-    # def __init__(self, name: str=".", start_place: List[int]= [0], end_place: List[int] = [10], weight: int = 100, date: str = "12122025", timeframe: List[int] = [0,24], note:str = ".",staff_id:int = 0, split_id:bool = 1):
-    #     self.name = name
-    #     self.start_place = start_place
-    #     self.end_place = end_place
-    #     self.weight = weight
-    #     self.date = date
-    #     self.timeframe = timeframe
-    #     self.note = note
-    #     self.staff_id = staff_id
-    #     self.split_id = split_id
-    #     self.delivery_time = -1
-    #     self.delivery_status = 0
-    #     self.request_id = self.gen_id()
-
     def __init__(
         self,
         name: str,
@@ -63,43 +49,35 @@ class Request:
         start_from_0=True,
         single_start=True,
         small_weight=True,
+        depots=[0, 1],  # Thêm tham số depots
     ):
-        """
-        Tạo một yêu cầu giao hàng ngẫu nhiên với thông tin:
-          - start_place: danh sách điểm lấy hàng,
-          - end_place: điểm giao hàng (danh sách chứa một phần tử),
-          - weight: trọng lượng,
-          - gen_day: ngày giao hàng (0-3),
-          - gen_timeframe: khung giờ giao hàng (hai số giờ trong ngày).
-        """
-        # Lấy điểm bắt đầu: nếu start_from_0 thì luôn là [0], ngược lại lấy mẫu ngẫu nhiên từ [0,1,2,3]
+        # Xác định điểm bắt đầu
         if start_from_0:
             start_place = [0]
         else:
             k = 1 if single_start else random.randint(1, 4)
             start_place = random.sample([0, 1, 2, 3], k=k)
-
-        # Lấy điểm kết thúc: một phần tử trong khoảng 1 đến NUM_OF_NODES-1
-        end_place = random.sample(list(range(1, NUM_OF_NODES)), k=1)
-
-        # Tính trọng lượng đơn hàng dựa trên tham số small_weight
+        # Chọn điểm kết thúc chỉ từ các nút không thuộc depot
+        valid_end_nodes = [
+            node for node in range(1, NUM_OF_NODES) if node not in depots
+        ]
+        if not valid_end_nodes:
+            raise ValueError(
+                "Không có node hợp lệ cho end_place, kiểm tra cấu hình depots và NUM_OF_NODES"
+            )
+        end_place = random.sample(valid_end_nodes, k=1)
+        # Tính trọng lượng đơn hàng
         if small_weight is True:
             weight = random.randint(0, int(9.7 * 10)) / 10
         elif small_weight is False:
             weight = random.randint(54 * 10, 300 * 10) / 10
         else:
             weight = random.randint(24 * 10, 150 * 10) / 10
-
-        # Ngày giao hàng (giá trị ngẫu nhiên từ 0 đến 3)
+        # Sinh ngày giao hàng và khung giờ
         now = datetime.now()
         tomorrow = now + timedelta(days=random.randint(0, 10))
         formatted_date = tomorrow.strftime("%d%m%Y")
-        # Khung giờ giao hàng: 2 giờ được chọn ngẫu nhiên trong ngày và sắp xếp tăng dần
         gen_timeframe = sorted(random.sample(list(range(0, 24)), k=2))
-
-        # Tạo mã yêu cầu theo định dạng:
-        # <ngày giao (ngày mai)>-<giờ1>-<giờ2>-<start_place[0]>-<end_place[0]>-<trọng lượng*10>-<id ngẫu nhiên 2 số>
-
         return cls(".", start_place, end_place, weight, formatted_date, gen_timeframe)
 
     def to_list(self):
