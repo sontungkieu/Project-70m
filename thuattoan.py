@@ -5,7 +5,7 @@ import argparse
 from datetime import datetime
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
-import utilities.generator as generator
+import utilities.generator2depots as generator2depots
 import utilities.load_requests as load_requests
 from config import *  # Giả sử config.py định nghĩa các hằng số cần thiết như SEARCH_STRATEGY, CAPACITY_SCALE, DISTANCE_SCALE, ...
 from objects.driver import Driver
@@ -229,7 +229,7 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
         logger.info("--- Day %s ---", day)
         seed = random.randint(10, 1000)
         list_of_seed.append(seed)
-        generator.gen_requests_and_save(NUM_OF_REQUEST_PER_DAY, file_sufices=str(day), NUM_OF_NODES=NUM_OF_NODES, seed=seed)
+        generator2depots.gen_requests_and_save(NUM_OF_REQUEST_PER_DAY, file_sufices=str(day), NUM_OF_NODES=NUM_OF_NODES, seed=seed)
         
         distance_matrix, demands, vehicle_capacities, time_windows, num_nodes, num_vehicles = load_data(request_file=f"data/intermediate/{day}.json")
         if not historical_km:
@@ -256,8 +256,8 @@ if __name__ == "__main__":
     Path("data/test").mkdir(parents=True, exist_ok=True)
     
     if IS_TESTING:
-        generator.gen_map(NUM_OF_NODES=NUM_OF_NODES, seed=42)
-        generator.gen_list_vehicle(NUM_OF_VEHICLES=NUM_OF_VEHICLES, seed=42)
+        generator2depots.gen_map(NUM_OF_NODES=NUM_OF_NODES, seed=42)
+        generator2depots.gen_list_vehicle(NUM_OF_VEHICLES=NUM_OF_VEHICLES, seed=42)
         historical_km = multi_day_routing_gen_request(num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)
     else:
         # Xử lý dữ liệu thực tế cho một ngày

@@ -29,6 +29,8 @@ LAMBDA = 2
 SEARCH_STRATEGY = 0  # chọn chiến lược tìm kiếm
 INFINITY = 999_999_999_999_999_999
 RUNTIME = None
+DEPOT_VEHICLE_COUNTS = [20, 21]  # 20 xe cho Depot 0, 21 xe cho Depot 1
+NU_PENALTY = 10
 
 config = {
     "IS_TESTING": IS_TESTING,
@@ -54,7 +56,8 @@ config = {
     "MU": MU,  # hệ số MU
     "LAMBDA": LAMBDA,  # hệ số LAMBDA
     "SEARCH_STRATEGY": SEARCH_STRATEGY,
-    "RUNTIME": RUNTIME,  # chiến lược tìm kiếm
+    "RUNTIME": RUNTIME,
+    "NU_PENALTY": NU_PENALTY  # chiến lược tìm kiếm
 }
 
 
