@@ -25,6 +25,7 @@ class SchedulePage extends StatefulWidget {
 class _SchedulePageState extends State<SchedulePage> with SingleTickerProviderStateMixin {
   bool isProcessing = false;
   bool isGenerated = false;
+  bool isAlgorithmSuccess = false; // Thêm biến này
   String? uploadedExcelUrl; // URL của file Excel đã upload
   String? generatedJsonUrl; // URL của file JSON kết quả
 
@@ -57,7 +58,8 @@ class _SchedulePageState extends State<SchedulePage> with SingleTickerProviderSt
     super.dispose();
   }
 
-Future<void> _uploadExcelAndRun() async {
+  // ==================== Nút 1: Upload Excel  ====================
+Future<void> _uploadExcelFile() async {
   // Mở file picker để chọn file Excel
   final result = await FilePicker.platform.pickFiles(
     type: FileType.custom,
@@ -83,37 +85,17 @@ Future<void> _uploadExcelAndRun() async {
     // Lấy download URL của file Excel
     final String downloadUrl = await storageRef.getDownloadURL();
     
-    // Tạo job_id ví dụ sử dụng timestamp
-    final String jobId = DateTime.now().millisecondsSinceEpoch.toString();
-
-    // Gửi HTTP request tới backend để chạy thuật toán OR-Tools
-    final response = await http.post(
-      Uri.parse('https://602f-202-191-58-161.ngrok-free.app/optimize'),   
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "job_id": jobId,
-        "excel_url": downloadUrl,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-    final responseData = jsonDecode(response.body);
+    setState(() {
+      uploadedExcelUrl = downloadUrl;
+    });
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("Algorithm triggered successfully. Job ID: ${responseData['job_id']}"),
+        content: Text("File uploaded successfully!"),
         backgroundColor: Colors.green,
       ),
     );
-} else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error triggering algorithm: ${response.body}"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   } on firebase_storage.FirebaseException catch (e) {
-    // Debug chi tiết lỗi của Firebase Storage
     print("Firebase Storage Error: ${e.code} - ${e.message}");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -124,7 +106,6 @@ Future<void> _uploadExcelAndRun() async {
   } catch (e) {
     print("General error: $e");
     ScaffoldMessenger.of(context).showSnackBar(
-
       SnackBar(
         content: Text("Upload failed: $e - $fileName"),
         backgroundColor: Colors.red,
@@ -132,36 +113,91 @@ Future<void> _uploadExcelAndRun() async {
     );
   }
 }
+// ==================== Nút 2: Trigger Algorithm ====================
+Future<void> _triggerAlgorithm() async {
+  if (uploadedExcelUrl == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Please upload the Excel file first."),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+  
+  // Tạo job_id ví dụ sử dụng timestamp
+  final String jobId = DateTime.now().millisecondsSinceEpoch.toString();
+  try {
+    final response = await http.post(
+      Uri.parse('https://602f-202-191-58-161.ngrok-free.app/optimize'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "job_id": jobId,
+        "excel_url": uploadedExcelUrl,
+      }),
+    );
 
-
-
-  // ==================== Nút 2: Download JSON Result ====================
-  Future<void> _downloadResultJson() async {
-    try {
-      // Giả sử file JSON được backend lưu tại: 'requests_xlsx/outputs/route_result.json'
-      final firebase_storage.Reference jsonRef = firebase_storage.FirebaseStorage.instance
-          .ref('requests_xlsx/outputs/route_result.json');
-      final String url = await jsonRef.getDownloadURL();
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
       setState(() {
-        generatedJsonUrl = url;
+        isAlgorithmSuccess = true;  // Cập nhật trạng thái thành công
       });
-      // Sử dụng url_launcher để mở URL (trình duyệt download file)
-      if (await canLaunchUrl(Uri.parse(url))) {
-        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-      } else {
-        throw "Could not launch URL";
-      }
-    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Error downloading JSON: $e"),
+          content: Text("Algorithm triggered successfully. Job ID: ${responseData['job_id']}"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error triggering algorithm: ${response.body}"),
           backgroundColor: Colors.red,
         ),
       );
     }
+  } catch (e) {
+    print("Error triggering algorithm: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Error triggering algorithm: $e"),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
 
-  // ==================== Nút 3: Upload Edited JSON ====================
+   
+  // ==================== Nút 3: generate schedule Result ====================
+ Future<void> _generateSchedule() async {
+  if (!isAlgorithmSuccess) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+         content: Text("Algorithm not successful yet."),
+         backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+  
+  setState(() {
+    isProcessing = true;
+  });
+  // Giả lập gọi backend để tạo schedule
+  await Future.delayed(const Duration(seconds: 2));
+  setState(() {
+    isProcessing = false;
+    isGenerated = true;
+  });
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text("Schedule generated successfully!"),
+      backgroundColor: Colors.green,
+    ),
+  );
+}
+
+  // ==================== Nút 4 : Upload Edited JSON ====================
   Future<void> _uploadEditedJson() async {
     // Chọn file JSON đã chỉnh sửa
     final result = await FilePicker.platform.pickFiles(
@@ -221,19 +257,32 @@ Future<void> _uploadExcelAndRun() async {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Khu vực Upload Excel & Run Algorithm
-                _buildCard(
-                  title: "Upload Transport Requests",
-                  child: SizedBox(
-                    height: 150,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.file_upload, size: 40, color: Colors.black54),
-                          const SizedBox(height: 8),
-                          ElevatedButton(
-                            onPressed: _uploadExcelAndRun,
-                            child: const Text("Upload Excel File & Run Algorithm"),
+                    _buildCard(
+                    title: "Upload Transport Requests",
+                    child: SizedBox(
+                      height: 150,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Nút upload Excel
+                            ElevatedButton(
+                              onPressed: _uploadExcelFile,
+                              child: const Text("Upload Excel File"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            // Nút trigger thuật toán
+                            ElevatedButton(
+                            onPressed: (uploadedExcelUrl != null) ? _triggerAlgorithm : null,
+                            child: const Text("Run Algorithm"),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,
                               foregroundColor: Colors.white,
@@ -243,33 +292,22 @@ Future<void> _uploadExcelAndRun() async {
                               ),
                             ),
                           ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
                 const SizedBox(height: 16),
-                // Khu vực Generate Schedule (hiển thị trạng thái processing)
+                // Card Generate Schedule
                 _buildCard(
                   title: "Generate Schedule",
                   child: SizedBox(
                     height: 100,
                     child: Center(
                       child: ElevatedButton.icon(
-                        onPressed: isProcessing
+                        onPressed: (!isAlgorithmSuccess || isProcessing)
                             ? null
-                            : () {
-                                setState(() {
-                                  isProcessing = true;
-                                });
-                                // Giả lập gọi backend: ở đây bạn có thể gọi API nếu cần
-                                Future.delayed(const Duration(seconds: 2), () {
-                                  setState(() {
-                                    isProcessing = false;
-                                    isGenerated = true;
-                                  });
-                                });
-                              },
+                            : _generateSchedule,
                         icon: const Icon(Icons.schedule),
                         label: isProcessing
                             ? const Text("Processing...")
@@ -282,39 +320,6 @@ Future<void> _uploadExcelAndRun() async {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Khu vực Download Schedule
-                _buildCard(
-                  title: "Download Schedule",
-                  child: SizedBox(
-                    height: 100,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (isGenerated)
-                            const Text(
-                              "Schedule generated successfully!",
-                              style: TextStyle(fontWeight: FontWeight.w500),
-                            ),
-                          const SizedBox(height: 8),
-                          ElevatedButton(
-                            onPressed: isGenerated ? _downloadResultJson : null,
-                            child: const Text("Download JSON Schedule"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ],
                       ),
                     ),
                   ),
