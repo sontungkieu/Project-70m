@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 IS_TESTING = True
 NUM_OF_VEHICLES = 41  # số xe
-NUM_OF_NODES = 30  # số đỉnh của đồ thị
+NUM_OF_NODES = 50  # số đỉnh của đồ thị
 NUM_OF_REQUEST_PER_DAY = 30  #
 NUM_OF_DAY_REPETION = 3  #
 # scale = 1: đo khoảng cách theo km, scale = 10 do khoảng cách theo 0.1km

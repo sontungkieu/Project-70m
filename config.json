@@ -1,7 +1,7 @@
 {
     "IS_TESTING": true,
     "NUM_OF_VEHICLES": 41,
-    "NUM_OF_NODES": 30,
+    "NUM_OF_NODES": 50,
     "NUM_OF_REQUEST_PER_DAY": 30,
     "NUM_OF_DAY_REPETION": 3,
     "DISTANCE_SCALE": 1,
