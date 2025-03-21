@@ -3,8 +3,73 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../widgets/side_drawer.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:webview_flutter/webview_flutter.dart'; // Thêm import cho WebView
+import 'dart:typed_data';
 
-// Lớp chứa dữ liệu cho Dashboard
+
+/// Hàm lấy URL của file Excel từ Firebase Storage
+Future<String?> _getExcelFileUrl() async {
+  try {
+    final firebase_storage.Reference storageRef = firebase_storage.FirebaseStorage.instance
+        .ref('requests_xlsx/Lenh_Dieu_Xe.xlsx');
+    final String fileUrl = await storageRef.getDownloadURL();
+    print("Excel file URL: $fileUrl");
+    return fileUrl;
+  } catch (e) {
+    print("Error getting Excel file URL: $e");
+    return null;
+  }
+}
+
+Widget _buildExcelViewer(BuildContext context) {
+  return FutureBuilder<String?>(
+    future: _getExcelFileUrl(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError || !snapshot.hasData) {
+        // Hiển thị AlertDialog khi có lỗi
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text("Lỗi"),
+              content: Text("Không thể tải file Excel: ${snapshot.error}"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("Đóng"),
+                ),
+              ],
+            ),
+          );
+        });
+        return Container(); // Trả về một widget rỗng
+      } else {
+        final fileUrl = snapshot.data!;
+        // Tạo URL Google Docs Viewer
+        final viewerUrl = "https://docs.google.com/gview?embedded=true&url=${Uri.encodeComponent(fileUrl)}";
+        
+        // Tạo WebViewController
+        final controller = WebViewController()
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..loadRequest(Uri.parse(viewerUrl));
+
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.6, // Chiếm 60% chiều cao màn hình
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.black12),
+            borderRadius: BorderRadius.circular(12),
+            color: Colors.grey.shade50,
+          ),
+          child: WebViewWidget(controller: controller),
+        );
+      }
+    },
+  );
+}
+/// Lớp chứa dữ liệu cho Dashboard
 class DashboardData {
   final int activeDrivers;
   final int pendingOrders;
@@ -26,7 +91,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> with SingleTickerProviderStateMixin {
   late DateTime _currentTime;
-  Timer? _timer;  // Timer 1s để cập nhật _currentTime
+  Timer? _timer;  // Timer 1s để cập nhật thời gian
   Timer? _reloadTimer; // Timer 10 phút để reload future
 
   late AnimationController _controller;
@@ -34,14 +99,14 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
   late Animation<Offset> _slideAnimation;
   late Animation<Offset> _cardSlideAnimation;
 
-  // Biến lưu future => khi setState thay đổi future => futurebuilder chạy lại
+  // Future chứa dữ liệu Dashboard
   Future<DashboardData>? _dashboardFuture;
 
   @override
   void initState() {
     super.initState();
 
-    // Thời gian GMT+7, cập nhật mỗi giây (nếu muốn hiển thị giờ “live”)
+    // Thiết lập thời gian GMT+7 và cập nhật mỗi giây
     _currentTime = DateTime.now().toUtc().add(const Duration(hours: 7));
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() {
@@ -49,7 +114,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       });
     });
 
-    // Init animation
+    // Khởi tạo animation controller
     _controller = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -67,40 +132,37 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       begin: const Offset(0, 0.2),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.3, 0.7, curve: Curves.easeOut),
-      ),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.3, 0.7, curve: Curves.easeOut)),
     );
 
     _controller.forward();
 
-    // Lần đầu load => fetch
+    // Lần đầu load dữ liệu Dashboard
     _dashboardFuture = fetchDashboardData();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    _reloadTimer?.cancel(); // Huỷ timer 10 phút
+    _reloadTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
-  /// Gọi 3 query Firestore
+  /// Gọi các query Firestore để lấy dữ liệu Dashboard
   Future<DashboardData> fetchDashboardData() async {
     // 1) active drivers
     final activeSnap = await FirebaseFirestore.instance
-      .collection('Drivers')
-      .where('available', isEqualTo: true)
-      .get();
+        .collection('Drivers')
+        .where('available', isEqualTo: true)
+        .get();
     final activeCount = activeSnap.size;
 
     // 2) pending orders
     final pendingSnap = await FirebaseFirestore.instance
-      .collection('Requests')
-      .where('delivery_status', isEqualTo: false)
-      .get();
+        .collection('Requests')
+        .where('delivery_status', isEqualTo: false)
+        .get();
     final pendingCount = pendingSnap.size;
 
     // 3) today’s orders
@@ -109,10 +171,10 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     final endOfToday = startOfToday.add(const Duration(days: 1));
 
     final todaySnap = await FirebaseFirestore.instance
-      .collection('Requests')
-      .where('date', isGreaterThanOrEqualTo: startOfToday)
-      .where('date', isLessThan: endOfToday)
-      .get();
+        .collection('Requests')
+        .where('date', isGreaterThanOrEqualTo: startOfToday)
+        .where('date', isLessThan: endOfToday)
+        .get();
     final todayOrders = todaySnap.docs.map((doc) {
       final data = doc.data();
       return {
@@ -151,63 +213,59 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
         ),
       ),
       body: FutureBuilder<DashboardData>(
-        future: _dashboardFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Apple-style minimal loading
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          }
-          final data = snapshot.data!;
-          
-          // Khi data load xong => schedule 1 timer 10 phút (nếu chưa schedule)
-          // Mỗi lần build, ta check reloadTimer == null
-          if (_reloadTimer == null) {
-            _reloadTimer = Timer(const Duration(minutes: 10), () {
-              // 10 phút sau => setState => fetch lại
-              setState(() {
-                _dashboardFuture = fetchDashboardData();
-              });
-              // reset _reloadTimer = null => cho phép schedule lần nữa khi load xong
-              _reloadTimer = null;
-            });
-          }
+  future: _dashboardFuture,
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (snapshot.hasError) {
+      return Center(child: Text("Lỗi: ${snapshot.error}"));
+    }
+    final data = snapshot.data!;
 
-          return FadeTransition(
-            opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
-                      children: [
-                        _buildSummaryCard("Active Drivers", data.activeDrivers.toString(), "Currently on duty"),
-                        _buildSummaryCard("Pending Orders", data.pendingOrders.toString(), "Awaiting dispatch"),
-                        _buildSummaryCard("Date", dateStr, ""),
-                        _buildSummaryCard("Time", timeStr, ""),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    Text(
-                      "Today's Orders",
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTodayOrdersTable(data.todaysOrders),
-                  ],
-                ),
+    // Lên lịch reload dữ liệu sau 10 phút nếu chưa có timer
+    if (_reloadTimer == null) {
+      _reloadTimer = Timer(const Duration(minutes: 10), () {
+        setState(() {
+          _dashboardFuture = fetchDashboardData();
+        });
+        _reloadTimer = null;
+      });
+    }
+
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: [
+                  _buildSummaryCard("Tài xế hoạt động", data.activeDrivers.toString(), "Đang làm việc"),
+                  _buildSummaryCard("Đơn hàng đang chờ", data.pendingOrders.toString(), "Chờ điều phối"),
+                  _buildSummaryCard("Ngày", dateStr, ""),
+                  _buildSummaryCard("Giờ", timeStr, ""),
+                ],
               ),
-            ),
-          );
-        },
+              const SizedBox(height: 32),
+              const Text(
+                "Lệnh điều xe hôm nay",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              _buildExcelViewer(context),
+            ],
+          ),
+        ),
       ),
+    );
+  },
+),
     );
   }
 
@@ -222,7 +280,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           child: Column(
-            mainAxisSize: MainAxisSize.min, 
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
@@ -237,53 +295,5 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     );
   }
 
-  Widget _buildTodayOrdersTable(List<Map<String, dynamic>> orders) {
-    if (orders.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        alignment: Alignment.center,
-        child: const Text("No orders for today"),
-      );
-    }
-
-    final rows = orders.map((item) {
-      final orderId = item['orderId'] ?? '-';
-      final driver = item['driver'] ?? 'No Driver';
-      final deliveryStatus = item['deliveryStatus'] ?? 'Pending';
-      final deliveryTime = item['deliveryTime'] ?? '-';
-      // Action
-      const actionText = "...";
-      return DataRow(cells: [
-        DataCell(Text(orderId)),
-        DataCell(Text(driver)),
-        DataCell(Text(deliveryStatus)),
-        DataCell(Text(deliveryTime)),
-        DataCell(Text(actionText)),
-      ]);
-    }).toList();
-
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.grey.shade50,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text("Order ID")),
-          DataColumn(label: Text("Driver")),
-          DataColumn(label: Text("Status")),
-          DataColumn(label: Text("Delivery Time")),
-          DataColumn(label: Text("Actions")),
-        ],
-        rows: rows,
-      ),
-    );
-  }
+  
 }

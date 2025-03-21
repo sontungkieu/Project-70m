@@ -182,23 +182,7 @@ class _SideDrawerState extends State<SideDrawer>
                     Navigator.pushNamed(context, '/drivers');
                   },
                 ),
-                HoverableTile(
-                  icon: Icons.attach_money,
-                  title: "Payroll",
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, '/payroll');
-                  },
-                ),
-                const Divider(color: Colors.white54),
-                HoverableTile(
-                  icon: Icons.list_alt,
-                  title: "Requests",
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, '/requests');
-                  },
-                ),
+               
               ],
             ),
           ),
