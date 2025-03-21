@@ -4,7 +4,7 @@ IS_TESTING = True
 NUM_OF_VEHICLES = 41  # số xe
 NUM_OF_NODES = 50  # số đỉnh của đồ thị
 NUM_OF_REQUEST_PER_DAY = 30  #
-NUM_OF_DAY_REPETION = 30  #
+NUM_OF_DAY_REPETION = 10  #
 # scale = 1: đo khoảng cách theo km, scale = 10 do khoảng cách theo 0.1km
 DISTANCE_SCALE = 1
 # scale = 1: đo hàng theo đơn vị m3, scale = 10: đo hàng theo đơn vị 0.1m3

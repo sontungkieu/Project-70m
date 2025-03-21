@@ -3,27 +3,29 @@ import random
 import logging
 import argparse
 from datetime import datetime
-
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 import utilities.generator2depots as generator
 import utilities.load_requests as load_requests
-from config import *  # Giả sử config.py định nghĩa các hằng số: SEARCH_STRATEGY, CAPACITY_SCALE, DISTANCE_SCALE, MAX_TRAVEL_DISTANCE, GLOBAL_SPAN_COST_COEFFICIENT, MAX_ROUTE_SIZE, AVG_VELOCITY, MAX_WAITING_TIME, MAX_TRAVEL_TIME, DEPOT_VEHICLE_COUNTS, NUM_OF_DAY_REPETION, NUM_OF_REQUEST_PER_DAY, DATES, LAMBDA, MU, IS_TESTING,...
+from config import *  # File config.py định nghĩa các hằng số: SEARCH_STRATEGY, CAPACITY_SCALE, DISTANCE_SCALE, 
+                      # MAX_TRAVEL_DISTANCE, GLOBAL_SPAN_COST_COEFFICIENT, MAX_ROUTE_SIZE, AVG_VELOCITY, 
+                      # MAX_WAITING_TIME, MAX_TRAVEL_TIME, DEPOT_VEHICLE_COUNTS, NUM_OF_DAY_REPETION, 
+                      # NUM_OF_REQUEST_PER_DAY, DATES, LAMBDA, MU, IS_TESTING, NU_PENALTY,...
 from objects.driver import Driver
 from objects.request import Request
 from utilities.split_data import split_customers, split_requests
 from utilities.update_map import update_map
 
-# --- Đảm bảo NU_PENALTY được định nghĩa ---
+# Nếu NU_PENALTY chưa được định nghĩa, ta gán mặc định:
 try:
     NU_PENALTY
 except NameError:
-    NU_PENALTY = 1  # Điều chỉnh nếu cần
+    NU_PENALTY = 1
 
-# Các hằng số mới cho cơ chế depot & cân bằng
-THRESHOLD_DEPOT = 20       # Ngưỡng chênh lệch km giữa 2 depot
-DEPOT_PENALTY = 10         # Hệ số phạt bổ sung cho depot “nặng”
-BALANCE_PENALTY = 1        # Hệ số phạt cân bằng giữa km của xe
+# Thêm hằng số mới để điều chỉnh cân bằng km:
+THRESHOLD_KM = 20   # Ngưỡng chênh lệch km giữa 2 depot (20 km)
+ALPHA_BALANCE = 2   # Hệ số phạt cho chênh lệch so với trung bình
+HUGE_PENALTY = 10000  # Phạt rất nặng để "vô hiệu hóa" các xe của depot chạy quá nhiều
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -38,7 +40,10 @@ search_strategy = [
 ][SEARCH_STRATEGY]
 
 
-def load_data(distance_file="data/distance.json", request_file="data/intermediate/{TODAY}.json", vehicle_file="data/vehicle.json", real_mode=False):
+def load_data(distance_file="data/distance.json",
+              request_file="data/intermediate/{TODAY}.json",
+              vehicle_file="data/vehicle.json",
+              real_mode=False):
     """Tải dữ liệu định tuyến cho một ngày."""
     with open(vehicle_file, "r", encoding="utf-8") as f:
         vehicle_capacities = [int(u * CAPACITY_SCALE) for u in json.load(f)]
@@ -84,7 +89,6 @@ def create_routing_model(data):
     """Tạo mô hình định tuyến từ dữ liệu."""
     num_vehicles = data["num_vehicles"]
     num_depot_A = data["depot_vehicle_counts"][0]
-    # Ở đây, ban đầu chúng ta vẫn gán theo:
     start_nodes = [data["depots"][0] if v < num_depot_A else data["depots"][1] for v in range(num_vehicles)]
     end_nodes = start_nodes[:]
 
@@ -108,7 +112,8 @@ def create_routing_model(data):
 
     # Dimension cho dung lượng
     demand_callback_index = routing.RegisterUnaryTransitCallback(
-        lambda from_idx: 0 if manager.IndexToNode(from_idx) in data["depots"] else -data["demands"][manager.IndexToNode(from_idx)]
+        lambda from_idx: 0 if manager.IndexToNode(from_idx) in data["depots"]
+        else -data["demands"][manager.IndexToNode(from_idx)]
     )
     routing.AddDimensionWithVehicleCapacity(demand_callback_index, 0, data["vehicle_capacities"], False, "Capacity")
     capacity_dimension = routing.GetDimensionOrDie("Capacity")
@@ -140,36 +145,34 @@ def create_routing_model(data):
 
 
 def solve_routing(routing, manager, data, historical_km, lambda_penalty, mu_penalty):
-    """Giải bài toán định tuyến với cơ chế điều chỉnh penalty cho depot và cân bằng km."""
+    """Giải bài toán định tuyến với cơ chế phạt bổ sung cho cân bằng km."""
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     search_parameters.first_solution_strategy = search_strategy
 
-    num_vehicles = data["num_vehicles"]
     num_depot_A = data["depot_vehicle_counts"][0]
-
-    # Tính tổng km của các xe theo từng depot (giả sử xe 0..num_depot_A-1 thuộc depot 0)
     total_km_A = sum(historical_km[:num_depot_A])
     total_km_B = sum(historical_km[num_depot_A:])
-    diff_depot = abs(total_km_A - total_km_B)
+    avg_km = sum(historical_km) / len(historical_km)
+    min_capacity = min(data["vehicle_capacities"])
 
-    # Tính km trung bình của tất cả các xe
-    avg_km = sum(historical_km) / num_vehicles if num_vehicles > 0 else 0
+    for v in range(data["num_vehicles"]):
+        # Xác định xe thuộc depot nào
+        depot_v = data["depots"][0] if v < num_depot_A else data["depots"][1]
 
-    for v in range(num_vehicles):
-        base_cost = lambda_penalty * historical_km[v] + mu_penalty * (data["vehicle_capacities"][v] - min(data["vehicle_capacities"]))
+        base_cost = lambda_penalty * historical_km[v] + mu_penalty * (data["vehicle_capacities"][v] - min_capacity)
+        # Cộng thêm phạt cân bằng: chỉ tính nếu xe có số km vượt trung bình
+        balance_penalty = ALPHA_BALANCE * max(0, historical_km[v] - avg_km)
         extra_cost = 0
+        # Nếu chênh lệch tổng km giữa 2 depot vượt THRESHOLD_KM, phạt xe của depot có km cao
+        if total_km_A - total_km_B > THRESHOLD_KM:
+            if v < num_depot_A:
+                extra_cost = HUGE_PENALTY
+        elif total_km_B - total_km_A > THRESHOLD_KM:
+            if v >= num_depot_A:
+                extra_cost = HUGE_PENALTY
 
-        # Nếu chênh lệch giữa các depot vượt ngưỡng, áp dụng penalty cho depot có tổng km cao hơn
-        if diff_depot > THRESHOLD_DEPOT:
-            if total_km_A > total_km_B and v < num_depot_A:
-                extra_cost += DEPOT_PENALTY * (diff_depot - THRESHOLD_DEPOT)
-            elif total_km_B > total_km_A and v >= num_depot_A:
-                extra_cost += DEPOT_PENALTY * (diff_depot - THRESHOLD_DEPOT)
-
-        # Thêm balance penalty cho xe có km đi chênh lệch so với trung bình
-        balance_cost = BALANCE_PENALTY * abs(historical_km[v] - avg_km)
-
-        routing.SetFixedCostOfVehicle(int(base_cost + extra_cost + balance_cost), v)
+        total_fixed_cost = base_cost + balance_penalty + extra_cost
+        routing.SetFixedCostOfVehicle(int(total_fixed_cost), v)
 
     solution = routing.SolveWithParameters(search_parameters)
     if not solution:
@@ -178,7 +181,7 @@ def solve_routing(routing, manager, data, historical_km, lambda_penalty, mu_pena
 
     daily_distances = []
     distance_dimension = routing.GetDimensionOrDie("Distance")
-    for v in range(num_vehicles):
+    for v in range(data["num_vehicles"]):
         index = routing.Start(v)
         route_distance = 0
         while not routing.IsEnd(index):
@@ -220,7 +223,7 @@ def generate_solution_output(data, manager, routing, solution):
             })
             route_distance += data["distance_matrix"][node][manager.IndexToNode(next_index)]
             index = next_index
-        # Thêm thông tin của node cuối cùng
+        # Thêm thông tin cho node cuối cùng
         node = manager.IndexToNode(index)
         arrival = solution.Value(time_dimension.CumulVar(index))
         final_cap = solution.Value(capacity_dimension.CumulVar(index))
@@ -238,7 +241,7 @@ def generate_solution_output(data, manager, routing, solution):
 
 
 def print_daily_solution(data, manager, routing, solution):
-    """In lời giải cho một ngày (in ra console)."""
+    """In lời giải cho một ngày (ra console)."""
     output_data = generate_solution_output(data, manager, routing, solution)
     for vehicle, info in output_data["vehicles"].items():
         logger.info("Route for %s: %s", vehicle, info["list_of_route"])
@@ -250,12 +253,10 @@ def print_daily_solution(data, manager, routing, solution):
 def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
     """
     Định tuyến nhiều ngày với yêu cầu tự sinh.
-    Mỗi ngày, sau khi giải được lời giải, ta lưu output của ngày đó.
-    Cấu trúc output là danh sách với phần tử đầu tiên là header/meta,
-    sau đó là kết quả định tuyến cho từng ngày.
+    Mỗi ngày, sinh yêu cầu, giải định tuyến, lưu kết quả và cập nhật historical_km.
     """
     all_outputs = []
-    # Header meta (bạn có thể bổ sung thêm thông tin cấu hình nếu cần)
+    # Thêm header meta (có thể bao gồm cấu hình nếu cần)
     all_outputs.append({"meta": "Multi-day routing output", "dates": DATES})
     historical_km = None
     list_of_seed = []
@@ -264,17 +265,18 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
         logger.info("--- Day %s ---", day)
         seed = random.randint(10, 1000)
         list_of_seed.append(seed)
-        # Sinh yêu cầu cho ngày đó (file: data/intermediate/{day}.json)
+        # Sinh yêu cầu cho ngày đó
         generator.gen_requests_and_save(
             NUM_OF_REQUEST_PER_DAY,
             file_sufices=str(day),
             NUM_OF_NODES=NUM_OF_NODES,
             seed=seed,
             depots=[0, 1],
-            split_index=17
+            split_index=17,
         )
 
-        (distance_matrix, demands, vehicle_capacities, time_windows, num_nodes, num_vehicles) = load_data(request_file=f"data/intermediate/{day}.json")
+        (distance_matrix, demands, vehicle_capacities, time_windows,
+         num_nodes, num_vehicles) = load_data(request_file=f"data/intermediate/{day}.json")
         if not historical_km:
             historical_km = [0] * num_vehicles
         data = create_data_model(distance_matrix, demands, vehicle_capacities, time_windows, DEPOT_VEHICLE_COUNTS)
@@ -287,6 +289,7 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
         day_output = generate_solution_output(data, manager, routing, solution)
         day_output["date"] = day
         all_outputs.append(day_output)
+        # Cập nhật historical km
         for v in range(data["num_vehicles"]):
             historical_km[v] += daily_distances[v]
         logger.info("Updated historical km: %s", historical_km)
@@ -300,6 +303,7 @@ if __name__ == "__main__":
     parser.add_argument("--output", type=str, help="Path to output JSON file", required=False)
     args = parser.parse_args()
 
+    # Tạo thư mục cho output nếu chưa có
     from pathlib import Path
     Path("data/test").mkdir(parents=True, exist_ok=True)
 
@@ -307,11 +311,14 @@ if __name__ == "__main__":
         # Sinh map và danh sách xe
         generator.gen_map(NUM_OF_NODES=NUM_OF_NODES, seed=42)
         generator.gen_list_vehicle(NUM_OF_VEHICLES=NUM_OF_VEHICLES, seed=42)
-        all_outputs, historical_km = multi_day_routing_gen_request(num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU)
+        all_outputs, historical_km = multi_day_routing_gen_request(num_days=NUM_OF_DAY_REPETION,
+                                                                     lambda_penalty=LAMBDA,
+                                                                     mu_penalty=MU)
         output_data = all_outputs
     else:
         TODAY = datetime.now().strftime("%Y-%m-%d")
-        (distance_matrix, demands, vehicle_capacities, time_windows, num_nodes, num_vehicles) = load_data(request_file=f"data/intermediate/{TODAY}.json")
+        (distance_matrix, demands, vehicle_capacities, time_windows,
+         num_nodes, num_vehicles) = load_data(request_file=f"data/intermediate/{TODAY}.json")
         historical_km = [0] * num_vehicles
         data = create_data_model(distance_matrix, demands, vehicle_capacities, time_windows, DEPOT_VEHICLE_COUNTS)
         solution, manager, daily_distances, routing = solve_daily_routing(data, historical_km, LAMBDA, MU)
