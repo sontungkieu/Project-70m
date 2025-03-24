@@ -1,15 +1,21 @@
 import csv
-import time
 import os
+import time
 from pathlib import Path
 
 import requests
 import urllib3
 from dotenv import load_dotenv
 
-project_path = Path(__file__)#.parent.parent.parent
-while str(project_path)[-3:]!="70m": #nhảy đến file to
+project_path = Path(__file__)  # .parent.parent.parent
+
+PROJECT_ROOT_MARKER = "70m"
+
+while (
+    str(project_path)[-len(PROJECT_ROOT_MARKER) :] != PROJECT_ROOT_MARKER
+):  # nhảy đến file to
     project_path = project_path.parent
+
 env_path = project_path / ".env"
 
 load_dotenv(dotenv_path=env_path)
@@ -19,6 +25,10 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 GOONG_DEBUG = False
 # GOONG_API_KEY = "REDACTED" # chí bằng
 GOONG_API_KEY = os.getenv("GOONG_API_KEY")  # Long
+if not GOONG_API_KEY:
+    print("Error: GOONG_API_KEY environment variable not set.")
+    raise ValueError("GOONG_API_KEY environment variable is required but not set.")
+
 # GOONG_API_KEY = "REDACTED" # Tung
 
 

@@ -9,6 +9,11 @@ DISTANCE_SCALE = 1
 CAPACITY_SCALE = 10
 TIME_SCALE = 1
 MAX_ROUTE_SIZE = 4
+
+# scale = 1: đo thời gian theo đơn vị giờ, scale = X: đo thời gian theo đơn vị 1/X giờ
+TIME_SCALE = 4
+MAX_ROUTE_SIZE = 4  # số lượng đỉnh tối đa trong 1 tuyến đường
+# quãng đường tối đa xe di chuyển trong 1 turn
 MAX_TRAVEL_DISTANCE = DISTANCE_SCALE * 1000
 AVG_VELOCITY = DISTANCE_SCALE * 45
 MAX_TRAVEL_TIME = TIME_SCALE * 24
@@ -26,6 +31,12 @@ NU_PENALTY = 10
 
 # Mở rộng danh sách depot thành 6 điểm
 depots = [0, 1, 2, 3, 4, 5]
+
+"======================HANDLE EXCEL==========================="
+DROP_DOWN_RANGE_DIA_CHI = "Dia_Chi!C1:C1000"
+DROP_DOWN_RANGE_TIME = f"CONFIG!AA1:AA{(24 * TIME_SCALE + 1) * 12 * TIME_SCALE}"
+DROP_DOWN_RANGE_CHECKBOX = "CONFIG!AB1:AB2"
+
 
 config = {
     "IS_TESTING": IS_TESTING,
