@@ -47,7 +47,7 @@ def gen_list_vehicle(NUM_OF_VEHICLES, seed=42):
         json.dump(xe_s, jsonfile, separators=(",", ":"))
     print(f"Vehicle list generated with {NUM_OF_VEHICLES} vehicles.")
 
-def gen_requests_and_save(num_requests=10, file_sufices="", NUM_OF_NODES=34, seed=42, depots=[0, 1], split_index=17):
+def gen_requests_and_save(num_requests=10, file_sufices="", NUM_OF_NODES=34, seed=42, depots=[0,1,2,3,4,5], split_index=17):
     """
     Sinh yêu cầu giao hàng ngẫu nhiên và lưu vào file JSON.
     Sử dụng forced_depot để đảm bảo phân bố đều giữa các depot.
@@ -114,4 +114,4 @@ def gen_requests_and_save(num_requests=10, file_sufices="", NUM_OF_NODES=34, see
 if __name__ == "__main__":
     gen_map(NUM_OF_NODES=34, seed=42)
     gen_list_vehicle(NUM_OF_VEHICLES=5, seed=42)
-    gen_requests_and_save(num_requests=10, file_sufices="0", NUM_OF_NODES=34, seed=42, depots=[0,1], split_index=17)
+    gen_requests_and_save(num_requests=10, file_sufices="0", NUM_OF_NODES=34, seed=42, depots=[0,1,2,3,4,5], split_index=17)

@@ -3,7 +3,7 @@
     "NUM_OF_VEHICLES": 41,
     "NUM_OF_NODES": 50,
     "NUM_OF_REQUEST_PER_DAY": 30,
-    "NUM_OF_DAY_REPETION": 10,
+    "NUM_OF_DAY_REPETION": 30,
     "DISTANCE_SCALE": 1,
     "CAPACITY_SCALE": 10,
     "TIME_SCALE": 1,
@@ -23,5 +23,6 @@
     "DEPOT_VEHICLE_COUNTS": [20, 21],
     "DATES": ["19.02.2025", "20.02.2025", "21.02.2025"],
     "THRESHOLD_KM": 100,
-    "NU_PENALTY": 10
+    "NU_PENALTY": 10,
+    "depots": [0, 1, 2, 3, 4, 5]
 }
