@@ -163,6 +163,8 @@ def copy_excel_sheet_fully(
             f"Đã copy sheet '{origin_sheet}' sang sheet mới '{sheet_name}' với mọi thuộc tính!"
         )
 
+    except openpyxl.utils.exceptions.InvalidFileException as e:
+        print(f"The file is invalid or corrupted: {e}")
     except FileNotFoundError:
         print(f"Không tìm thấy file '{file_path}'")
     except Exception as e:
