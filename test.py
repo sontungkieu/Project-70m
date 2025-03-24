@@ -15,6 +15,14 @@ DATES = None
 
 
 def run_test_bo_doi_cong_nghiep(re_run=False):
+    # Kiểm tra và tạo thư mục "data", "data/output", "data/log" nếu chưa tồn tại
+    if not os.path.exists("data"):
+        os.makedirs("data")
+    if not os.path.exists("data/output"):
+        os.makedirs("data/output")
+    if not os.path.exists("data/log"):
+        os.makedirs("data/log")
+
     if re_run is False:
         current_time = "2025-02-19_10-49-26"
         if not os.path.exists("data"):
@@ -55,50 +63,6 @@ def run_test_bo_doi_cong_nghiep(re_run=False):
                 break  # Quá trình đã kết thúc, thoát vòng lặp
 
         process.wait()  # Đảm bảo tiến trình đã kết thúc hoàn toàn
-
-    return perf_counter() - tin, memory_usage, stdout_filename, config_filename
-
-
-...
-
-
-def run_test_bo_doi_cong_nghiep_unicode(re_run=False):
-    if re_run is False:
-        current_time = "2025-02-19_10-49-26"
-        if not os.path.exists("data"):
-            os.makedirs("data")
-        stdout_filename = f"data/output/{current_time}.txt"
-        config_filename = f"data/log/config_{current_time}.txt"
-        return -1, -1, stdout_filename, config_filename
-
-    tin = perf_counter()
-    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    if not os.path.exists("data"):
-        os.makedirs("data")
-    stdout_filename = f"data/output/{current_time}.txt"
-    config_filename = f"data/log/config_{current_time}.txt"
-
-    # Open files in text mode with utf-8 encoding and ask subprocess to use text mode
-    with open(stdout_filename, "w", encoding="utf-8") as stdout_file, open(
-        config_filename, "w", encoding="utf-8"
-    ) as config_file:
-        process = subprocess.Popen(
-            ["python", "test_bo_doi_cong_nghiep.py"],
-            stdout=stdout_file,
-            stderr=config_file,
-            text=True,
-            encoding="utf-8",
-        )
-
-        memory_usage = 0
-        while process.poll() is None:
-            try:
-                memory_info = psutil.Process(process.pid).memory_info()
-                memory_usage = max(memory_usage, memory_info.rss)
-            except psutil.NoSuchProcess:
-                break
-
-        process.wait()
 
     return perf_counter() - tin, memory_usage, stdout_filename, config_filename
 

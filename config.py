@@ -10,7 +10,7 @@ DISTANCE_SCALE = 1
 # scale = 1: đo hàng theo đơn vị m3, scale = 10: đo hàng theo đơn vị 0.1m3
 CAPACITY_SCALE = 10
 # scale = 1: đo thời gian theo đơn vị giờ, scale = X: đo thời gian theo đơn vị 1/X giờ
-TIME_SCALE = 1
+TIME_SCALE = 4
 MAX_ROUTE_SIZE = 4  # số lượng đỉnh tối đa trong 1 tuyến đường
 # quãng đường tối đa xe di chuyển trong 1 turn
 MAX_TRAVEL_DISTANCE = DISTANCE_SCALE * 1000
@@ -29,6 +29,12 @@ LAMBDA = 2
 SEARCH_STRATEGY = 0  # chọn chiến lược tìm kiếm
 INFINITY = 999_999_999_999_999_999
 RUNTIME = None
+
+"======================HANDLE EXCEL==========================="
+DROP_DOWN_RANGE_DIA_CHI = "Dia_Chi!C1:C1000"
+DROP_DOWN_RANGE_TIME = f"CONFIG!AA1:AA{(24 * TIME_SCALE + 1) * 12 * TIME_SCALE}"
+DROP_DOWN_RANGE_CHECKBOX = "CONFIG!AB1:AB2"
+
 
 config = {
     "IS_TESTING": IS_TESTING,

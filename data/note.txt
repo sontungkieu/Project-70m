@@ -33,3 +33,27 @@
 #tối ưu lại cách tra map, thay vì tra nxn, khi thêm điểm mới sẽ thêm hàng 1xn và cột nx1
 #khi log, log ngày hiện tại sẽ được lưu riêng, hết ngày sẽ append vào file của tháng
 #map lại output về ban đầu nếu chạy test to
+
+
+
+#Việc cần làm:
+xong initExcel.py, đưa các biến ra global variable, chuyển Lenh_Dieu_Xe.xlsx vào trong data/input
+code nốt read_excel.py, xuất thành công ra json theo ngày thư mục immediate, sử dụng cả kiểm tra giờ rảnh driver
+hoàn thiện output excel
+nối pipeline
+app.py check nếu là lần đầu tiên trong ngày bấm nút tải file mẫu về thì chạy file initExcel.py, endExcel.py
+sửa thêm 4 deport
+code file endExcel.py để làm quá trình lưu lại kết quả ngày trước
+
+trong thuật toán, route phải đi với tài xế (trong route có trường tài xế, xong route devide by driver)
+
+
+
+
+
+
+
+
+-thiết kế format output excel,
+-chuyển json sang excel
+-chuyển file excel đã sửa về json

@@ -6,20 +6,6 @@ from typing import List
 
 
 class Request:
-    # def __init__(self, name: str=".", start_place: List[int]= [0], end_place: List[int] = [10], weight: int = 100, date: str = "12122025", timeframe: List[int] = [0,24], note:str = ".",staff_id:int = 0, split_id:bool = 1):
-    #     self.name = name
-    #     self.start_place = start_place
-    #     self.end_place = end_place
-    #     self.weight = weight
-    #     self.date = date
-    #     self.timeframe = timeframe
-    #     self.note = note
-    #     self.staff_id = staff_id
-    #     self.split_id = split_id
-    #     self.delivery_time = -1
-    #     self.delivery_status = 0
-    #     self.request_id = self.gen_id()
-
     def __init__(
         self,
         name: str,

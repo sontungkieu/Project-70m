@@ -88,17 +88,17 @@ def gen_requests_and_save(
     seed=42,
 ):
     """
-    Tạo một số lượng yêu cầu giao hàng ngẫu nhiên và lưu vào tệp CSV.
+    Tạo một số lượng yêu cầu giao hàng ngẫu nhiên và lưu vào tệp JSON.
 
     Parameters:
     -----------
     num_requests : int, optional (default=10)
         - Số lượng yêu cầu giao hàng cần tạo.
 
-    file_suffix : str, optional (default="")
+    file_sufices : str, optional (default="")
         - Hậu tố được thêm vào tên tệp JSON.
         - Nếu không cung cấp, tệp sẽ có tên mặc định là "requests.json".
-        - Nếu cung cấp, tệp sẽ có dạng "requests<file_suffix>.json".
+        - Nếu cung cấp, tệp sẽ có dạng "requests<file_sufices>.json".
 
     Returns:
     --------
@@ -107,21 +107,12 @@ def gen_requests_and_save(
 
     Notes:
     ------
-    - Hàm này sẽ tạo một tệp JSON có tên "requests<file_suffix>.json".
-    - Nếu tệp đã tồn tại, nội dung sẽ bị ghi đè.
-    - Mỗi hàng trong tệp JSON sẽ có định dạng:
-      Start Place, End Place, Weight, Gen Day, Gen Timeframe
-
-    Example:
-    --------
-    >>> requests = gen_requests_and_save(num_requests=5, file_suffix="_test")
-    >>> print(requests)
-    [[[0], [8], 2.1, 1, [3, 15]], ..., [[2], [27], 1.8, 3, [6, 19]]]
-
-    - File CSV được tạo sẽ có tên "requests_test.csv".
+    - Hàm này sẽ tạo một tệp JSON có tên "requests<file_sufices>.json" trong thư mục 'data/intermediate'.
+    - Nếu các thư mục chưa tồn tại, sẽ thông báo và tạo các thư mục cần thiết.
     """
     random.seed(seed)
 
+    # Giả sử Request là một class đã được định nghĩa ở nơi khác
     requests = [
         Request.generate(NUM_OF_NODES=NUM_OF_NODES, start_from_0=start_from_0)
         for i in range(num_requests * 2)
@@ -135,19 +126,27 @@ def gen_requests_and_save(
         filtered_requests.append(u.to_list())
     requests = filtered_requests[:num_requests]
 
-    # Determine the absolute path of the current file (in utilities)
+    # Xác định thư mục hiện tại của file (giả sử file này nằm trong thư mục utilities)
     current_file_dir = os.path.dirname(os.path.abspath(__file__))
-    # Navigate up one directory to get the project root
+    # Lấy thư mục gốc của dự án
     project_root = os.path.abspath(os.path.join(current_file_dir, ".."))
-    # Construct the path to the 'data' directory
+    # Đường dẫn tới thư mục 'data'
     data_dir = os.path.join(project_root, "data")
 
-    # Create the 'data' directory if it doesn't exist
+    # Kiểm tra và tạo thư mục 'data' nếu chưa tồn tại
     if not os.path.exists(data_dir):
+        print(f"Thư mục '{data_dir}' không tồn tại. Đang tạo thư mục.")
         os.makedirs(data_dir)
 
-    # Save the requests to a JSON file using the json library
-    with open(os.path.join(data_dir, f"intermediate/{file_sufices}.json"), "w") as file:
+    # Xây dựng đường dẫn tới thư mục 'data/intermediate'
+    intermediate_dir = os.path.join(data_dir, "intermediate")
+    if not os.path.exists(intermediate_dir):
+        print(f"Thư mục '{intermediate_dir}' không tồn tại. Đang tạo thư mục.")
+        os.makedirs(intermediate_dir)
+
+    # Lưu các yêu cầu vào file JSON trong thư mục 'data/intermediate'
+    file_path = os.path.join(intermediate_dir, f"requests{file_sufices}.json")
+    with open(file_path, "w") as file:
         json.dump(requests, file, separators=(",", ": "))
 
     return requests
