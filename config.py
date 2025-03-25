@@ -74,7 +74,8 @@ for i in range(NUM_OF_DAY_REPETION):
 config["DATES"] = DATES
 now = datetime.now()
 # tomorrow = now + timedelta(days=random.randint(0,10))
-TODAY = now.strftime("%d%m%Y")
+# TODAY = now.strftime("%d%m%Y")
+print(TODAY,type(TODAY))
 # print(now.strftime("%d%m%Y%H%M%S"))
 # print(TODAY,type(TODAY))
 

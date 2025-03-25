@@ -90,7 +90,7 @@ def read_excel_file(file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name=TODA
         "ĐÃ GIAO": "CONFIG!AB1:AB2",
         "NƠI BỐC HÀNG": "Dia_Chi!A1:A6",
     }
-
+    print(df.head(40))
     for column_name in dropdown_columns.keys():
         if column_name in df.columns:
             df[column_name + DROP_DOWN_EXT] = None
@@ -130,6 +130,7 @@ def read_excel_file(file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name=TODA
                     sheet1_name=sheet_name,
                 )
                 df.at[index, column_name + DROP_DOWN_EXT] = result["index_in_dropdown"]
+    print(df.head(40))
     return df
 
 
@@ -172,6 +173,7 @@ def convert_to_object(df: pd.DataFrame, day: str) -> List[Request]:
 
     drop_columns = [col for col in df.columns if DROP_DOWN_EXT in col]
     df = df.drop(columns=drop_columns)
+    print(df.head(40))
 
     print("\nDữ liệu sau khi gán và xóa các cột _DROP_DOWN_ID:")
     print(df.head())
@@ -252,7 +254,8 @@ def excel_to_requests(file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name=TO
 if __name__ == "__main__":
     try:
         df = read_excel_file()
-        requests = convert_to_object(df)
+        print()
+        requests = convert_to_object(df, TODAY)
         print("\nDanh sách các đối tượng Request:")
         for i, req in enumerate(requests[:5]):
             print(f"Request {i + 1}:")
