@@ -114,7 +114,7 @@ def gen_requests_and_save(
 
     # Giả sử Request là một class đã được định nghĩa ở nơi khác
     requests = [
-        Request.generate(NUM_OF_NODES=NUM_OF_NODES, start_from_0=start_from_0)
+        Request.generate_single_deport(NUM_OF_NODES=NUM_OF_NODES, start_from_0=start_from_0)
         for i in range(num_requests * 2)
     ]
     have_request = [0 for i in range(NUM_OF_NODES)]
