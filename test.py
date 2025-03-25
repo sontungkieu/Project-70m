@@ -46,7 +46,7 @@ def run_test_bo_doi_cong_nghiep(re_run=False):
         config_filename, "wb"
     ) as config_file:
         process = subprocess.Popen(
-            ["python", "test_bo_doi_cong_nghiep.py"],
+            ["python3", "test_bo_doi_cong_nghiep.py"],
             stdout=stdout_file,
             stderr=config_file,
         )
