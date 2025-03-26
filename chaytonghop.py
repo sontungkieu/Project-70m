@@ -6,6 +6,7 @@ from time import perf_counter
 from datetime import datetime
 import subprocess
 import psutil
+import os
 
 from objects.request import Request
 from utilities.read_output import read_and_save_json_output
@@ -179,6 +180,10 @@ def check(outputs, queries, config):
     logger.info("Kết quả đúng!")
     return True
 
+import glob  # Nếu chưa import, cần import glob để duyệt file
+
+# ...
+
 if __name__ == "__main__":
     config_data = read_config()
     if config_data:
@@ -192,6 +197,30 @@ if __name__ == "__main__":
                 logger.info("Peak memory usage: %.2f MB", memory_usage / (1024 * 1024))
             logger.info("Output saved to: %s", stdout_filename)
             logger.info("Log saved to: %s", log_filename)
+            
+            # Pipeline integration: gọi trực tiếp các hàm xử lý từ test_excel.py
+            logger.info("Pipeline: Bắt đầu xử lý hậu kỳ bằng các hàm trong test_excel.py")
+            
+            import test_excel
+            
+            # Đảm bảo các thư mục cần thiết tồn tại:
+            script_dir = os.path.dirname(__file__)
+            os.makedirs(os.path.join(script_dir, "data", "output", "output_excel"), exist_ok=True)
+            os.makedirs(os.path.join(script_dir, "json_after_reversed"), exist_ok=True)
+            
+            print("stdout_filename: ", stdout_filename)
+            # Gọi hàm xử lý JSON và tạo file Excel từ file txt output
+            test_excel.read_json_output_file(stdout_filename)
+            
+            # Đường dẫn file mapping
+            mapping_path  = os.path.join(script_dir, "driver_mapping.csv")
+            
+            # Duyệt tất cả các file Excel được tạo trong folder
+            output_excel_folder = os.path.join(script_dir, "data", "output", "output_excel")
+            for excel_path in glob.glob(os.path.join(output_excel_folder, "*.xlsx")):
+                logger.info("Chuyển đổi file Excel thành JSON: %s", excel_path)
+                test_excel.excel_to_json_single(excel_path, mapping_path)
+            
         else:
             logger.error("Không thể đọc output hoặc requests.")
     else:
