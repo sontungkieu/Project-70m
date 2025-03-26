@@ -40,6 +40,14 @@ def load_drivers(file_path="data/drivers.json", is_converted_to_list=False):
         print(f"Error reading {file_path}: {e}")
         return [] if not is_converted_to_list else ([], [], [])
 
+def accept_accumulated_distance():
+    """
+    Chấp nhận khoảng cách tích lũy
+    postprocessing, inverse_mapping, 
+    load_drivers, cộng khoảng cách, ghi đè driver
+    """
+    pass
+
 if __name__ == "__main__":
     requests_list = load_requests()
     print("List of requests:")

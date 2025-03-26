@@ -121,3 +121,9 @@ def split_requests(requests: List[Request]):
 
         json.dump(json_data, "data/intermediate/mapping.json")
     return mapped_requests, mapping, inverse_mapping
+
+def split_driver():
+    """
+    chia driver rảnh nhiều khoảng ra làm nhiều driver
+    """
+    pass

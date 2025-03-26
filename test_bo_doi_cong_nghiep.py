@@ -1,5 +1,6 @@
 import json
 import random
+import csv
 
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
@@ -47,12 +48,9 @@ def load_data(
     NUM_OF_VEHICLES = len(vehicle_capacities)
 
     # Chuyển đổi available_times_s sang đơn vị TIME_SCALE
-    print(f"available_times_s: {available_times_s}")
-    for u in range(len(available_times_s)):
-        print(f"available_times_s[u][TODAY]: {available_times_s[u][TODAY],u}")
     available_times_s = [
-        [(u[0]* TIME_SCALE, u[1] * TIME_SCALE) for u in available_times_s[i][TODAY]]
-        for i in range(len(available_times_s))
+        [(int(start * TIME_SCALE), int(end * TIME_SCALE)) for start, end in driver_times[TODAY]]
+        for driver_times in available_times_s
     ]
 
     # Đọc danh sách requests từ JSON
@@ -92,7 +90,7 @@ def load_data_real(
 
     # Chuyển đổi available_times_s sang đơn vị TIME_SCALE
     available_times_s = [
-        [(start * TIME_SCALE, end * TIME_SCALE) for start, end in driver_times]
+        [(int(start * TIME_SCALE), int(end * TIME_SCALE)) for start, end in driver_times[TODAY]]
         for driver_times in available_times_s
     ]
 
@@ -229,7 +227,7 @@ def create_daily_routing_model(data):
     for i in range(routing.Size()):
         capacity_dimension.CumulVar(i).SetRange(0, max(data["vehicle_capacities"]))
 
-    # Callback "Time" với thời gian di chuyển và phục vụ
+    # Callback "Time"
     def time_callback(from_index, to_index):
         from_node = manager.IndexToNode(from_index)
         to_node = manager.IndexToNode(to_index)
@@ -254,14 +252,15 @@ def create_daily_routing_model(data):
         index = manager.NodeToIndex(idx)
         time_dimension.CumulVar(index).SetRange(window[0], window[1])
 
-    # Áp dụng thời gian rảnh của tài xế cho mỗi xe
+    # Áp dụng thời gian rảnh của tài xế cho mỗi xe (chọn khoảng đầu tiên)
     for vehicle_id in range(data["num_vehicles"]):
         start_index = routing.Start(vehicle_id)
         end_index = routing.End(vehicle_id)
-        available_times = data["available_times_s"][vehicle_id]  # Danh sách khoảng rảnh của tài xế
-        # Đặt ràng buộc: thời gian bắt đầu và kết thúc của xe phải nằm trong khoảng rảnh
-        time_dimension.CumulVar(start_index).SetRanges(available_times)
-        time_dimension.CumulVar(end_index).SetRanges(available_times)
+        available_times = data["available_times_s"][vehicle_id]  # Danh sách khoảng rảnh
+        # Chọn khoảng thời gian rảnh đầu tiên (hoặc logic chọn khác)
+        start_time, end_time = available_times[0]  # Chỉ lấy khoảng đầu tiên
+        time_dimension.CumulVar(start_index).SetRange(start_time, end_time)
+        time_dimension.CumulVar(end_index).SetRange(start_time, end_time)
 
     return routing, manager, capacity_dimension, time_dimension
 
@@ -416,6 +415,7 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
     # Khởi tạo historical_km cho 4 xe (trong thực tế có thể là 47 xe)
     historical_km = None
     list_of_seed = []
+    historical_km_by_day = []
     for day in DATES:
         print(f"\n--- Day {day} ---")
         seed = random.randint(10, 1000)
@@ -448,11 +448,12 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
             continue
         print_daily_solution(data, manager, routing, solution)
         # Cập nhật historical_km cho từng xe
+        historical_km_by_day.append(daily_distances)
         for v in range(data["num_vehicles"]):
             historical_km[v] += daily_distances[v]
         print("Updated historical km:", historical_km)
     print(list_of_seed)
-    return historical_km
+    return historical_km,historical_km_by_day
 
 
 def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty):
@@ -465,9 +466,11 @@ def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty)
     """
     # Khởi tạo historical_km cho NUM_OF_VEHICLE xe (trong thực tế có thể là 47 xe)
     historical_km = None
+    historical_km_by_day = []
     for day in range(num_days):
-        load_data_real(request_file=f"data/intermediate/{day}.json")
-        # Trong thực tế, dữ liệu đơn hàng có thể khác mỗi ngày.
+        distance_matrix, demands, vehicle_capacities, time_windows, available_times_s = load_data_real(
+            request_file=f"data/intermediate/{day}.json"
+        )
         data = create_data_model()
         if not historical_km:
             historical_km = [0 for _ in range(NUM_OF_VEHICLES)]
@@ -479,11 +482,12 @@ def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty)
             continue
         print_daily_solution(data, manager, routing, solution)
         # Cập nhật historical_km cho từng xe
+        historical_km_by_day.append(daily_distances)
         for v in range(data["num_vehicles"]):
             historical_km[v] += daily_distances[v]
         print("Updated historical km:", historical_km)
 
-    return historical_km
+    return historical_km,historical_km_by_day
 
 
 if __name__ == "__main__":
@@ -494,15 +498,22 @@ if __name__ == "__main__":
         generator.gen_list_vehicle(NUM_OF_VEHICLES=NUM_OF_VEHICLES, seed=42)
 
         # run main algorithm
-        historical_km = multi_day_routing_gen_request(
+        historical_km,historical_km_by_day = multi_day_routing_gen_request(
             num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU
         )  # [1638, 1577, 1567, 2201, 2136]
     else:
         # run main algorithm
-        multi_day_routing_real_ready_to_deploy(
+        historical_km,historical_km_by_day = multi_day_routing_real_ready_to_deploy(
             num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU
         )
     "#####################################################################"
+    with open("data/accummulated_distance.csv", 'w', newline='') as file:
+        writer = csv.writer(file)
+        # Optionally, add a header row (uncomment if needed)
+        # writer.writerow(["Entity1_km", "Entity2_km"])
+        # Write all rows of the 2D list
+        writer.writerows(historical_km_by_day)
+
     print(
         f"max km: {max(historical_km)}, mim km: {min(historical_km)}, sum km: {sum(historical_km)}"
     )

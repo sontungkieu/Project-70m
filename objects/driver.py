@@ -8,6 +8,7 @@ class Driver:
         route_by_day=None,
         phone_number="098789JQKA",
         available_times=None,
+        accumulated_distance=0,  # Thêm accumulated_distance với giá trị mặc định là 0
     ):
         self.name: str = name
         self.cccd: str = cccd
@@ -17,6 +18,7 @@ class Driver:
         self.phone_number: str = phone_number
         self.vehicle_load: int = vehicle_load
         self.available_times: dict = available_times if available_times is not None else {}
+        self.accumulated_distance: float = accumulated_distance  # Khai báo accumulated_distance
 
     def update_available_times(self, day: str, times: list):
         if day in self.available_times:
@@ -32,6 +34,13 @@ class Driver:
             print(f"Times: {times}")
             self.available_times[day] = times
 
+    def update_distance(self, distance: float):  # Thêm phương thức để cập nhật khoảng cách
+        if distance >= 0:
+            self.accumulated_distance += distance
+            print(f"Updated accumulated distance: {self.accumulated_distance}")
+        else:
+            print("Distance must be a non-negative value.")
+
     def to_dict(self):
         return {
             "name": self.name,
@@ -41,6 +50,7 @@ class Driver:
             "route_by_day": self.route_by_day,
             "phone_number": self.phone_number,
             "available_times": self.available_times,
+            "accumulated_distance": self.accumulated_distance,  # Thêm accumulated_distance vào dict
         }
 
     @classmethod
@@ -53,7 +63,20 @@ class Driver:
             route_by_day=data.get("route_by_day", {}),
             phone_number=data.get("phone_number", "098789JQKA"),
             available_times=data.get("available_times", {}),
+            accumulated_distance=data.get("accumulated_distance", 0),  # Lấy giá trị từ dict
         )
 
     def __str__(self):
-        return f"{self.name} have id {self.cccd}."
+        return f"{self.name} have id {self.cccd}. Accumulated distance: {self.accumulated_distance} km."
+
+# Ví dụ sử dụng:
+if __name__ == "__main__":
+    driver = Driver(name="Nguyen Van B", cccd="123456789")
+    print(driver)
+    driver.update_distance(50.5)
+    driver.update_distance(20.0)
+    print(driver)
+    driver_dict = driver.to_dict()
+    print(driver_dict)
+    new_driver = Driver.from_dict(driver_dict)
+    print(new_driver)
