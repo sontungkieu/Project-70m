@@ -79,7 +79,7 @@ def sync_csv_to_excel(
             target_range=sheet1_range,  # Vùng ô áp dụng dropdown
             source_sheet_name=sheet2_name,  # Sheet chứa danh sách giá trị
             source_column="C",  # Sử dụng cột C làm nguồn
-            num_rows=num_rows,
+            num_rows=1000,
             allow_blank=True,
         )
 
