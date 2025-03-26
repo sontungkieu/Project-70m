@@ -4,7 +4,7 @@ import random
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 import utilities.generator as generator
-import utilities.load_requests as load_requests
+import utilities.loader as loader
 from config import *
 from objects.driver import Driver
 from objects.request import Request
@@ -29,9 +29,8 @@ search_strategy = [
 def load_data(
     distance_file="data/distance.json",
     request_file="data/intermediate/{TODAY}.json",
-    vehicle_file="data/vehicle.json",
+    driver_file="data/drivers.json",
 ):
-    import json
 
     global NUM_OF_VEHICLES, NUM_OF_NODES
 
@@ -43,14 +42,21 @@ def load_data(
     NUM_OF_NODES = len(distance_matrix)
 
     # Đọc danh sách vehicle từ JSON
-    with open(vehicle_file, "r", encoding="utf-8") as f:
-        vehicle_capacities = json.load(f)
-
+    drivers_list, vehicle_capacities, available_times_s = loader.load_drivers(file_path=driver_file,is_converted_to_list=True)
     vehicle_capacities = [int(u * CAPACITY_SCALE) for u in vehicle_capacities]
     NUM_OF_VEHICLES = len(vehicle_capacities)
 
+    # Chuyển đổi available_times_s sang đơn vị TIME_SCALE
+    print(f"available_times_s: {available_times_s}")
+    for u in range(len(available_times_s)):
+        print(f"available_times_s[u][TODAY]: {available_times_s[u][TODAY],u}")
+    available_times_s = [
+        [(u[0]* TIME_SCALE, u[1] * TIME_SCALE) for u in available_times_s[i][TODAY]]
+        for i in range(len(available_times_s))
+    ]
+
     # Đọc danh sách requests từ JSON
-    requests_data = load_requests.load_requests(request_file)
+    requests_data = loader.load_requests(file_path=request_file)
     print(f"requests_data: {requests_data}")
     # exit(0)
 
@@ -58,7 +64,7 @@ def load_data(
     time_windows = [(0, 24 * TIME_SCALE) for _ in range(NUM_OF_NODES)]
 
     for request in requests_data:
-        print(f"request: {request}")
+        print(f"request: {request.to_list()}")
         # Truy xuất phần tử đầu tiên trong danh sách
         end_place = request.end_place[0]
         weight = request.weight
@@ -70,24 +76,28 @@ def load_data(
 
     print(f"demands: {demands}")
     # exit()
-    return distance_matrix, demands, vehicle_capacities, time_windows
-
+    return distance_matrix, demands, vehicle_capacities, time_windows, available_times_s
 
 def load_data_real(
     distance_file="data/distance.json",
     request_file="data/intermediate/{TODAY}.json",
-    vehicle_file="data/vehicle.json",
+    driver_file="data/drivers.json",
 ):
     global NUM_OF_VEHICLES, NUM_OF_NODES
 
     # Đọc danh sách vehicle từ JSON
-    with open(vehicle_file, "r", encoding="utf-8") as f:
-        vehicle_capacities = json.load(f)
+    drivers_list, vehicle_capacities, available_times_s = loader.load_drivers(file_path=driver_file,is_converted_to_list=True)
     vehicle_capacities = [int(u * CAPACITY_SCALE) for u in vehicle_capacities]
     NUM_OF_VEHICLES = len(vehicle_capacities)
 
+    # Chuyển đổi available_times_s sang đơn vị TIME_SCALE
+    available_times_s = [
+        [(start * TIME_SCALE, end * TIME_SCALE) for start, end in driver_times]
+        for driver_times in available_times_s
+    ]
+
     # Đọc danh sách requests từ JSON
-    requests_data = load_requests.load_requests(request_file)
+    requests_data = loader.load_requests(file_path=request_file)
     divided_mapped_requests, mapping, inverse_mapping = split_requests(requests_data)
     print(f"requests_data: {requests_data}")
     # exit(0)
@@ -112,11 +122,10 @@ def load_data_real(
 
     # print(f"demands: {demands}")
     # exit()
-    return distance_matrix, demands, vehicle_capacities, time_windows
-
+    return distance_matrix, demands, vehicle_capacities, time_windows, available_times_s
 
 def create_data_model(
-    *, distance_matrix=None, demands=None, vehicles=None, time_window=None
+    *, distance_matrix=None, demands=None, vehicles=None, time_window=None, available_times_s=None
 ):
     """Tạo dữ liệu cho bài toán giao hàng với split delivery.
 
@@ -150,6 +159,7 @@ def create_data_model(
     data["depot"] = 0
 
     data["time_windows"] = DEFAULT_TIME_WINDOWS if time_window is None else time_window
+    data["available_times_s"] = available_times_s  # Thêm thời gian rảnh của tài xế
 
     data, node_mapping = split_customers(data)
 
@@ -159,10 +169,6 @@ def create_data_model(
 
 
 def create_daily_routing_model(data):
-    """
-    Tạo RoutingIndexManager và RoutingModel cho dữ liệu của một ngày.
-    Thiết lập các callback và dimensions cho Distance, Capacity và Time.
-    """
     manager = pywrapcp.RoutingIndexManager(
         len(data["distance_matrix"]), data["num_vehicles"], data["depot"]
     )
@@ -177,30 +183,29 @@ def create_daily_routing_model(data):
     transit_callback_index = routing.RegisterTransitCallback(distance_callback)
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
 
-    # Dimension "Distance" để tính tổng quãng đường và tối ưu giảm maximum route distance.
+    # Dimension "Distance"
     routing.AddDimension(
         transit_callback_index,
-        0,  # không cho phép slack
-        MAX_TRAVEL_DISTANCE,  # horizon đủ lớn cho bài toán
-        True,  # fix_start_cumul_to_zero = True, để bắt đầu từ 0
+        0,
+        MAX_TRAVEL_DISTANCE,
+        True,
         "Distance",
     )
     distance_dimension = routing.GetDimensionOrDie("Distance")
-
     distance_dimension.SetGlobalSpanCostCoefficient(GLOBAL_SPAN_COST_COEFFICIENT)
 
+    # Dimension "Stops"
     def stops_callback(from_index, to_index):
         return 1
 
     stops_callback_index = routing.RegisterTransitCallback(stops_callback)
     routing.AddDimension(
         stops_callback_index,
-        0,  # không có slack
-        MAX_ROUTE_SIZE,  # tối đa 5 node (bao gồm depot và node kết thúc)
-        True,  # bắt đầu từ 0
+        0,
+        MAX_ROUTE_SIZE,
+        True,
         "Stops",
     )
-    stops_dimension = routing.GetDimensionOrDie("Stops")
 
     # Callback demand cho "Capacity"
     def demand_callback(from_index):
@@ -210,9 +215,8 @@ def create_daily_routing_model(data):
     demand_callback_index = routing.RegisterUnaryTransitCallback(demand_callback)
     routing.AddDimensionWithVehicleCapacity(
         demand_callback_index,
-        0,  # slack = 0
+        0,
         data["vehicle_capacities"],
-        # fix_start_cumul_to_zero = False (xe load được tự chọn phù hợp)
         False,
         "Capacity",
     )
@@ -225,7 +229,7 @@ def create_daily_routing_model(data):
     for i in range(routing.Size()):
         capacity_dimension.CumulVar(i).SetRange(0, max(data["vehicle_capacities"]))
 
-    # Callback "Time" – sử dụng khoảng cách chia theo vận tốc và service time.
+    # Callback "Time" với thời gian di chuyển và phục vụ
     def time_callback(from_index, to_index):
         from_node = manager.IndexToNode(from_index)
         to_node = manager.IndexToNode(to_index)
@@ -240,15 +244,26 @@ def create_daily_routing_model(data):
         transit_time_callback_index,
         MAX_WAITING_TIME,
         MAX_TRAVEL_TIME,
-        False,  # fix_start_cumul_to_zero = True
+        False,
         "Time",
     )
     time_dimension = routing.GetDimensionOrDie("Time")
+
+    # Áp dụng time windows cho các node (khách hàng)
     for idx, window in enumerate(data["time_windows"]):
         index = manager.NodeToIndex(idx)
         time_dimension.CumulVar(index).SetRange(window[0], window[1])
-    return routing, manager, capacity_dimension, time_dimension
 
+    # Áp dụng thời gian rảnh của tài xế cho mỗi xe
+    for vehicle_id in range(data["num_vehicles"]):
+        start_index = routing.Start(vehicle_id)
+        end_index = routing.End(vehicle_id)
+        available_times = data["available_times_s"][vehicle_id]  # Danh sách khoảng rảnh của tài xế
+        # Đặt ràng buộc: thời gian bắt đầu và kết thúc của xe phải nằm trong khoảng rảnh
+        time_dimension.CumulVar(start_index).SetRanges(available_times)
+        time_dimension.CumulVar(end_index).SetRanges(available_times)
+
+    return routing, manager, capacity_dimension, time_dimension
 
 def solve_daily_routing(data, historical_km, lambda_penalty, mu_penalty):
     """
@@ -411,7 +426,7 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
             NUM_OF_NODES=NUM_OF_NODES,
             seed=seed,
         )
-        distance_matrix, demands, vehicle_capacities, time_windows = load_data(
+        distance_matrix, demands, vehicle_capacities, time_windows, available_times_s = load_data(
             request_file=f"data/intermediate/{day}.json"
         )
         if not historical_km:
@@ -423,6 +438,7 @@ def multi_day_routing_gen_request(num_days, lambda_penalty, mu_penalty):
             demands=demands,
             vehicles=vehicle_capacities,
             time_window=time_windows,
+            available_times_s=available_times_s,
         )
         solution, manager, daily_distances, routing = solve_daily_routing(
             data, historical_km, lambda_penalty, mu_penalty

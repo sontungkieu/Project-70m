@@ -4,7 +4,7 @@ import logging
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 import utilities.generator as generator
-import utilities.load_requests as load_requests
+import utilities.loader as loader
 from objects.driver import Driver
 from objects.request import Request
 from utilities.split_data import split_customers, split_requests
@@ -57,7 +57,7 @@ def load_data(distance_file="data/distance.json", request_file="data/intermediat
     num_vehicles = len(vehicle_capacities)
     
     request_file = request_file.format(day=day)
-    requests_data = load_requests.load_requests(request_file)
+    requests_data = loader.load_requests(request_file)
     if real_mode:
         divided_mapped_requests, mapping, inverse_mapping = split_requests(requests_data)
         distance_matrix = update_map(divided_mapped_requests, mapping, inverse_mapping)

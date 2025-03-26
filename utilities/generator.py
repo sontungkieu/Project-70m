@@ -45,6 +45,7 @@ def gen_map(NUM_OF_NODES=30, seed=42):
 
 
 def gen_list_vehicle(NUM_OF_VEHICLES, seed=42):
+    # đang dần thay bằng drivers.json, sẽ xoá sớm
     # Given value
     metric = [9.7, 24.2, 26.7, 32, 38.2, 54]
     # Set the seed for reproducibility
