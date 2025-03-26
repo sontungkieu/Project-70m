@@ -71,7 +71,7 @@ def sync_csv_to_excel(
         ws2[f"C{row}"] = f"{name} - {address}"  # Tạo cột C bằng cách nối A và B
 
     # Sử dụng hàm create_dropdown_list để cập nhật dropdown trên Sheet "3.3"
-    num_rows = len(df)
+    num_rows = 1000
     if add_drop_down:
         create_dropdown_list(
             workbook=wb,
