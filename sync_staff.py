@@ -7,7 +7,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import PatternFill
 import pandas as pd
 
-
+from config import *
 from objects.driver import Driver
 
 
@@ -361,60 +361,90 @@ def check_driver_availability(
     print(f"Thời gian rảnh của các tài xế trong sheet '{sheet_name}':")
     for driver, times in driver_availability.items():
         print(f"- {driver}: {times}")
-
+    print(driver_availability)
     return driver_availability
 
-def driver_excel_2_csv():
-    # Đường dẫn file Excel
+def driver_excel_2_csv(is_check_driver_availability=False):
     excel_file = "data/input/Lenh_Dieu_Xe.xlsx"
-    sheet_name = "Tai_Xe"  # Đồng bộ với initialize_driver_list()
-    
-    # Đọc các cột B, C, D, E, F từ sheet Tai_Xe (bỏ cột A là "stt")
-    df = pd.read_excel(excel_file, sheet_name=sheet_name, usecols="B:F", header=None, skiprows=2)
-    
-    # Gán tên cột tương ứng
-    df.columns = ["name", "cccd", "vehicle_id", "phone_number", "vehicle_load"]
-    
-    # Tạo danh sách tài xế từ dữ liệu Excel
-    drivers = []
-    for _, row in df.iterrows():
-        driver = Driver(
-            name=str(row["name"]),
-            cccd=str(row["cccd"]),
-            vehicle_id=str(row["vehicle_id"]),
-            phone_number=str(row["phone_number"]),
-            vehicle_load=int(row["vehicle_load"])
-        )
-        drivers.append(driver)
-    
-    # Đường dẫn file JSON
+    sheet_name = "Tai_Xe"
     json_file = "data/driver.json"
     
+    wb = openpyxl.load_workbook(excel_file)
+    if sheet_name not in wb.sheetnames:
+        print(f"Sheet '{sheet_name}' không tồn tại trong file '{excel_file}'.")
+        return
+    
+    ws = wb[sheet_name]
+    
+    drivers = []
+    for row in range(3, ws.max_row + 1):
+        name = ws[f"B{row}"].value
+        cccd = ws[f"C{row}"].value
+        vehicle_id = ws[f"D{row}"].value
+        phone_number = ws[f"E{row}"].value
+        vehicle_load = ws[f"F{row}"].value
+        
+        if name and cccd and vehicle_id and phone_number and vehicle_load:
+            driver = Driver(
+                name=str(name),
+                cccd=str(cccd),
+                vehicle_id=str(vehicle_id),
+                phone_number=str(phone_number),
+                vehicle_load=int(vehicle_load)
+            )
+            drivers.append(driver)
+    
+    if is_check_driver_availability:
+        availability = check_driver_availability(file_path=excel_file)
+        if availability:
+            for driver in drivers:
+                driver_key = f"{driver.name} - {driver.phone_number}"
+                if driver_key in availability:
+                    driver.update_available_times(TODAY, availability[driver_key])
+    print(drivers[0].available_times, "()"*100)
+    
     if os.path.exists(json_file):
-        # Nếu file JSON đã tồn tại
         with open(json_file, "r", encoding="utf-8") as f:
             existing_drivers = json.load(f)
             existing_cccds = {driver["cccd"] for driver in existing_drivers}
         
-        # Kiểm tra và thêm tài xế mới
         updated_drivers = existing_drivers[:]
         for driver in drivers:
             if driver.cccd not in existing_cccds:
                 print(f"Tài xế mới: {driver.name} (CCCD: {driver.cccd}) được thêm vào danh sách.")
                 updated_drivers.append(driver.to_dict())
+            #cập nhật update_available_times cho updated_drivers
+        # ✅ BỔ SUNG: cập nhật available_times
+        if is_check_driver_availability and availability:
+            for i,driver_dict in enumerate(updated_drivers):
+                driver_key = f"{driver_dict['name']} - {driver_dict['phone_number']}"
+                if driver_key in availability:
+                    driver = Driver.from_dict(driver_dict)
+                    driver.update_available_times(TODAY, availability[driver_key])
+                    driver_dict =driver.to_dict()
+                    updated_drivers[i] = driver_dict
         
-        # Ghi đè danh sách tài xế vào file JSON
         with open(json_file, "w", encoding="utf-8") as f:
             json.dump(updated_drivers, f, ensure_ascii=False, indent=4)
         
-        # Ghi đè danh sách tài xế từ JSON vào Excel, giữ header
-        updated_df = pd.DataFrame([Driver.from_dict(d).to_dict() for d in updated_drivers])
-        updated_df = updated_df[["name", "cccd", "vehicle_id", "phone_number", "vehicle_load"]]
-        updated_df.to_excel(excel_file, sheet_name=sheet_name, index=False, startrow=2, header=False)
+        for row_idx, driver_dict in enumerate(updated_drivers, start=3):
+            cell_b = ws[f"B{row_idx}"]
+            cell_c = ws[f"C{row_idx}"]
+            cell_d = ws[f"D{row_idx}"]
+            cell_e = ws[f"E{row_idx}"]
+            cell_f = ws[f"F{row_idx}"]
+            
+            cell_b.value = driver_dict["name"]
+            cell_c.value = driver_dict["cccd"]
+            cell_d.value = driver_dict["vehicle_id"]
+            cell_e.value = driver_dict["phone_number"]
+            cell_f.value = driver_dict["vehicle_load"]
+            
+            # Định dạng các ô có số 0 ở đầu thành chuỗi
+            cell_c.number_format = "@"  # Định dạng cccd thành text
+            cell_e.number_format = "@"  # Định dạng phone_number thành text
     
     else:
-        # Nếu file JSON chưa tồn tại
-        # Kiểm tra trùng lặp cccd và vehicle_id
         seen_cccds = {}
         seen_vehicle_ids = {}
         unique_drivers = []
@@ -428,20 +458,33 @@ def driver_excel_2_csv():
             else:
                 print(f"Trùng vehicle_id {driver.vehicle_id}, chỉ giữ tài xế đầu tiên.")
         
-        # Lưu danh sách tài xế vào JSON
         driver_dicts = [d.to_dict() for d in unique_drivers]
         with open(json_file, "w", encoding="utf-8") as f:
             json.dump(driver_dicts, f, ensure_ascii=False, indent=4)
         
-        # Ghi danh sách tài xế từ JSON vào Excel, giữ header
-        unique_df = pd.DataFrame([d.to_dict() for d in unique_drivers])
-        unique_df = unique_df[["name", "cccd", "vehicle_id", "phone_number", "vehicle_load"]]
-        unique_df.to_excel(excel_file, sheet_name=sheet_name, index=False, startrow=2, header=False)
-
+        for row_idx, driver_dict in enumerate(driver_dicts, start=3):
+            cell_b = ws[f"B{row_idx}"]
+            cell_c = ws[f"C{row_idx}"]
+            cell_d = ws[f"D{row_idx}"]
+            cell_e = ws[f"E{row_idx}"]
+            cell_f = ws[f"F{row_idx}"]
+            
+            cell_b.value = driver_dict["name"]
+            cell_c.value = driver_dict["cccd"]
+            cell_d.value = driver_dict["vehicle_id"]
+            cell_e.value = driver_dict["phone_number"]
+            cell_f.value = driver_dict["vehicle_load"]
+            
+            # Định dạng các ô có số 0 ở đầu thành chuỗi
+            cell_c.number_format = "@"  # Định dạng cccd thành text
+            cell_e.number_format = "@"  # Định dạng phone_number thành text
+    
+    wb.save(excel_file)
+    wb.close()
+    
     print(f"Đã xử lý dữ liệu tài xế từ '{excel_file}' và lưu vào '{json_file}'.")
-
-# đọc sheet driver, staff, chuyển thành driver object và staff object
-
+    if is_check_driver_availability:
+        print("Đã kiểm tra và cập nhật thời gian rảnh cho các tài xế.")
 
 # Gọi hàm để thực thi
 if __name__ == "__main__":
@@ -453,4 +496,4 @@ if __name__ == "__main__":
     # sample_drivers()  # Thêm 5 tài xế mẫu
     # copy_driver_data_to_timetable()
     # check_driver_availability()
-    driver_excel_2_csv()
+    driver_excel_2_csv(True)
