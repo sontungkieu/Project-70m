@@ -207,13 +207,17 @@ if __name__ == "__main__":
             script_dir = os.path.dirname(__file__)
             os.makedirs(os.path.join(script_dir, "data", "output", "output_excel"), exist_ok=True)
             os.makedirs(os.path.join(script_dir, "json_after_reversed"), exist_ok=True)
+            test_excel.create_dummy_driver_mapping(config_data["NUM_OF_VEHICLES"], script_dir)
             
             print("stdout_filename: ", stdout_filename)
             # Gọi hàm xử lý JSON và tạo file Excel từ file txt output
             test_excel.read_json_output_file(stdout_filename)
             
             # Đường dẫn file mapping
-            mapping_path  = os.path.join(script_dir, "driver_mapping.csv")
+            mapping_path = os.path.join(script_dir, "driver_mapping.csv")
+            # if not os.path.exists(mapping_path):
+            #     test_excel.create_dummy_driver_mapping(config_data["NUM_OF_VEHICLES"], script_dir)
+            
             
             # Duyệt tất cả các file Excel được tạo trong folder
             output_excel_folder = os.path.join(script_dir, "data", "output", "output_excel")

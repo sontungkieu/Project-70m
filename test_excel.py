@@ -77,6 +77,7 @@ def read_json_output_file(filename):
     with open(filename, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
+    
     mapping_path = os.path.join(script_dir, 'driver_mapping.csv')
     print(f"[DEBUG] Đọc driver mapping từ: {mapping_path}")
     mapping_df = pd.read_csv(mapping_path)
