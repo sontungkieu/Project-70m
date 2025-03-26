@@ -46,8 +46,6 @@ class _DashboardPageState extends State<DashboardPage>
 
   // Future chứa dữ liệu Dashboard
   Future<DashboardData>? _dashboardFuture;
-  // Future chứa dữ liệu file Excel (chỉ khởi tạo 1 lần)
-  late Future<Uint8List?> _excelFuture;
 
   @override
   void initState() {
@@ -86,9 +84,8 @@ class _DashboardPageState extends State<DashboardPage>
 
     _controller.forward();
 
-    // Lần đầu load dữ liệu Dashboard và file Excel (chỉ 1 lần)
+    // Lần đầu load dữ liệu Dashboard
     _dashboardFuture = fetchDashboardData();
-    _excelFuture = _downloadExcelFile();
   }
 
   @override
@@ -139,142 +136,6 @@ class _DashboardPageState extends State<DashboardPage>
       activeDrivers: activeCount,
       pendingOrders: pendingCount,
       todaysOrders: todayOrders,
-    );
-  }
-
-  /// Hàm lấy download URL của file Excel từ Firebase Storage (dùng customStorage)
-  Future<String?> _getDownloadLink() async {
-    try {
-      final firebase_storage.Reference storageRef =
-          customStorage.ref('requests_xlsx/Lenh_Dieu_Xe.xlsx');
-      final String url = await storageRef.getDownloadURL();
-      print("Download URL: $url");
-      return url;
-    } catch (e) {
-      print("Error getting download link: $e");
-      return null;
-    }
-  }
-
-  /// Hàm tải file Excel dưới dạng Uint8List từ Firebase Storage
-  Future<Uint8List?> _downloadExcelFile() async {
-  try {
-    final firebase_storage.Reference storageRef =
-        customStorage.ref('requests_xlsx/Lenh_Dieu_Xe.xlsx');
-
-    // Kiểm tra metadata để xem file có quá lớn hay không (nếu cần)
-    final metadata = await storageRef.getMetadata();
-    final fileSize = metadata.size ?? 0;
-    if (fileSize > 10 * 1024 * 1024) {
-      throw Exception("File Excel quá lớn, không thể hiển thị trực tiếp.");
-    }
-
-    // Gọi getData() mà không dùng tham số maxSize
-    final Uint8List? data = await storageRef.getData();
-    if (data == null || data.isEmpty) {
-      throw Exception("File rỗng hoặc không thể tải.");
-    }
-    return data;
-  } catch (e) {
-    print("Error downloading Excel file: $e");
-    return null;
-  }
-}
-
-
-  /// Hàm phân tích dữ liệu Excel và trả về Map với key là tên sheet, value là dữ liệu dạng List<List<String>>
-  Map<String, List<List<String>>> parseExcelData(Uint8List excelData) {
-    final excel = Excel.decodeBytes(excelData);
-    final Map<String, List<List<String>>> allSheetData = {};
-
-    for (var sheetName in excel.tables.keys) {
-      final sheet = excel.tables[sheetName];
-      if (sheet == null) continue;
-
-      List<List<String>> sheetData = [];
-      for (var row in sheet.rows) {
-        List<String> rowData = [];
-        for (var cell in row) {
-          rowData.add(cell?.value?.toString() ?? "");
-        }
-        sheetData.add(rowData);
-      }
-      allSheetData[sheetName] = sheetData;
-    }
-    return allSheetData;
-  }
-
-  /// Widget hiển thị dữ liệu Excel với hỗ trợ nhiều sheet
-  Widget _buildExcelViewer(BuildContext context) {
-    return FutureBuilder<Uint8List?>(
-      future: _excelFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              "Không thể tải file Excel (lỗi bất ngờ): ${snapshot.error}\n"
-              "Vui lòng kiểm tra lại hoặc sử dụng phương án khác.",
-              textAlign: TextAlign.center,
-            ),
-          );
-        }
-        if (!snapshot.hasData || snapshot.data == null) {
-          return const Center(
-            child: Text(
-              "Không thể tải file Excel. Có thể link bị sai hoặc bạn không đủ quyền truy cập.",
-              textAlign: TextAlign.center,
-            ),
-          );
-        }
-
-        final excelData = snapshot.data!;
-        try {
-          final allSheetData = parseExcelData(excelData);
-          if (allSheetData.isEmpty) {
-            return const Center(child: Text("Không có sheet nào trong file Excel."));
-          }
-          return MultiSheetExcelViewer(excelData: allSheetData);
-        } catch (e) {
-          return Center(
-            child: Text(
-              "File Excel bị lỗi hoặc không đúng định dạng.\nChi tiết: $e",
-              textAlign: TextAlign.center,
-            ),
-          );
-        }
-      },
-    );
-  }
-
-  /// Widget hiển thị download URL (nếu muốn debug hoặc copy link)
-  Widget _buildDownloadLink() {
-    return FutureBuilder<String?>(
-      future: _getDownloadLink(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError || !snapshot.hasData) {
-          return Center(
-            child: Text(
-              "Không thể lấy link tải file: ${snapshot.error}\n"
-              "Kiểm tra quyền truy cập hoặc đường dẫn.",
-              textAlign: TextAlign.center,
-            ),
-          );
-        } else {
-          final url = snapshot.data!;
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SelectableText(
-              url,
-              style: const TextStyle(color: Colors.blue),
-            ),
-          );
-        }
-      },
     );
   }
 
@@ -338,12 +199,6 @@ class _DashboardPageState extends State<DashboardPage>
                         _buildSummaryCard("Time", timeStr, ""),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    // Hiển thị link để kiểm tra (nếu cần)
-                    _buildDownloadLink(),
-                    const SizedBox(height: 32),
-                    // Hiển thị dữ liệu Excel với hỗ trợ nhiều sheet
-                    _buildExcelViewer(context),
                   ],
                 ),
               ),
@@ -378,57 +233,5 @@ class _DashboardPageState extends State<DashboardPage>
         ),
       ),
     );
-  }
-}
-
-/// Widget hiển thị dữ liệu Excel với hỗ trợ nhiều sheet sử dụng TabBar
-class MultiSheetExcelViewer extends StatelessWidget {
-  final Map<String, List<List<String>>> excelData;
-
-  const MultiSheetExcelViewer({Key? key, required this.excelData}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    if (excelData.isEmpty) {
-      return const Center(child: Text("Không có dữ liệu Excel để hiển thị."));
-    }
-    return DefaultTabController(
-      length: excelData.keys.length,
-      child: Column(
-        children: [
-          TabBar(
-            isScrollable: true,
-            tabs: excelData.keys.map((sheetName) => Tab(text: sheetName)).toList(),
-          ),
-          Expanded(
-            child: TabBarView(
-              children: excelData.entries.map((entry) {
-                final sheetData = entry.value;
-                if (sheetData.isEmpty) {
-                  return const Center(child: Text("Sheet này không có dữ liệu."));
-                }
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: _buildHeaderRow(sheetData.first),
-                    rows: _buildDataRows(sheetData.skip(1).toList()),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<DataColumn> _buildHeaderRow(List<String> header) {
-    return header.map((column) => DataColumn(label: Text(column))).toList();
-  }
-
-  List<DataRow> _buildDataRows(List<List<String>> rows) {
-    return rows.map((row) => DataRow(
-      cells: row.map((cell) => DataCell(Text(cell))).toList(),
-    )).toList();
   }
 }

@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/mnt/e/cs50web/Project-70m/test_bo_doi_cong_nghiep.py", line 481, in <module>
+    historical_km = multi_day_routing_gen_request(
+  File "/mnt/e/cs50web/Project-70m/test_bo_doi_cong_nghiep.py", line 408, in multi_day_routing_gen_request
+    generator.gen_requests_and_save(
+  File "/mnt/e/cs50web/Project-70m/utilities/generator.py", line 116, in gen_requests_and_save
+    requests = [
+  File "/mnt/e/cs50web/Project-70m/utilities/generator.py", line 117, in <listcomp>
+    Request.generate(NUM_OF_NODES=NUM_OF_NODES, start_from_0=start_from_0)
+TypeError: Request.generate() got an unexpected keyword argument 'start_from_0'
