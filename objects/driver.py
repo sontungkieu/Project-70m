@@ -19,7 +19,20 @@ class Driver:
         self.route_by_day: List[Route] = route_by_day
         self.phone_number: str = phone_number
         self.vehicle_load: int = vehicle_load
-        self.available: bool = True
+        self.available_times: map = {}
+        self.accumulated_distance:int = 0
+
+    def update_available_times(self, day: str, times: list):
+        if day in self.available_times:
+            print(f"Updating available times for {day}.")
+            print(f"Old times: {self.available_times[day]}")
+            print(f"New times: {times}")
+        else:
+            print(f"Adding new available times for {day}.")
+            print(f"Times: {times}")
+        
+        self.available_times[day] = times
+
 
     def __str__(self):
         return f"{self.name} have id {self.cccd}."
