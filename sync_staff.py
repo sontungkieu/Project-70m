@@ -1,10 +1,15 @@
 import os
 import random
 import string
-
+import json
 import openpyxl
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import PatternFill
+import pandas as pd
+
+
+from objects.driver import Driver
+
 
 
 def initialize_driver_timetable(
@@ -97,7 +102,7 @@ def initialize_driver_timetable(
 def initialize_driver_list(
     filename="Lenh_Dieu_Xe.xlsx", sheet_name="Tai_Xe", is_testing=False
 ):
-    # Danh sách cột theo thứ tự
+    # Danh sách cột theo thứ tự (đã bỏ cột "available")
     columns = [
         "stt",
         "name",
@@ -105,10 +110,9 @@ def initialize_driver_list(
         "vehicle_id",
         "phone_number",
         "vehicle_load",
-        "available",
     ]
 
-    # Thiết lập độ rộng cho từng cột (đơn vị inches)
+    # Thiết lập độ rộng cho từng cột (đơn vị inches, bỏ "available")
     width_settings = {
         "stt": 3.5,
         "name": 20,
@@ -116,12 +120,11 @@ def initialize_driver_list(
         "vehicle_id": 15,
         "phone_number": 15,
         "vehicle_load": 12,
-        "available": 8,
     }
 
     # Kiểm tra file, nếu không tồn tại thì tạo mới workbook
     if os.path.exists(filename):
-        wb = openpyxl.load_workbook(filename)
+        wb = load_workbook(filename)
     else:
         wb = Workbook()
         # Xóa sheet mặc định nếu có
@@ -138,24 +141,16 @@ def initialize_driver_list(
     else:
         ws = wb[sheet_name]
 
-    # Gộp ô A1:G1
-    ws.merge_cells("A1:G1")
+    # Gộp ô A1:F1 (điều chỉnh từ G1 thành F1 vì bỏ cột "available")
+    ws.merge_cells("A1:F1")
     ws["A1"] = "Thông tin tài xế"  # Có thể thay đổi tiêu đề theo ý muốn
 
     # Đặt header ở dòng 2
     for col_idx, col_name in enumerate(columns, 1):
         ws.cell(row=2, column=col_idx).value = col_name
 
-    # # Thêm checkbox vào cột "available" ở dòng 3 (dòng đầu tiên của dữ liệu)
-    # if ws.max_row < 3:
-    #     ws.append([""] * (len(columns) - 1) + ["☐"])
-    # else:
-    #     # Đảm bảo cột available ở dòng 3 có checkbox nếu chưa có
-    #     if ws.cell(row=3, column=len(columns)).value is None:
-    #         ws.cell(row=3, column=len(columns)).value = "☐"
-
     # Đặt độ rộng cho từng cột
-    col_letters = ["A", "B", "C", "D", "E", "F", "G"]
+    col_letters = ["A", "B", "C", "D", "E", "F"]  # Điều chỉnh từ 7 cột thành 6 cột
     for letter, field in zip(col_letters, width_settings):
         ws.column_dimensions[letter].width = width_settings[field]
 
@@ -167,7 +162,7 @@ def initialize_driver_list(
         )
     else:
         print(
-            f"Đã tạo/cập nhật sheet '{sheet_name}' trong file '{filename}' với header ở dòng 2 và checkbox ở dòng 3, cột 'available'."
+            f"Đã tạo/cập nhật sheet '{sheet_name}' trong file '{filename}' với header ở dòng 2."
         )
 
 
@@ -323,8 +318,12 @@ def check_driver_availability(
     # Duyệt qua các dòng từ 3 trở đi (dòng dữ liệu tài xế)
     for row in range(3, ws.max_row + 1):
         driver_name = ws[f"B{row}"].value  # Cột B: Tên tài xế
-        if not driver_name:  # Nếu không có tên tài xế, bỏ qua dòng này
+        phone_number = ws[f"C{row}"].value  # Cột C: Số điện thoại
+        if not driver_name or not phone_number:  # Nếu thiếu tên hoặc số điện thoại, bỏ qua
             continue
+
+        # Kết hợp tên và số điện thoại làm key
+        driver_key = f"{driver_name} - {phone_number}"
 
         # Danh sách trạng thái rảnh cho từng khung giờ
         free_slots = []
@@ -352,8 +351,8 @@ def check_driver_availability(
             if i == len(free_slots) - 1 and start_time is not None:
                 availability.append((start_time, 24.0))
 
-        # Thêm vào kết quả
-        driver_availability[driver_name] = availability
+        # Thêm vào kết quả với key là tên + số điện thoại
+        driver_availability[driver_key] = availability
 
     # Đóng workbook
     wb.close()
@@ -365,6 +364,81 @@ def check_driver_availability(
 
     return driver_availability
 
+def driver_excel_2_csv():
+    # Đường dẫn file Excel
+    excel_file = "data/input/Lenh_Dieu_Xe.xlsx"
+    sheet_name = "Tai_Xe"  # Đồng bộ với initialize_driver_list()
+    
+    # Đọc các cột B, C, D, E, F từ sheet Tai_Xe (bỏ cột A là "stt")
+    df = pd.read_excel(excel_file, sheet_name=sheet_name, usecols="B:F", header=None, skiprows=2)
+    
+    # Gán tên cột tương ứng
+    df.columns = ["name", "cccd", "vehicle_id", "phone_number", "vehicle_load"]
+    
+    # Tạo danh sách tài xế từ dữ liệu Excel
+    drivers = []
+    for _, row in df.iterrows():
+        driver = Driver(
+            name=str(row["name"]),
+            cccd=str(row["cccd"]),
+            vehicle_id=str(row["vehicle_id"]),
+            phone_number=str(row["phone_number"]),
+            vehicle_load=int(row["vehicle_load"])
+        )
+        drivers.append(driver)
+    
+    # Đường dẫn file JSON
+    json_file = "data/driver.json"
+    
+    if os.path.exists(json_file):
+        # Nếu file JSON đã tồn tại
+        with open(json_file, "r", encoding="utf-8") as f:
+            existing_drivers = json.load(f)
+            existing_cccds = {driver["cccd"] for driver in existing_drivers}
+        
+        # Kiểm tra và thêm tài xế mới
+        updated_drivers = existing_drivers[:]
+        for driver in drivers:
+            if driver.cccd not in existing_cccds:
+                print(f"Tài xế mới: {driver.name} (CCCD: {driver.cccd}) được thêm vào danh sách.")
+                updated_drivers.append(driver.to_dict())
+        
+        # Ghi đè danh sách tài xế vào file JSON
+        with open(json_file, "w", encoding="utf-8") as f:
+            json.dump(updated_drivers, f, ensure_ascii=False, indent=4)
+        
+        # Ghi đè danh sách tài xế từ JSON vào Excel, giữ header
+        updated_df = pd.DataFrame([Driver.from_dict(d).to_dict() for d in updated_drivers])
+        updated_df = updated_df[["name", "cccd", "vehicle_id", "phone_number", "vehicle_load"]]
+        updated_df.to_excel(excel_file, sheet_name=sheet_name, index=False, startrow=2, header=False)
+    
+    else:
+        # Nếu file JSON chưa tồn tại
+        # Kiểm tra trùng lặp cccd và vehicle_id
+        seen_cccds = {}
+        seen_vehicle_ids = {}
+        unique_drivers = []
+        
+        for driver in drivers:
+            if driver.cccd not in seen_cccds:
+                seen_cccds[driver.cccd] = driver
+            if driver.vehicle_id not in seen_vehicle_ids:
+                seen_vehicle_ids[driver.vehicle_id] = driver
+                unique_drivers.append(driver)
+            else:
+                print(f"Trùng vehicle_id {driver.vehicle_id}, chỉ giữ tài xế đầu tiên.")
+        
+        # Lưu danh sách tài xế vào JSON
+        driver_dicts = [d.to_dict() for d in unique_drivers]
+        with open(json_file, "w", encoding="utf-8") as f:
+            json.dump(driver_dicts, f, ensure_ascii=False, indent=4)
+        
+        # Ghi danh sách tài xế từ JSON vào Excel, giữ header
+        unique_df = pd.DataFrame([d.to_dict() for d in unique_drivers])
+        unique_df = unique_df[["name", "cccd", "vehicle_id", "phone_number", "vehicle_load"]]
+        unique_df.to_excel(excel_file, sheet_name=sheet_name, index=False, startrow=2, header=False)
+
+    print(f"Đã xử lý dữ liệu tài xế từ '{excel_file}' và lưu vào '{json_file}'.")
 
 # đọc sheet driver, staff, chuyển thành driver object và staff object
 
@@ -378,4 +452,5 @@ if __name__ == "__main__":
     # initialize_driver_timetable(is_testing=True)
     # sample_drivers()  # Thêm 5 tài xế mẫu
     # copy_driver_data_to_timetable()
-    check_driver_availability()
+    # check_driver_availability()
+    driver_excel_2_csv()

@@ -1,0 +1,47 @@
+[
+    {
+        "name": "Nguyễn Văn A",
+        "cccd": "729993945241",
+        "vehicle_id": "29A-43478",
+        "vehicle_load": 3,
+        "route_by_day": {},
+        "phone_number": "462124758",
+        "available_times": {}
+    },
+    {
+        "name": "Trần Thị B",
+        "cccd": "405864047433",
+        "vehicle_id": "29A-38171",
+        "vehicle_load": 5,
+        "route_by_day": {},
+        "phone_number": "113346418",
+        "available_times": {}
+    },
+    {
+        "name": "Lê Văn C",
+        "cccd": "48402799183",
+        "vehicle_id": "29A-24622",
+        "vehicle_load": 8,
+        "route_by_day": {},
+        "phone_number": "817375036",
+        "available_times": {}
+    },
+    {
+        "name": "Phạm Thị D",
+        "cccd": "958594898701",
+        "vehicle_id": "29A-47752",
+        "vehicle_load": 6,
+        "route_by_day": {},
+        "phone_number": "569049500",
+        "available_times": {}
+    },
+    {
+        "name": "Hoàng Văn E",
+        "cccd": "399210721129",
+        "vehicle_id": "29A-59979",
+        "vehicle_load": 9,
+        "route_by_day": {},
+        "phone_number": "397807153",
+        "available_times": {}
+    }
+]
