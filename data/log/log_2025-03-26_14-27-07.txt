@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/mnt/e/cs50web/Project-70m/thuattoan.py", line 14, in <module>
+    from utilities.update_map import update_map
+  File "/mnt/e/cs50web/Project-70m/utilities/update_map.py", line 7, in <module>
+    from utilities.map.main_get_distances import update_map_helper
+  File "/mnt/e/cs50web/Project-70m/utilities/map/main_get_distances.py", line 30, in <module>
+    raise ValueError("GOONG_API_KEY environment variable is required but not set.")
+ValueError: GOONG_API_KEY environment variable is required but not set.
