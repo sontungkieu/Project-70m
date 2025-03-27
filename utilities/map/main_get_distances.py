@@ -16,7 +16,8 @@ while (
 ):  # nhảy đến file to
     project_path = project_path.parent
 
-env_path = project_path / ".env"
+# env_path = project_path / ".env"
+env_path = ".env"
 
 load_dotenv(dotenv_path=env_path)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -25,6 +26,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 GOONG_DEBUG = False
 # GOONG_API_KEY = "REDACTED" # chí bằng
 GOONG_API_KEY = os.getenv("GOONG_API_KEY")  # Long
+print (f"GOONG_API_KEY: {GOONG_API_KEY}")
 if not GOONG_API_KEY:
     print("Error: GOONG_API_KEY environment variable not set.")
     raise ValueError("GOONG_API_KEY environment variable is required but not set.")
@@ -63,9 +65,6 @@ def get_coordinates(address, retry=3):
 
 
 def batch_calculate_distance(origins, destinations):
-    # print(f"origins: {origins}")
-    # print(f"destinations: {destinations}")
-    # exit()
     """
     Uses Goong.io Distance Matrix API to calculate distances for multiple origins and destinations.
     Removes 'km' from the output.
@@ -117,7 +116,11 @@ def batch_calculate_distance(origins, destinations):
                 # ✅ Remove "km" and convert to a number
                 distance_text = element["distance"]["text"]
                 numeric_distance = distance_text.replace(" km", "")  # ✅ Remove "km"
-                numeric_distance = numeric_distance.replace(" m", "")  # ✅ Remove "m"
+                if " m" in numeric_distance:
+                    numeric_distance = numeric_distance.replace(" m", "")  # ✅ Remove "m"
+                    numeric_distance = float(numeric_distance) / 1000  # Convert to km
+                else:
+                    numeric_distance = float(numeric_distance)
                 row_distances.append(numeric_distance)
 
         distances.append(row_distances)
@@ -223,4 +226,4 @@ def update_map_helper(origin_ids, destination_ids):
 # update_map_helper(None,None)
 
 
-# process_destinations(r"data\destinations.csv", r"data\distance_matrix.csv")
+process_destinations(r"data\destinations.csv", r"data\distance_matrix.csv")

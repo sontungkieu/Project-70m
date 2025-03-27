@@ -8,22 +8,15 @@ def csv_to_json(input_csv, output_json):
     try:
         with open(input_csv, mode="r", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
+            tmp = []
             for row in reader:
-                tmp = []
                 for key, value in row.items():
-                    try:
-                        # Chuyển đổi value sang float và kiểm tra > 500
-                        num_value = float(value)
-                        if num_value > 500:
-                            tmp.append(num_value)
-                        else:
-                            tmp.append(None)  # hoặc bạn có thể dùng 0 hoặc giá trị khác
-                    except ValueError:
-                        # Nếu không chuyển đổi được sang số, giữ nguyên giá trị
-                        tmp.append(value)
-                data.append(tmp[1:])  # Bỏ cột đầu tiên nếu cần
+                    tmp.append(value)
+                data.append(tmp[1:])
             print(data)
+            # exit()
 
+        print(data)
         # Ensure the output folder exists
         output_folder = os.path.dirname(output_json)
         if output_folder and not os.path.exists(output_folder):

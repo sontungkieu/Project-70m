@@ -70,6 +70,7 @@ now = datetime.now()
 TODAY = now.strftime("%d%m%Y")
 if IS_TESTING:
     TODAY = "19.02.2025"
+TODAY = "27032025"
 TODAY_DT = datetime.strptime(TODAY, "%d%m%Y")
 DATES = []
 for i in range(NUM_OF_DAY_REPETION):

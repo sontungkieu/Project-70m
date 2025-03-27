@@ -329,7 +329,11 @@ def solve_daily_routing(data, historical_km, lambda_penalty, mu_penalty):
             index = solution.Value(routing.NextVar(index))
         # Sau khi duyệt hết lộ trình, max_distance là khoảng cách xa nhất từ depot
         daily_distances.append(max_distance)
-
+    if max(daily_distances) ==0:
+        print("*"*1000)
+        exit()
+        print("Không tìm thấy lời giải cho ngày này!")
+        return None, None, None, None
     return solution, manager, daily_distances, routing
 
 
