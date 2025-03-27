@@ -33,7 +33,7 @@ def load_data(
     driver_file="data/drivers.json",
 ):
     global NUM_OF_VEHICLES, NUM_OF_NODES
-    request_file=f"data/intermediate/{day}.json",
+    request_file=f"data/intermediate/{day}.json"
 
     # Đọc distance matrix từ JSON
     with open(distance_file, "r", encoding="utf-8") as f:
@@ -81,7 +81,7 @@ def load_data_real(
     distance_file="data/distance.json",
     driver_file="data/drivers.json",
 ):
-    request_file="data/intermediate/{day}.json",
+    request_file=f"data/intermediate/{day}.json"
     global NUM_OF_VEHICLES, NUM_OF_NODES
 
     # Đọc danh sách vehicle từ JSON
@@ -127,6 +127,7 @@ def load_data_real(
 
     # print(f"demands: {demands}")
     # exit()
+    print(f"load_data_real:distance_matrix: {distance_matrix}")    
     return distance_matrix, demands, vehicle_capacities, time_windows, available_times_s
 
 def create_data_model(
@@ -150,6 +151,8 @@ def create_data_model(
     data["distance_matrix"] = (
         DEFAULT_DISTANCE_MATRIX if not distance_matrix else distance_matrix
     )
+    print(f"distance_matrix: {data['distance_matrix']}")
+
 
     data["demands"] = DEFAULT_DEMANDS if not demands else demands
 
@@ -364,9 +367,9 @@ def print_daily_solution(data, manager, routing, solution):
             output += f" Node {node} (Arrival Time: {arrival}, Capacity: {current_cap}, Delivered: {delivered}) ->"
             prev = index
             index = next_index
-            route_distance += data["distance_matrix"][manager.IndexToNode(prev)][
+            route_distance += float(data["distance_matrix"][manager.IndexToNode(prev)][
                 manager.IndexToNode(index)
-            ]
+            ])
         node = manager.IndexToNode(index)
         arrival = solution.Value(time_dimension.CumulVar(index))
         final_cap = solution.Value(capacity_dimension.CumulVar(index))

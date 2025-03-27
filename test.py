@@ -106,7 +106,7 @@ def read_requests(config):
                 # Load JSON data from file
                 data = json.load(file)
                 # Convert data to list of Request objects
-                requests = [Request.from_list(u) for u in data]
+                requests = [Request.from_dict(u) for u in data]
                 requests_files.append(requests)
         except FileNotFoundError:
             print(f"Lỗi: Không tìm thấy file {request_filename}!")

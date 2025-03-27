@@ -128,3 +128,5 @@ class Request:
         # <ngày giao (ngày mai)>-<giờ1>-<giờ2>-<start_place[0]>-<end_place[0]>-<trọng lượng*10>-<id ngẫu nhiên 2 số>
 
         return cls(".", start_place, end_place, weight, formatted_date, gen_timeframe)
+    def __str__(self):
+        return f"Request {self.request_id}: {self.start_place} -> {self.end_place}, weight={self.weight}, date={self.date}, timeframe={self.timeframe}"

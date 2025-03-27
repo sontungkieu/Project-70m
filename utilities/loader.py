@@ -11,7 +11,8 @@ def load_requests(file_path):
         with open(file_path, "r", encoding="utf-8") as file:
             # The file contains a JSON array (list) of requests
             requests_list = json.load(file)
-            requests_list = [Request.from_list(req) for req in requests_list]
+            print(f"gggg{requests_list}")
+            requests_list = [Request.from_dict(req) for req in requests_list]
             return requests_list
     except Exception as e:
         print(f"Error reading {file_path}: {e}")

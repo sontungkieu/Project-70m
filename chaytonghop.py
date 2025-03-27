@@ -111,7 +111,7 @@ def read_requests(config):
         try:
             with open(request_filename, "r", encoding="utf-8") as file:
                 data_list = json.load(file)
-                requests = [Request.from_list(item) for item in data_list]
+                requests = [Request.from_dict(item) for item in data_list]
                 requests_files.append(requests)
         except Exception as e:
             logger.error("Lỗi khi đọc file %s: %s", request_filename, e)

@@ -27,8 +27,8 @@ def split_customers(data):
         for i in range(NUM_OF_NODES):
             for j in range(NUM_OF_NODES):
                 # Nếu đi qua nút k giúp rút ngắn khoảng cách từ i đến j thì cập nhật
-                if matrix[i][k] + matrix[k][j] < matrix[i][j]:
-                    matrix[i][j] = matrix[i][k] + matrix[k][j]
+                if float(matrix[i][k]) + float(matrix[k][j]) < float(matrix[i][j]):
+                    matrix[i][j] = float(matrix[i][k]) + float(matrix[k][j])
     # Tạo danh sách mới để lưu các demand sau khi tách và mapping của các node.
     data["distance_matrix"] = matrix
     new_demands = []
