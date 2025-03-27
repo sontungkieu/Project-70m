@@ -396,11 +396,7 @@ def check_driver_availability(
     print(driver_availability)
     return driver_availability
 
-def driver_excel_2_csv(is_check_driver_availability=False):
-    excel_file = "data/input/Lenh_Dieu_Xe.xlsx"
-    sheet_name = "Tai_Xe"
-    json_file = "data/drivers.json"
-    
+def driver_excel_2_csv(excel_file = "data/input/Lenh_Dieu_Xe.xlsx",sheet_name = "Tai_Xe",json_file = "data/drivers.json",is_check_driver_availability=False, checkday = TODAY):    
     wb = openpyxl.load_workbook(excel_file)
     if sheet_name not in wb.sheetnames:
         print(f"Sheet '{sheet_name}' không tồn tại trong file '{excel_file}'.")
@@ -427,12 +423,12 @@ def driver_excel_2_csv(is_check_driver_availability=False):
             drivers.append(driver)
     
     if is_check_driver_availability:
-        availability = check_driver_availability(file_path=excel_file)
+        availability = check_driver_availability(file_path=excel_file,sheet_name=f"Driver_Timetable_{checkday}")
         if availability:
             for driver in drivers:
                 driver_key = f"{driver.name} - {driver.phone_number}"
                 if driver_key in availability:
-                    driver.update_available_times(TODAY, availability[driver_key])
+                    driver.update_available_times(checkday, availability[driver_key])
     print(drivers[0].available_times, "()"*100)
     
     if os.path.exists(json_file):
@@ -452,7 +448,7 @@ def driver_excel_2_csv(is_check_driver_availability=False):
                 driver_key = f"{driver_dict['name']} - {driver_dict['phone_number']}"
                 if driver_key in availability:
                     driver = Driver.from_dict(driver_dict)
-                    driver.update_available_times(TODAY, availability[driver_key])
+                    driver.update_available_times(checkday, availability[driver_key])
                     driver_dict =driver.to_dict()
                     updated_drivers[i] = driver_dict
         
@@ -520,12 +516,18 @@ def driver_excel_2_csv(is_check_driver_availability=False):
 
 # Gọi hàm để thực thi
 if __name__ == "__main__":
-    # Chạy bình thường
-    # initialize_driver_schedule()
-    # Chạy ở chế độ testing (xóa sheet Tai_Xe nếu có và tạo lại)
+    # # Chạy bình thường
+    # # Chạy ở chế độ testing (xóa sheet Tai_Xe nếu có và tạo lại)
     # initialize_driver_list(is_testing=True)
-    initialize_driver_timetable(is_testing=True)
+    # initialize_driver_timetable(is_testing=True)
     # sample_drivers(number_of_drivers=41)  # Thêm tài xế mẫu
-    copy_driver_data_to_timetable()
-    # check_driver_availability()
-    driver_excel_2_csv(True)
+    # copy_driver_data_to_timetable()
+    # # check_driver_availability()
+    # driver_excel_2_csv(is_check_driver_availability=True)
+    driver_excel_2_csv(
+        excel_file="data/input/Lenh_Dieu_Xe.xlsx",
+        sheet_name="Tai_Xe",
+        json_file="data/drivers.json",
+        is_check_driver_availability=True,
+        checkday=DATES[0]
+    )

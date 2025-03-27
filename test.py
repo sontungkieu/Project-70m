@@ -4,10 +4,11 @@ import os
 import subprocess
 from datetime import datetime
 from time import perf_counter
-
 import psutil
 
+from utilities.split_data import postprocess_output
 from objects.request import Request
+from sync_staff import initialize_driver_list,initialize_driver_timetable,sample_drivers,copy_driver_data_to_timetable,driver_excel_2_csv
 
 config = []
 NUM_OF_DAY_REPETION = None
@@ -192,26 +193,52 @@ def check(outputs, queries, config):
 
 
 if __name__ == "__main__":
-    (
-        run_time,
-        memory_usage,
-        stdout_filename,
-        config_filename,
-    ) = run_test_bo_doi_cong_nghiep(re_run=True)
+    # init excel
+    from config import DATES
+    # from initExcel import init_excel
+    # print(DATES[0])
+    # init_excel(day=DATES[0], is_recreate=True)
+    # init_excel(day=DATES[1], is_recreate=False)
+    # init_excel(day=DATES[2], is_recreate=False)
 
-    # sau khi chạy
-    config_data = read_config(config_filename)
-    output_data = read_output(stdout_filename)
-    requests_data = read_requests(config_data)
+    # điền dữ liệu vào 
 
-    check(output_data, requests_data, config_data)
+    # read excel
+    # from read_excel import excel_to_requests_and_save
+    # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[0])
+    # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[1])
+    # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[2])
+    for day in DATES:
+        driver_excel_2_csv(
+            excel_file="data/input/Lenh_Dieu_Xe.xlsx",
+            sheet_name="Tai_Xe",
+            json_file="data/drivers.json",
+            is_check_driver_availability=True,
+            checkday=day,
+        )
 
-    print(f"""ORTools run in {run_time:.2f}s, with config: \n{config_data}""")
-    print(f"Peak memory usage: {memory_usage / (1024 * 1024):.2f} MB")
-    print(f"Output saved to: {stdout_filename}")
-    print(f"Config saved to: {config_filename}")
+    # (
+    #     run_time,
+    #     memory_usage,
+    #     stdout_filename,
+    #     config_filename,
+    # ) = run_test_bo_doi_cong_nghiep(re_run=True)
 
-    # Kiểm tra
+    # processed_filename = processed_output_file=stdout_filename.split(".")[0] + "_processed.json"
+    # # sau khi chạy
+    # config_data = read_config(config_filename)
+    # postprocess_output(output_file=stdout_filename, processed_output_file=processed_filename)
+    # output_data = read_output(processed_filename)
+    # requests_data = read_requests(config_data)
+
+    # check(output_data, requests_data, config_data)
+
+    # print(f"""ORTools run in {run_time:.2f}s, with config: \n{config_data}""")
+    # print(f"Peak memory usage: {memory_usage / (1024 * 1024):.2f} MB")
+    # print(f"Output saved to: {stdout_filename}")
+    # print(f"Config saved to: {config_filename}")
+
+    # # Kiểm tra
 
 
 """

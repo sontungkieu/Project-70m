@@ -65,7 +65,6 @@ def read_output(filename):
 def read_and_save_json_output(
     filename=r"data\stdout_output_2025-02-19_00-00-00.txt",
 ):
-    print("hukgakigasehukgkhufewaeb")
     output = read_output(filename=filename)
     if output is not None:
         import json

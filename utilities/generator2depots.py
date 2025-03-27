@@ -107,7 +107,7 @@ def gen_requests_and_save(num_requests=10, file_sufices="", NUM_OF_NODES=34, see
 
     output_filename = os.path.join(intermediate_dir, f"{file_sufices}.json")
     with open(output_filename, "w", encoding="utf-8") as file:
-        json.dump([r.to_list() for r in all_requests], file, separators=(",", ": "))
+        json.dump([r.to_dict() for r in all_requests], file, separators=(",", ": "))
     print(f"Requests generated and saved to {output_filename} with {len(all_requests)} requests.")
     return all_requests
 

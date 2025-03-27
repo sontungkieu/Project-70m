@@ -21,14 +21,41 @@ class Request:
         # Tạo ID dựa trên date, timeframe, start_place, end_place, weight,...
         return f"{self.date}-{self.timeframe[0]:02d}-{self.timeframe[1]:02d}-{self.start_place[0]:03d}-{self.end_place[0]:03d}-{int(self.weight*10):03d}-{self.staff_id:02d}-{self.split_id:02d}"
 
-    def to_list(self):
-        return [self.name, self.start_place, self.end_place, self.weight, self.date, self.timeframe, self.note, self.staff_id, self.split_id, self.request_id]
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "start_place": self.start_place,
+            "end_place": self.end_place,
+            "weight": self.weight,
+            "date": self.date,
+            "timeframe": self.timeframe,
+            "note": self.note,
+            "staff_id": self.staff_id,
+            "split_id": self.split_id,
+            "request_id": self.request_id,
+            "delivery_time": self.delivery_time,
+            "delivery_status": self.delivery_status
+        }
 
     @classmethod
-    def from_list(cls, lst):
-        # Khôi phục đối tượng từ danh sách đã lưu
-        return cls(*lst[:-1])  # Giả sử phần cuối lst là request_id (đã tạo tự động)
-
+    def from_dict(cls, dict_data):
+        # Tạo instance mới từ dictionary
+        request = cls(
+            name=dict_data["name"],
+            start_place=dict_data["start_place"],
+            end_place=dict_data["end_place"],
+            weight=dict_data["weight"],
+            date=dict_data["date"],
+            timeframe=dict_data["timeframe"],
+            note=dict_data["note"],
+            staff_id=dict_data["staff_id"],
+            split_id=dict_data["split_id"]
+        )
+        # Gán thêm các thuộc tính không nằm trong __init__
+        request.delivery_time = dict_data["delivery_time"]
+        request.delivery_status = dict_data["delivery_status"]
+        # request_id đã được tạo tự động trong __init__
+        return request
     @classmethod
     def generate(cls, NUM_OF_NODES=55, start_from_depot=False, small_weight=True, depots=[0,1], forced_depot=None, split_index=0):
         """

@@ -17,7 +17,7 @@ def load_requests(file_path):
         print(f"Error reading {file_path}: {e}")
         return []
 
-def load_drivers(file_path="data/drivers.json", is_converted_to_list=False):
+def load_drivers(file_path="data/drivers.json", is_converted_to_dict=False):
     # Construct the path to the JSON file
     try:
         with open(file_path, "r", encoding="utf-8") as file:
@@ -26,7 +26,7 @@ def load_drivers(file_path="data/drivers.json", is_converted_to_list=False):
             # Convert each driver dictionary to Driver object using from_dict
             drivers_list = [Driver.from_dict(driver) for driver in drivers_list]
             
-            if is_converted_to_list:
+            if is_converted_to_dict:
                 # Sort by name and then by cccd
                 drivers_list.sort(key=lambda x: (x.name, x.cccd))
                 # Extract vehicle_loads and available_times
@@ -38,7 +38,7 @@ def load_drivers(file_path="data/drivers.json", is_converted_to_list=False):
                 
     except Exception as e:
         print(f"Error reading {file_path}: {e}")
-        return [] if not is_converted_to_list else ([], [], [])
+        return [] if not is_converted_to_dict else ([], [], [])
 
 def accept_accumulated_distance():
     """
@@ -59,13 +59,13 @@ if __name__ == "__main__":
     
     # Load drivers (không convert)
     print("\nList of drivers (not converted):")
-    drivers_list = load_drivers("data/drivers.json", is_converted_to_list=False)
+    drivers_list = load_drivers("data/drivers.json", is_converted_to_dict=False)
     for driver in drivers_list:
         print(driver)
     
     # Load drivers (converted to lists)
     print("\nList of drivers (converted to lists):")
-    drivers_list, vehicle_loads, available_times_s = load_drivers("data/drivers.json", is_converted_to_list=True)
+    drivers_list, vehicle_loads, available_times_s = load_drivers("data/drivers.json", is_converted_to_dict=True)
     print("Drivers:")
     for driver in drivers_list:
         print(driver)

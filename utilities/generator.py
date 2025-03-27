@@ -124,7 +124,7 @@ def gen_requests_and_save(
         if have_request[u.end_place[0]] == 1:
             continue
         have_request[u.end_place[0]] = 1
-        filtered_requests.append(u.to_list())
+        filtered_requests.append(u.to_dict())
     requests = filtered_requests[:num_requests]
 
     # Xác định thư mục hiện tại của file (giả sử file này nằm trong thư mục utilities)
@@ -146,7 +146,7 @@ def gen_requests_and_save(
         os.makedirs(intermediate_dir)
 
     # Lưu các yêu cầu vào file JSON trong thư mục 'data/intermediate'
-    file_path = os.path.join(intermediate_dir, f"requests{file_sufices}.json")
+    file_path = os.path.join(intermediate_dir, f"{file_sufices}.json")
     with open(file_path, "w") as file:
         json.dump(requests, file, separators=(",", ": "))
 
