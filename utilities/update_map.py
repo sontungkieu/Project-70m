@@ -28,7 +28,7 @@ def update_map(requests, mapping, inverse_mapping):
     for node in nodes:
         orig_nodes.add(inverse_mapping[node])
     orig_nodes = sorted(list(orig_nodes))
-    print(f"update_map:orig_nodes: {orig_nodes}")
+    # print(f"update_map:orig_nodes: {orig_nodes}")
     # Get the distance matrix for the original nodes
     orig_distance_matrix = update_map_helper(orig_nodes, orig_nodes)
     orig_distance_matrix_dict = {}
@@ -43,13 +43,13 @@ def update_map(requests, mapping, inverse_mapping):
     n_new = len(nodes)
     new_distance_matrix = [[0 for _ in range(n_new)] for _ in range(n_new)]
 
-    print(f"orig_distance_matrix: len {len(orig_distance_matrix)},{orig_distance_matrix}")
+    # print(f"orig_distance_matrix: len {len(orig_distance_matrix)},{orig_distance_matrix}")
     # Update the new distance matrix
     for i in range(n_new):
         for j in range(n_new):
             orig_i = inverse_mapping[nodes[i]]
             orig_j = inverse_mapping[nodes[j]]
-            new_distance_matrix[i][j] = float(orig_distance_matrix[orig_i][orig_j] if orig_i != orig_j else 0)
+            new_distance_matrix[i][j] = float(orig_distance_matrix[orig_i][orig_j] if orig_i != orig_j else 0.1)
     # for i in range(n_new):
         
             # if i == orig_i and j == orig_j:

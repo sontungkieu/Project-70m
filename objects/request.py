@@ -3,7 +3,7 @@ import random
 from datetime import datetime, timedelta
 
 class Request:
-    def __init__(self, name, start_place, end_place, weight, date, timeframe, note=".", staff_id=0, split_id=1):
+    def __init__(self, name, start_place, end_place, weight, date, timeframe, note=".", staff_id=0, split_id=0):
         self.name = name
         self.start_place = start_place  # danh sách các điểm khởi đầu (ví dụ: [depot])
         self.end_place = end_place      # danh sách các điểm đến (1 phần tử)
@@ -19,7 +19,7 @@ class Request:
 
     def gen_id(self):
         # Tạo ID dựa trên date, timeframe, start_place, end_place, weight,...
-        return f"{self.date}-{self.timeframe[0]:02d}-{self.timeframe[1]:02d}-{self.start_place[0]:03d}-{self.end_place[0]:03d}-{int(self.weight*10):03d}-{self.staff_id:02d}-{self.split_id:02d}"
+        return f"{self.date}-FF{self.timeframe[0]:02d}-FT{self.timeframe[1]:02d}-S{self.start_place[0]:03d}-E{self.end_place[0]:03d}-W{int(self.weight):03d}-{self.staff_id:02d}-{self.split_id:02d}"
 
     def to_dict(self):
         return {

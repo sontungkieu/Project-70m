@@ -3,6 +3,7 @@ import os
 
 from objects.request import Request
 from objects.driver import Driver
+from config import *
 
 def load_requests(file_path):
     # Construct the path to the JSON file
@@ -10,9 +11,12 @@ def load_requests(file_path):
     try:
         with open(file_path, "r", encoding="utf-8") as file:
             # The file contains a JSON array (list) of requests
-            requests_list = json.load(file)
-            print(f"gggg{requests_list}")
+            requests_list = json.load(file)[:10]
+            print(f"loader.py:load_requests: len {len(requests_list)} :{requests_list}")
             requests_list = [Request.from_dict(req) for req in requests_list]
+            for i in range(len(requests_list)):
+                requests_list[i].weight *= CAPACITY_SCALE
+                requests_list[i].timeframe = [requests_list[i].timeframe[0] * TIME_SCALE, requests_list[i].timeframe[1] * TIME_SCALE]
             return requests_list
     except Exception as e:
         print(f"Error reading {file_path}: {e}")

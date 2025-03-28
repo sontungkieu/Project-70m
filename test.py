@@ -204,18 +204,20 @@ if __name__ == "__main__":
     # điền dữ liệu vào 
 
     # read excel
-    # from read_excel import excel_to_requests_and_save
-    # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[0])
-    # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[1])
-    # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[2])
-    for day in DATES:
-        driver_excel_2_csv(
-            excel_file="data/input/Lenh_Dieu_Xe.xlsx",
-            sheet_name="Tai_Xe",
-            json_file="data/drivers.json",
-            is_check_driver_availability=True,
-            checkday=day,
-        )
+    from read_excel import excel_to_requests_and_save
+    requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[0])
+    requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[1])
+    requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[2])
+    # for day in DATES:
+    #     driver_excel_2_csv(
+    #         excel_file="data/input/Lenh_Dieu_Xe.xlsx",
+    #         sheet_name="Tai_Xe",
+    #         json_file="data/drivers.json",
+    #         is_check_driver_availability=True,
+    #         checkday=day,
+    #     )
+    # recompute map
+    # process_destinations(r"data\destinations.csv", r"data\distance_matrix.csv")
 
     # (
     #     run_time,
