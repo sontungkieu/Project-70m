@@ -4,12 +4,16 @@ IS_TESTING = True
 NUM_OF_VEHICLES = 41  # số xe
 NUM_OF_NODES = 50     # số đỉnh của đồ thị
 NUM_OF_REQUEST_PER_DAY = 30
-NUM_OF_DAY_REPETION = 30
+NUM_OF_DAY_REPETION = 1
 DISTANCE_SCALE = 1
 CAPACITY_SCALE = 10
 TIME_SCALE = 1
 MAX_ROUTE_SIZE = 4
+DATES = ["19.02.2025"]
 
+SUPER_DEPOT = 0
+ALPHA_BALANCE = 10000000000000
+depots_actual = [0, 1, 2, 3, 4, 5]
 # scale = 1: đo thời gian theo đơn vị giờ, scale = X: đo thời gian theo đơn vị 1/X giờ
 TIME_SCALE = 4
 MAX_ROUTE_SIZE = 4  # số lượng đỉnh tối đa trong 1 tuyến đường
@@ -65,19 +69,15 @@ config = {
 now = datetime.now()
 TODAY = now.strftime("%d%m%Y")
 if IS_TESTING:
-    TODAY = "19022025"
-TODAY_DT = datetime.strptime(TODAY, "%d%m%Y")
+    TODAY = "19.02.2025"
+TODAY_DT = datetime.strptime(TODAY, "%d.%m.%Y")
 DATES = []
 for i in range(NUM_OF_DAY_REPETION):
     next_date = TODAY_DT + timedelta(days=i)
     DATES.append(next_date.strftime("%d.%m.%Y"))
 config["DATES"] = DATES
-now = datetime.now()
-# tomorrow = now + timedelta(days=random.randint(0,10))
-# TODAY = now.strftime("%d%m%Y")
-print(TODAY,type(TODAY))
-# print(now.strftime("%d%m%Y%H%M%S"))
-# print(TODAY,type(TODAY))
+# Add to config dictionary
+config["DATES"] = DATES
 
 """  #####  DEFAULT DATA  #####  """
 # Định nghĩa 7 node:

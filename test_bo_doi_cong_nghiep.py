@@ -41,7 +41,7 @@ def load_data(
 
     distance_matrix = [[int(u * DISTANCE_SCALE) for u in v] for v in distance_matrix]
     NUM_OF_NODES = len(distance_matrix)
-
+    
     # Đọc danh sách vehicle từ JSON
     with open(vehicle_file, "r", encoding="utf-8") as f:
         vehicle_capacities = json.load(f)
@@ -56,7 +56,6 @@ def load_data(
 
     demands = [0 for _ in range(NUM_OF_NODES)]
     time_windows = [(0, 24 * TIME_SCALE) for _ in range(NUM_OF_NODES)]
-
     for request in requests_data:
         print(f"request: {request}")
         # Truy xuất phần tử đầu tiên trong danh sách
@@ -70,7 +69,7 @@ def load_data(
 
     print(f"demands: {demands}")
     # exit()
-    return distance_matrix, demands, vehicle_capacities, time_windows
+    return distance_matrix, demands, vehicle_capacities, time_windows################################
 
 
 def load_data_real(
@@ -112,7 +111,7 @@ def load_data_real(
 
     # print(f"demands: {demands}")
     # exit()
-    return distance_matrix, demands, vehicle_capacities, time_windows
+    return distance_matrix, demands, vehicle_capacities, time_windows###################################
 
 
 def create_data_model(
@@ -155,7 +154,7 @@ def create_data_model(
 
     print(f"node_mapping: {node_mapping}")
 
-    return data
+    return data#### trả về data gồm distance_matrix, demand, timewindow sau khi đã thực hiện spliting
 
 
 def create_daily_routing_model(data):
@@ -366,7 +365,7 @@ def multi_day_routing(num_days, lambda_penalty, mu_penalty):
     Sau mỗi ngày, cập nhật historical_km bằng cách cộng thêm quãng đường của ngày đó.
     Fixed cost của từng xe được tính theo:
          fixed_cost = lambda_penalty * historical_km + mu_penalty * (vehicle_capacities - min_capacity)
-    Điều này giúp ưu tiên xe có số km tích lũy thấp và có tải trọng nhỏ hơn.
+    Điều này giúp ưu tiên xe có số km tích lũy thấp và có tải trọng nhỏ hơn.##################################################################################good######
     """
     # Khởi tạo historical_km cho 4 xe (trong thực tế có thể là 47 xe)
     historical_km = None

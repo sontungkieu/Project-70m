@@ -1,4 +1,5 @@
 import csv
+import json
 import os
 from typing import List
 
@@ -90,7 +91,7 @@ def read_excel_file(file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name=TODA
         "ĐÃ GIAO": "CONFIG!AB1:AB2",
         "NƠI BỐC HÀNG": "Dia_Chi!A1:A6",
     }
-    print(df.head(40))
+
     for column_name in dropdown_columns.keys():
         if column_name in df.columns:
             df[column_name + DROP_DOWN_EXT] = None
@@ -130,7 +131,6 @@ def read_excel_file(file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name=TODA
                     sheet1_name=sheet_name,
                 )
                 df.at[index, column_name + DROP_DOWN_EXT] = result["index_in_dropdown"]
-    print(df.head(40))
     return df
 
 
@@ -173,7 +173,6 @@ def convert_to_object(df: pd.DataFrame, day: str) -> List[Request]:
 
     drop_columns = [col for col in df.columns if DROP_DOWN_EXT in col]
     df = df.drop(columns=drop_columns)
-    print(df.head(40))
 
     print("\nDữ liệu sau khi gán và xóa các cột _DROP_DOWN_ID:")
     print(df.head())
@@ -248,27 +247,38 @@ def convert_to_object(df: pd.DataFrame, day: str) -> List[Request]:
 
 def excel_to_requests(file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name=TODAY):
     df = read_excel_file(file_path=file_path, sheet_name=sheet_name)
-    return convert_to_object(df=df, day=sheet_name)
+    requests = convert_to_object(df=df, day=sheet_name)
+    
+    # Chuyển đổi danh sách requests thành danh sách dictionary
+    requests_list = [request.to_list() for request in requests]
+    
+    # Đường dẫn đến file JSON
+    json_file_path = os.path.join("data", "intermediate", f"{TODAY}.json")
+    
+    # Ghi danh sách requests vào file JSON
+    with open(json_file_path, 'w', encoding='utf-8') as json_file:
+        json.dump(requests_list, json_file, ensure_ascii=False, separators=(',', ':'))
+    return requests
 
 
 if __name__ == "__main__":
-    try:
-        df = read_excel_file()
-        print()
-        requests = convert_to_object(df, TODAY)
-        print("\nDanh sách các đối tượng Request:")
-        for i, req in enumerate(requests[:5]):
-            print(f"Request {i + 1}:")
-            print(f"  Name: {req.name}")
-            print(f"  Start Place: {req.start_place}")
-            print(f"  End Place: {req.end_place}")
-            print(f"  Weight: {req.weight}")
-            print(f"  Date: {req.date}")
-            print(f"  Timeframe: {req.timeframe}")
-            print(f"  Note: {req.note}")
-            print(f"  Staff ID: {req.staff_id}")
-            print(f"  Split ID: {req.split_id}")
-            print(f"  Delivery Status: {req.delivery_status}")
-            print(f"  Request ID: {req.request_id}")
-    except Exception as e:
-        print(f"Lỗi: {e}")
+    # try:
+    #     df = read_excel_file()
+    #     requests = convert_to_object(df)
+    #     print("\nDanh sách các đối tượng Request:")
+    #     for i, req in enumerate(requests[:5]):
+    #         print(f"Request {i + 1}:")
+    #         print(f"  Name: {req.name}")
+    #         print(f"  Start Place: {req.start_place}")
+    #         print(f"  End Place: {req.end_place}")
+    #         print(f"  Weight: {req.weight}")
+    #         print(f"  Date: {req.date}")
+    #         print(f"  Timeframe: {req.timeframe}")
+    #         print(f"  Note: {req.note}")
+    #         print(f"  Staff ID: {req.staff_id}")
+    #         print(f"  Split ID: {req.split_id}")
+    #         print(f"  Delivery Status: {req.delivery_status}")
+    #         print(f"  Request ID: {req.request_id}")
+    # except Exception as e:
+    #     print(f"Lỗi: {e}")
+    excel_to_requests( file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name=TODAY)

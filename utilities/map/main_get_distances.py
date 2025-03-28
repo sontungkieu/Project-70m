@@ -6,6 +6,7 @@ from pathlib import Path
 import requests
 import urllib3
 from dotenv import load_dotenv
+from config import INFINITY
 
 project_path = Path(__file__)  # .parent.parent.parent
 
@@ -218,6 +219,9 @@ def update_map_helper(origin_ids, destination_ids):
             c_matrix.append(matrix[pi][pj])
         new_matrix.append(c_matrix)
     return new_matrix
+
+
+
 
 
 # update_map_helper(None,None)

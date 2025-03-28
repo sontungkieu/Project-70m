@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from objects.request import Request
 
@@ -21,7 +21,8 @@ def split_customers(data):
     """
     NUM_OF_NODES = len(data["demands"])
     #  2. Áp dụng Floyd-Warshall để đảm bảo không vi phạm bất đẳng thức tam giác
-    matrix = data["distance_matrix"]
+    # matrix = data["distance_matrix"]
+    matrix = [[float(x) for x in row] for row in data["distance_matrix"]]
     for k in range(NUM_OF_NODES):
         for i in range(NUM_OF_NODES):
             for j in range(NUM_OF_NODES):
@@ -71,7 +72,7 @@ def split_customers(data):
             else:
                 new_distance_matrix[i][j] = data["distance_matrix"][orig_i][orig_j]
     data["distance_matrix"] = new_distance_matrix
-
+    
     # Xây dựng time_windows mới theo mapping (đối với depot và khách hàng gốc)
     new_time_windows = []
     for i in range(n_new):
@@ -83,13 +84,53 @@ def split_customers(data):
     return data, node_mapping
 
 
+# def split_requests(requests: List[Request]):
+#     # maping, inverse_mapping
+#     new_node = 1
+#     mapping = {0: [0]}
+#     inverse_mapping = {0: 0}
+#     new_requests = []
+#     for request in requests:
+#         request = Request.from_list(request)
+#         while request.weight > MIN_CAPACITY:
+#             new_request = Request(
+#                 request.start_place,
+#                 request.end_place,
+#                 MIN_CAPACITY,
+#                 request.date,
+#                 request.timeframe,
+#                 split_id=1,
+#             )
+#             new_requests.append(new_request)
+#             request.weight -= MIN_CAPACITY
+#         new_requests.append(request)
+#     mapped_requests = []
+#     for request in new_requests:
+#         if request.end_place[0] not in mapping:
+#             mapping[request.end_place[0]] = [new_node]
+#         else:
+#             mapping[request.end_place[0]].append(new_node)
+#         inverse_mapping[new_node] = request.end_place[0]
+#         request.end_place[0] = new_node
+#         new_node += 1
+#         mapped_requests.append(request)
+#         json_data = {
+#             "mapped_requests": [r.to_list() for r in mapped_requests],  # optional if needed
+#             "mapping": mapping,
+#             "inverse_mapping": inverse_mapping,
+#         }
+#         import json
+#         with open("data/intermediate/mapping.json", "w", encoding="utf-8") as f:
+#             json.dump(json_data, f, indent=4, ensure_ascii=False)
+#     return mapped_requests, mapping, inverse_mapping
+import json
 def split_requests(requests: List[Request]):
-    # maping, inverse_mapping
     new_node = 1
     mapping = {0: [0]}
     inverse_mapping = {0: 0}
     new_requests = []
     for request in requests:
+        # Vì requests đã là Request object nên không cần chuyển đổi nữa.
         while request.weight > MIN_CAPACITY:
             new_request = Request(
                 request.start_place,
@@ -113,11 +154,10 @@ def split_requests(requests: List[Request]):
         new_node += 1
         mapped_requests.append(request)
         json_data = {
-            "mapped_requests": mapped_requests,
+            "mapped_requests": [r.to_list() for r in mapped_requests],
             "mapping": mapping,
             "inverse_mapping": inverse_mapping,
         }
-        import json
-
-        json.dump(json_data, "data/intermediate/mapping.json")
+        with open("data/intermediate/mapping.json", "w", encoding="utf-8") as f:
+            json.dump(json_data, f, indent=4, ensure_ascii=False)
     return mapped_requests, mapping, inverse_mapping
