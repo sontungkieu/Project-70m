@@ -33,7 +33,7 @@ def run_test_bo_doi_cong_nghiep(config_data):
     with open(stdout_filename, "w", encoding="utf-8") as stdout_file:
         with open(log_filename, "wb") as log_file:
             process = Popen(
-                ["python", "thuattoan.py", "--output", test2depot_output_file],
+                ["python3", "thuattoan.py", "--output", test2depot_output_file],
                 stdout=subprocess.PIPE,
                 stderr=log_file
             )

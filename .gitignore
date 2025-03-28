@@ -10,6 +10,9 @@
 /objects/__pycache__/
 firebase-key.json
 
+/data/output/output_excel
+/data/output/json_after_reversed
+
 
 
 
