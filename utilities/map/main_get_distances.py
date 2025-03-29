@@ -213,13 +213,14 @@ def update_map_helper(origin_ids, destination_ids):
         for row in reader:
             matrix.append(row[1:])
     matrix = matrix[1:]
-    print(matrix)
+    # print("main_get_distances.py:update_map_helper:matrix: ", matrix)
     new_matrix = []
     for i, pi in enumerate(origin_ids):
         c_matrix = []
         for j, pj in enumerate(destination_ids):
             c_matrix.append(matrix[pi][pj])
         new_matrix.append(c_matrix)
+    print("main_get_distances.py:update_map_helper:new_matrix: ", new_matrix)
     return new_matrix
 
 

@@ -480,28 +480,21 @@ search_strategy = [
 
 def load_data_real(
     day: str = DATES[0],
-    distance_file="data/distance.json",
     driver_file="data/drivers.json",
 ):
-    request_file = f"data/intermediate/{day}.json"
     global NUM_OF_VEHICLES, NUM_OF_NODES
-
-    logging.info(f"Loading data for day: {day}")
+    request_file = f"data/intermediate/{day}.json"
+    # logging.info(f"Loading data for day: {day}")
     drivers_list, vehicle_capacities, available_times_s = loader.load_drivers(file_path=driver_file, is_converted_to_dict=True)
-    vehicle_capacities = [int(u * CAPACITY_SCALE) for u in vehicle_capacities]
-    NUM_OF_VEHICLES = len(vehicle_capacities)
-    logging.info(f"NUM_OF_VEHICLES: {NUM_OF_VEHICLES}")
-
-    available_times_s = [
-        [(int(start*TIME_SCALE), int(end*TIME_SCALE)) for start, end in driver_times[day]]
-        for driver_times in available_times_s
-    ]
+    NUM_OF_VEHICLES = loader.NUM_OF_VEHICLES
+    # logging.info(f"NUM_OF_VEHICLES: {NUM_OF_VEHICLES}")
 
     requests_data = loader.load_requests(file_path=request_file)
     divided_mapped_requests, mapping, inverse_mapping = split_requests(requests_data)
+
     distance_matrix = update_map(divided_mapped_requests, mapping, inverse_mapping)
     NUM_OF_NODES = len(distance_matrix)
-    logging.info(f"NUM_OF_NODES: {NUM_OF_NODES}, distance_matrix size: {len(distance_matrix)}x{len(distance_matrix[0])}")
+    # logging.info(f"NUM_OF_NODES: {NUM_OF_NODES}, distance_matrix size: {len(distance_matrix)}x{len(distance_matrix[0])}")
 
     demands = [0 for _ in range(NUM_OF_NODES)]
     time_windows = [(0, 24 * TIME_SCALE) for _ in range(NUM_OF_NODES)]
@@ -510,11 +503,14 @@ def load_data_real(
         weight = request.weight
         demands[end_place] += int(weight)
         time_windows[end_place] = (request.timeframe[0], request.timeframe[1])
+    print("engine1.py:load_data_real:demands: ", demands)
+    print("engine1.py:load_data_real:time_windows: ", time_windows)
+    print("engine1.py:load_data_real:vehicle_capacities: ", vehicle_capacities)
 
-    return distance_matrix, demands, vehicle_capacities, time_windows, available_times_s
+    return distance_matrix, demands, vehicle_capacities, time_windows, available_times_s,requests_data,divided_mapped_requests, mapping, inverse_mapping
 
-def create_data_model(*, distance_matrix=None, demands=None, vehicles=None, time_window=None, available_times_s=None):
-    logging.info("Entering create_data_model")
+def create_data_model(*, distance_matrix=None, demands=None, vehicles=None, time_window=None, available_times_s=None,requests_data = None,divided_mapped_requests = None, mapping = None, inverse_mapping= None):
+    # logging.info("Entering create_data_model")
     data = {}
     data["distance_matrix"] = DEFAULT_DISTANCE_MATRIX if not distance_matrix else distance_matrix
     data["demands"] = DEFAULT_DEMANDS if not demands else demands
@@ -523,42 +519,46 @@ def create_data_model(*, distance_matrix=None, demands=None, vehicles=None, time
     data["depot"] = 0
     data["time_windows"] = DEFAULT_TIME_WINDOWS if time_window is None else time_window
     data["available_times_s"] = available_times_s
+    data["requests_data"] = [r.to_dict() for r in requests_data]
+    data["divided_mapped_requests"] = [r.to_dict() for r in divided_mapped_requests]
+    data["mapping"] = mapping
+    data["inverse_mapping"] = inverse_mapping
 
     # Validation
-    num_nodes = len(data["distance_matrix"])
-    if len(data["demands"]) != num_nodes or len(data["time_windows"]) != num_nodes:
-        logging.error(f"Data mismatch: distance_matrix ({num_nodes}), demands ({len(data['demands'])}), time_windows ({len(data['time_windows'])})")
-        raise ValueError("Inconsistent data sizes")
-    if len(data["vehicle_capacities"]) != data["num_vehicles"]:
-        logging.error(f"Vehicle mismatch: num_vehicles ({data['num_vehicles']}), vehicle_capacities ({len(data['vehicle_capacities'])})")
-        raise ValueError("Inconsistent vehicle data")
-    if data["available_times_s"] and len(data["available_times_s"]) != data["num_vehicles"]:
-        logging.error(f"Available times mismatch: num_vehicles ({data['num_vehicles']}), available_times_s ({len(data['available_times_s'])})")
-        raise ValueError("Inconsistent available times")
+    # num_nodes = len(data["distance_matrix"])
+    # if len(data["demands"]) != num_nodes or len(data["time_windows"]) != num_nodes:
+    #     logging.error(f"Data mismatch: distance_matrix ({num_nodes}), demands ({len(data['demands'])}), time_windows ({len(data['time_windows'])})")
+    #     raise ValueError("Inconsistent data sizes")
+    # if len(data["vehicle_capacities"]) != data["num_vehicles"]:
+    #     logging.error(f"Vehicle mismatch: num_vehicles ({data['num_vehicles']}), vehicle_capacities ({len(data['vehicle_capacities'])})")
+    #     raise ValueError("Inconsistent vehicle data")
+    # if data["available_times_s"] and len(data["available_times_s"]) != data["num_vehicles"]:
+    #     logging.error(f"Available times mismatch: num_vehicles ({data['num_vehicles']}), available_times_s ({len(data['available_times_s'])})")
+    #     raise ValueError("Inconsistent available times")
 
     return data
 
 def create_daily_routing_model(data):
-    logging.info(f"Creating routing model with distance_matrix size: {len(data['distance_matrix'])}x{len(data['distance_matrix'][0])}")
+    # logging.info(f"Creating routing model with distance_matrix size: {len(data['distance_matrix'])}x{len(data['distance_matrix'][0])}")
     manager = pywrapcp.RoutingIndexManager(len(data["distance_matrix"]), data["num_vehicles"], data["depot"])
     routing = pywrapcp.RoutingModel(manager)
-    logging.info(f"RoutingIndexManager initialized: nodes={manager.GetNumberOfNodes()}, vehicles={data['num_vehicles']}, total_indices={manager.GetNumberOfIndices()}")
+    # logging.info(f"RoutingIndexManager initialized: nodes={manager.GetNumberOfNodes()}, vehicles={data['num_vehicles']}, total_indices={manager.GetNumberOfIndices()}")
 
     def distance_callback(from_index, to_index):
         try:
             if not (0 <= from_index < manager.GetNumberOfIndices() and 0 <= to_index < manager.GetNumberOfIndices()):
-                logging.error(f"Index out of bounds: from_index={from_index}, to_index={to_index}, max_index={manager.GetNumberOfIndices()-1}")
+                # logging.error(f"Index out of bounds: from_index={from_index}, to_index={to_index}, max_index={manager.GetNumberOfIndices()-1}")
                 return 0
             from_node = manager.IndexToNode(from_index)
             to_node = manager.IndexToNode(to_index)
             if from_node >= len(data["distance_matrix"]) or to_node >= len(data["distance_matrix"]):
                 if manager.IsStart(from_index) or manager.IsEnd(to_index):
                     return 0
-                logging.error(f"Invalid node indices: from_node={from_node}, to_node={to_node}, matrix_size={len(data['distance_matrix'])}")
+                # logging.error(f"Invalid node indices: from_node={from_node}, to_node={to_node}, matrix_size={len(data['distance_matrix'])}")
                 return 0
             return data["distance_matrix"][from_node][to_node]
         except Exception as e:
-            logging.error(f"Exception in distance_callback: {e}, from_index={from_index}, to_index={to_index}")
+            # logging.error(f"Exception in distance_callback: {e}, from_index={from_index}, to_index={to_index}")
             return 0
 
     transit_callback_index = routing.RegisterTransitCallback(distance_callback)
@@ -571,12 +571,12 @@ def create_daily_routing_model(data):
     def demand_callback(from_index):
         try:
             if not (0 <= from_index < manager.GetNumberOfIndices()):
-                logging.error(f"Invalid from_index in demand_callback: {from_index}, max_index={manager.GetNumberOfIndices()-1}")
+                # logging.error(f"Invalid from_index in demand_callback: {from_index}, max_index={manager.GetNumberOfIndices()-1}")
                 return 0
             node = manager.IndexToNode(from_index)
             return 0 if node == data["depot"] else -data["demands"][node]
         except Exception as e:
-            logging.error(f"Exception in demand_callback: {e}, from_index={from_index}")
+            # logging.error(f"Exception in demand_callback: {e}, from_index={from_index}")
             return 0
 
     demand_callback_index = routing.RegisterUnaryTransitCallback(demand_callback)
@@ -597,7 +597,7 @@ def create_daily_routing_model(data):
             travel_time = data["distance_matrix"][from_node][to_node] / velocity * TIME_SCALE
             return int(travel_time + service_time)
         except Exception as e:
-            logging.error(f"Exception in time_callback: {e}, from_index={from_index}, to_index={to_index}")
+            # logging.error(f"Exception in time_callback: {e}, from_index={from_index}, to_index={to_index}")
             return 0
 
     transit_time_callback_index = routing.RegisterTransitCallback(time_callback)
@@ -607,7 +607,7 @@ def create_daily_routing_model(data):
     return routing, manager, capacity_dimension, time_dimension
 
 def solve_daily_routing(data, historical_km, lambda_penalty, mu_penalty):
-    logging.info(f"Solving routing with num_vehicles={data['num_vehicles']}, historical_km={historical_km}")
+    # logging.info(f"Solving routing with num_vehicles={data['num_vehicles']}, historical_km={historical_km}")
     routing, manager, capacity_dimension, time_dimension = create_daily_routing_model(data)
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     search_parameters.first_solution_strategy = search_strategy
@@ -632,11 +632,11 @@ def solve_daily_routing(data, historical_km, lambda_penalty, mu_penalty):
             from_node = manager.IndexToNode(index)
             next_index = solution.Value(routing.NextVar(index))
             if not (0 <= next_index < max_index):
-                logging.error(f"Invalid next_index: {next_index} for vehicle {v}, max_index={max_index-1}")
+                # logging.error(f"Invalid next_index: {next_index} for vehicle {v}, max_index={max_index-1}")
                 break
             to_node = manager.IndexToNode(next_index)
             if from_node >= len(data["distance_matrix"]) or to_node >= len(data["distance_matrix"]):
-                logging.error(f"Invalid route: from_node={from_node}, to_node={to_node}")
+                # logging.error(f"Invalid route: from_node={from_node}, to_node={to_node}")
                 break
             route_distance = max(route_distance, data["distance_matrix"][from_node][to_node])
             index = next_index
@@ -645,7 +645,7 @@ def solve_daily_routing(data, historical_km, lambda_penalty, mu_penalty):
     return solution, manager, daily_distances, routing
 
 def print_daily_solution(data, manager, routing, solution):
-    logging.info("Printing daily solution")
+    # logging.info("Printing daily solution")
     time_dimension = routing.GetDimensionOrDie("Time")
     capacity_dimension = routing.GetDimensionOrDie("Capacity")
     total_distance = 0
@@ -671,18 +671,19 @@ def print_daily_solution(data, manager, routing, solution):
         if route_distance > 0:
             logging.info(route_log)
             total_distance += route_distance
-    logging.info(f"Total distance of all routes: {total_distance}")
+    # logging.info(f"Total distance of all routes: {total_distance}")
 
 def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty):
-    logging.info(f"Starting multi-day routing with num_days={num_days}")
+    # logging.info(f"Starting multi-day routing with num_days={num_days}")
     historical_km = None
     list_of_seed = []
     historical_km_by_day = []
+    gg = []
     for day in DATES:
         logging.info(f"\n--- Day {day} ---")
         seed = random.randint(10, 1000)
         list_of_seed.append(seed)
-        distance_matrix, demands, vehicle_capacities, time_windows, available_times_s = load_data_real(day=day)
+        distance_matrix, demands, vehicle_capacities, time_windows, available_times_s,requests_data,divided_mapped_requests, mapping, inverse_mapping = load_data_real(day=day)
         if not historical_km:
             historical_km = [0 for _ in range(NUM_OF_VEHICLES)]
         data = create_data_model(
@@ -691,7 +692,14 @@ def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty)
             vehicles=vehicle_capacities,
             time_window=time_windows,
             available_times_s=available_times_s,
+            requests_data = requests_data,
+            divided_mapped_requests = divided_mapped_requests, 
+            mapping = mapping, 
+            inverse_mapping = inverse_mapping,
         )
+        from utilities.validate_data import save_dict_and_get_sha256
+        gg.append(save_dict_and_get_sha256(data)[1])
+        print("engine1.py:multi_day_routing_real_ready_to_deploy:gg[-1]: ", gg[-1])
         solution, manager, daily_distances, routing = solve_daily_routing(data, historical_km, lambda_penalty, mu_penalty)
         if solution is None:
             logging.warning(f"No solution for day {day}")
@@ -700,20 +708,14 @@ def multi_day_routing_real_ready_to_deploy(num_days, lambda_penalty, mu_penalty)
         historical_km_by_day.append(daily_distances)
         for v in range(data["num_vehicles"]):
             historical_km[v] += daily_distances[v]
-    return historical_km, historical_km_by_day
+    return historical_km, historical_km_by_day, gg
 
 if __name__ == "__main__":
-    if IS_TESTING:
-        generator.gen_map(NUM_OF_NODES=NUM_OF_NODES, seed=42)
-        generator.gen_list_vehicle(NUM_OF_VEHICLES=NUM_OF_VEHICLES, seed=42)
-        historical_km, historical_km_by_day = multi_day_routing_gen_request(
-            num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU
-        )
-    else:
-        historical_km, historical_km_by_day = multi_day_routing_real_ready_to_deploy(
-            num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU
-        )
+    historical_km, historical_km_by_day, gg = multi_day_routing_real_ready_to_deploy(
+        num_days=NUM_OF_DAY_REPETION, lambda_penalty=LAMBDA, mu_penalty=MU
+    )
     with open("data/accummulated_distance.csv", 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(historical_km_by_day)
-    logging.info(f"max km: {max(historical_km)}, min km: {min(historical_km)}, sum km: {sum(historical_km)}")
+    print(gg)
+    # logging.info(f"max km: {max(historical_km)}, min km: {min(historical_km)}, sum km: {sum(historical_km)}")
