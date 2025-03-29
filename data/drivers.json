@@ -1,0 +1,1191 @@
+[
+    {
+        "name": "An Vũ",
+        "cccd": "345864938384",
+        "vehicle_id": "29A-28289",
+        "vehicle_load": 24.2,
+        "route_by_day": {},
+        "phone_number": "+84-18-196 0013",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Cô Vân Phạm",
+        "cccd": "816039851953",
+        "vehicle_id": "29A-81426",
+        "vehicle_load": 24.2,
+        "route_by_day": {},
+        "phone_number": "03 7940265",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Hoàng Phạm",
+        "cccd": "941629821539",
+        "vehicle_id": "29A-54118",
+        "vehicle_load": 24.2,
+        "route_by_day": {},
+        "phone_number": "+84 16 1559407",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Kim Trần",
+        "cccd": "424493543665",
+        "vehicle_id": "29A-92397",
+        "vehicle_load": 24.2,
+        "route_by_day": {},
+        "phone_number": "+84-59-310341",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Cô Hồng Vũ",
+        "cccd": "797732084371",
+        "vehicle_id": "29A-57819",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "(05) 5341 9283",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Quý cô Kim Vũ",
+        "cccd": "858663022120",
+        "vehicle_id": "29A-83000",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "(05) 0305 6413",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Trung Mai Bảo Bùi",
+        "cccd": "605272201394",
+        "vehicle_id": "29A-28726",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "02 3884 9696",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Quang Trí Mai",
+        "cccd": "200903882207",
+        "vehicle_id": "29A-16175",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "(01)226-9166",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Bác Tùng Nguyễn",
+        "cccd": "893195777447",
+        "vehicle_id": "29A-25014",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "+84-84-514 6270",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Minh Lê",
+        "cccd": "429103158382",
+        "vehicle_id": "29A-93748",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "+84-93-252880",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Châu Văn Trần",
+        "cccd": "499127439409",
+        "vehicle_id": "29A-50306",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "(00) 3911 7182",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Quý cô Phương Lê",
+        "cccd": "680958994499",
+        "vehicle_id": "29A-89507",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "03 8346578",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Ông Quang Phạm",
+        "cccd": "469642176604",
+        "vehicle_id": "29A-12757",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "+84-83-930103",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "An Đặng",
+        "cccd": "662945045779",
+        "vehicle_id": "29A-41195",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "07 3829 9737",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Lâm Đức Trần",
+        "cccd": "575276711930",
+        "vehicle_id": "29A-56438",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "06 7010651",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Chị Mai Mai",
+        "cccd": "252250635901",
+        "vehicle_id": "29A-65296",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "(04) 7317 8108",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Hương Phạm",
+        "cccd": "547390899554",
+        "vehicle_id": "29A-73653",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "03 6026064",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Bác Huy Mai",
+        "cccd": "888821730785",
+        "vehicle_id": "29A-73788",
+        "vehicle_load": 26.7,
+        "route_by_day": {},
+        "phone_number": "(03) 4309 8050",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Duyên Dương",
+        "cccd": "683482989002",
+        "vehicle_id": "29A-30635",
+        "vehicle_load": 38.2,
+        "route_by_day": {},
+        "phone_number": "+84 81 2191361",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Cô Duyên Trần",
+        "cccd": "823355063011",
+        "vehicle_id": "29A-86503",
+        "vehicle_load": 38.2,
+        "route_by_day": {},
+        "phone_number": "+84-85-435346",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Bà Nhật Đặng",
+        "cccd": "928623824187",
+        "vehicle_id": "29A-19508",
+        "vehicle_load": 38.2,
+        "route_by_day": {},
+        "phone_number": "+84 79 9118384",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Bà Hà Phạm",
+        "cccd": "410824752082",
+        "vehicle_id": "29A-30676",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "08 4980841",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Bà Hà Trần",
+        "cccd": "708779044123",
+        "vehicle_id": "29A-30374",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "04 9353 4874",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Hương Bùi",
+        "cccd": "404209733660",
+        "vehicle_id": "29A-15778",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "+84 52 4278680",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Hà Lê",
+        "cccd": "140997998139",
+        "vehicle_id": "29A-58393",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "+84-82-620450",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Trung Hải Trần",
+        "cccd": "956217530058",
+        "vehicle_id": "29A-83385",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "(06)923-2260",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Bà Kim Phạm",
+        "cccd": "272944613643",
+        "vehicle_id": "29A-24168",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "00 7337543",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Cô Dương Phạm",
+        "cccd": "462488651216",
+        "vehicle_id": "29A-46517",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "(01)458-6850",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Hạnh Lê",
+        "cccd": "391987126394",
+        "vehicle_id": "29A-15014",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "+84 96 5569816",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Bà Ngọc Bùi",
+        "cccd": "671237914339",
+        "vehicle_id": "29A-80575",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "+84-35-615 9514",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Huy Đặng",
+        "cccd": "866232475190",
+        "vehicle_id": "29A-48752",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "+84-23-662994",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Phương Văn Vũ",
+        "cccd": "328865551724",
+        "vehicle_id": "29A-66346",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "(09)957-7738",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Anh Vũ Vũ",
+        "cccd": "828063322537",
+        "vehicle_id": "29A-92960",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "+84-51-343320",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Mai Dương",
+        "cccd": "180610047913",
+        "vehicle_id": "29A-69692",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "09 3676320",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Kim Phạm",
+        "cccd": "981223723215",
+        "vehicle_id": "29A-77889",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "00 8317278",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Bảo Bảo Mai",
+        "cccd": "916727364232",
+        "vehicle_id": "29A-72216",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "04 3487347",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Nhật Vũ",
+        "cccd": "397359885684",
+        "vehicle_id": "29A-54020",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "08 1223 6231",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Kim Tấn Mai",
+        "cccd": "557267663034",
+        "vehicle_id": "29A-18161",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "(06) 6909 6705",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Thành Bùi",
+        "cccd": "922650393259",
+        "vehicle_id": "29A-81582",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "(09)373-4670",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Thành Hữu Lê",
+        "cccd": "614711052552",
+        "vehicle_id": "29A-26728",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "+84-80-699016",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    },
+    {
+        "name": "Quý cô Bảo Nguyễn",
+        "cccd": "517729190564",
+        "vehicle_id": "29A-52906",
+        "vehicle_load": 54.0,
+        "route_by_day": {},
+        "phone_number": "(07) 5564 6417",
+        "available_times": {
+            "27.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "28.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ],
+            "29.03.2025": [
+                [
+                    0.0,
+                    24.0
+                ]
+            ]
+        },
+        "accumulated_distance": 0
+    }
+]

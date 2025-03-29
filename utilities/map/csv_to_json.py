@@ -13,10 +13,10 @@ def csv_to_json(input_csv, output_json):
                 for key, value in row.items():
                     tmp.append(value)
                 data.append(tmp[1:])
-            print(data)
+            # print(data)
             # exit()
 
-        print(data)
+        # print(data)
         # Ensure the output folder exists
         output_folder = os.path.dirname(output_json)
         if output_folder and not os.path.exists(output_folder):

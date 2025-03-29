@@ -48,10 +48,9 @@ def sync_csv_to_excel(
     add_drop_down=False,
     sheet1_name="3.3",
     sheet1_range="A2:A12",
+    is_get_from_csv=True,  # Thêm param mới để kiểm soát lấy dữ liệu từ CSV
+    is_overwrite=True      # Điều chỉnh để kiểm soát ghi đè dropdown
 ):
-    # Đọc file CSV
-    df = pd.read_csv(csv_file)
-
     # Load file Excel hiện có
     wb = load_workbook(excel_file)
 
@@ -61,34 +60,45 @@ def sync_csv_to_excel(
     else:
         ws2 = wb[sheet2_name]
 
-    # Xóa dữ liệu cũ trong Sheet2 (nếu có)
-    ws2.delete_rows(1, ws2.max_row)
+    # Nếu is_get_from_csv=True, lấy dữ liệu từ CSV và đồng bộ vào Sheet2
+    if is_get_from_csv:
+        # Đọc file CSV
+        df = pd.read_csv(csv_file)
 
-    # Điền dữ liệu từ CSV vào Sheet2 (cột A: Name, cột B: Address, cột C: Name + Address)
-    for row, (name, address) in enumerate(zip(df["Name"], df["Address"]), start=1):
-        ws2[f"A{row}"] = name
-        ws2[f"B{row}"] = address
-        ws2[f"C{row}"] = f"{name} - {address}"  # Tạo cột C bằng cách nối A và B
+        # Xóa dữ liệu cũ trong Sheet2 (nếu có)
+        ws2.delete_rows(1, ws2.max_row)
 
-    # Sử dụng hàm create_dropdown_list để cập nhật dropdown trên Sheet "3.3"
+        # Điền dữ liệu từ CSV vào Sheet2 (cột A: Name, cột B: Address, cột C: Name + Address)
+        for row, (name, address) in enumerate(zip(df["Name"], df["Address"]), start=1):
+            ws2[f"A{row}"] = name
+            ws2[f"B{row}"] = address
+            ws2[f"C{row}"] = f"{name} - {address}"  # Tạo cột C bằng cách nối A và B
+        print(f"Đã đồng bộ dữ liệu từ {csv_file} vào sheet '{sheet2_name}' trong {excel_file}.")
+    else:
+        print(f"Bỏ qua lấy dữ liệu từ CSV vì is_get_from_csv=False.")
+
+    # Xử lý dropdown trong Sheet1
     num_rows = 1000
     if add_drop_down:
-        create_dropdown_list(
-            workbook=wb,
-            target_sheet_name=sheet1_name,  # Sheet "3.3" chứa dropdown
-            target_range=sheet1_range,  # Vùng ô áp dụng dropdown
-            source_sheet_name=sheet2_name,  # Sheet chứa danh sách giá trị
-            source_column="C",  # Sử dụng cột C làm nguồn
-            num_rows=num_rows,
-            allow_blank=True,
-        )
+        # Kiểm tra nếu sheet1 đã có dropdown và is_overwrite=False
+        ws1 = wb[sheet1_name]
+        if ws1.data_validations.count > 0 and not is_overwrite:
+            print(f"Dropdown trong '{sheet1_name}' đã tồn tại và is_overwrite=False, bỏ qua cập nhật dropdown.")
+        else:
+            create_dropdown_list(
+                workbook=wb,
+                target_sheet_name=sheet1_name,  # Sheet "3.3" chứa dropdown
+                target_range=sheet1_range,      # Vùng ô áp dụng dropdown
+                source_sheet_name=sheet2_name,  # Sheet chứa danh sách giá trị
+                source_column="C",              # Sử dụng cột C làm nguồn
+                num_rows=num_rows,
+                allow_blank=True,
+            )
+            print(f"Đã cập nhật dropdown trong '{sheet1_name}' từ cột C của '{sheet2_name}'.")
 
     # Lưu file Excel
     wb.save(excel_file)
-    print(
-        f"Đã đồng bộ dữ liệu từ {csv_file} vào {excel_file}, cập nhật {sheet2_name} và dropdown list trong {sheet1_name}!"
-    )
-
+    print(f"Đã lưu file {excel_file} thành công!")
 
 def excel_sheet2_to_csv(excel_file, csv_file, sheet2_name="Dia_Chi"):
     # Load file Excel

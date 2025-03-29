@@ -1,5 +1,26 @@
 import hashlib
 from pathlib import Path
+import json
+from datetime import datetime
+
+def save_dict_and_get_sha256(d):
+    # Lấy thời gian hiện tại và tạo tên file theo định dạng 'dict_YYYY_MM_DD_HH_MM_SS.json'
+    current_time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f")
+    file_name = f"dict_{current_time}.json"
+    
+    # Lưu dictionary vào file JSON
+    with open(file_name, 'w', encoding='utf-8') as f:
+        json.dump(d, f, ensure_ascii=False, indent=4, sort_keys=True)
+    
+    # Tính SHA256 từ file
+    sha256_hash = hashlib.sha256()
+    with open(file_name, 'rb') as f:
+        # Đọc file và cập nhật hash
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    
+    # Trả về mã hash và tên file
+    return file_name, sha256_hash.hexdigest()
 
 
 def calculate_sha256(file_path: Path) -> str:

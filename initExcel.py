@@ -13,6 +13,7 @@ from config import *
 from sync_destinations import sync_csv_to_excel
 from sync_staff import (
     copy_driver_data_to_timetable,
+    driver_excel_2_csv,
     initialize_driver_list,
     initialize_driver_timetable,
     sample_drivers,
@@ -242,6 +243,7 @@ def copy_excel_sheet_between_files(
     source_sheet="Template",
     target_file="Lenh_Dieu_Xe.xlsx",
     target_sheet_name=TODAY,
+    is_overwrite=True  # Thêm param mới với mặc định là True
 ):
     try:
         # Load file nguồn
@@ -264,6 +266,11 @@ def copy_excel_sheet_between_files(
             # Xóa sheet mặc định được tạo bởi Workbook()
             if "Sheet" in target_wb.sheetnames:
                 target_wb.remove(target_wb["Sheet"])
+
+        # Kiểm tra nếu sheet đã tồn tại và is_overwrite=False
+        if target_sheet_name in target_wb.sheetnames and not is_overwrite:
+            print(f"Sheet '{target_sheet_name}' đã tồn tại trong '{target_file}' và is_overwrite=False, bỏ qua copy.")
+            return  # Thoát hàm mà không ghi đè
 
         # Tạo hoặc thay thế sheet mới trong file đích
         if target_sheet_name in target_wb.sheetnames:
@@ -319,8 +326,7 @@ def copy_excel_sheet_between_files(
     except Exception as e:
         print(f"Đã xảy ra lỗi: {str(e)}")
 
-
-def initialize_excel_utilities(is_recreate=False):
+def initialize_excel_utilities(filename = "Lenh_Dieu_Xe.xlsx",is_recreate=False):
     # Tạo danh sách thời gian
     time_list = []
     start_time = datetime(2023, 1, 1, 0, 0)
@@ -349,9 +355,6 @@ def initialize_excel_utilities(is_recreate=False):
         "9t = 38.2m3",
         "12t = 54m3",
     ]
-
-    # Tên file
-    filename = "Lenh_Dieu_Xe.xlsx"
 
     # Kiểm tra và tạo file nếu chưa tồn tại
     try:
@@ -473,7 +476,7 @@ def init_staff(file_path="Lenh_Dieu_Xe.xlsx", number_of_random_staff=0):
         random_staff = []
         for i in range(number_of_random_staff):
             stt = last_stt + i + 1
-            name = fake.name()
+            name = " ".join(fake.name().split()[-2:])
             cccd = "".join([str(random.randint(0, 9)) for _ in range(12)])  # CCCD 12 số
             phone = fake.phone_number()
             random_staff.append([stt, name, cccd, phone])
@@ -681,10 +684,7 @@ def create_dropdowns(
         print(f"Lỗi khi lưu file: {e}")
 
 
-def sort_sheets_by_name():
-    # Tên file
-    filename = "Lenh_Dieu_Xe.xlsx"
-
+def sort_sheets_by_name(filename = "Lenh_Dieu_Xe.xlsx"):
     # Mở file
     try:
         wb = openpyxl.load_workbook(filename)
@@ -722,26 +722,135 @@ def sort_sheets_by_name():
 # Gọi hàm
 # sort_sheets_by_name()
 
+def init_excel(day:str = TODAY, is_recreate:bool = False):
+    if is_recreate:
+        # xoá file cũ 
+        copy_excel_sheet_between_files(
+            source_file="data/Lenh_Dieu_Xe.xlsx", 
+            source_sheet="Template", 
+            target_file="data/input/Lenh_Dieu_Xe.xlsx", 
+            target_sheet_name=day,
+            is_overwrite=True
+        )
+        sync_csv_to_excel(
+            "data/destinations.csv",
+            "data/input/Lenh_Dieu_Xe.xlsx",
+            "Dia_Chi",
+            add_drop_down=True,
+            sheet1_name=day,
+            sheet1_range="B5:B55",
+            is_get_from_csv=True,
+            is_overwrite=True
+        )
+        initialize_excel_utilities( #only run once
+            filename="data/input/Lenh_Dieu_Xe.xlsx" ,
+            is_recreate=True
+        )
+        init_staff(#only run once
+            file_path="data/input/Lenh_Dieu_Xe.xlsx", 
+            number_of_random_staff=22
+        )
+        create_dropdowns(
+            filename="data/input/Lenh_Dieu_Xe.xlsx",
+            object_sheet=day
+        )
+
+        initialize_driver_list(#only run once
+            filename="data/input/Lenh_Dieu_Xe.xlsx",
+            sheet_name="Tai_Xe",
+            is_testing=True
+        )
+        initialize_driver_timetable(
+            file_path="data/input/Lenh_Dieu_Xe.xlsx",
+            sheet_name=f"Driver_Timetable_{day}",
+            is_testing=True
+        )
+
+        sample_drivers( #only run once
+            filename="data/input/Lenh_Dieu_Xe.xlsx",
+            sheet_name="Tai_Xe",
+            number_of_drivers=41
+        )  # Thêm 5 tài xế mẫu
+        copy_driver_data_to_timetable(
+            file_path="data/input/Lenh_Dieu_Xe.xlsx",
+            source_sheet="Tai_Xe",
+            target_sheet=f"Driver_Timetable_{day}",
+            # is_testing=True
+        )
+        driver_excel_2_csv(
+            excel_file="data/input/Lenh_Dieu_Xe.xlsx",
+            sheet_name="Tai_Xe",
+            json_file="data/drivers.json",
+            is_check_driver_availability=True,
+            checkday=day
+        )
+        sort_sheets_by_name(filename="data/input/Lenh_Dieu_Xe.xlsx")
+    else:
+        copy_excel_sheet_between_files(
+            source_file="data/Lenh_Dieu_Xe.xlsx", 
+            source_sheet="Template", 
+            target_file="data/input/Lenh_Dieu_Xe.xlsx", 
+            target_sheet_name=day,
+            is_overwrite=True
+        )
+        sync_csv_to_excel(
+            "data/destinations.csv",
+            "data/input/Lenh_Dieu_Xe.xlsx",
+            "Dia_Chi",
+            add_drop_down=True,
+            sheet1_name=day,
+            sheet1_range="B5:B55",
+            is_get_from_csv=False,
+            is_overwrite=True
+        )
+        create_dropdowns(
+            filename="data/input/Lenh_Dieu_Xe.xlsx",
+            object_sheet=day
+        )
+        initialize_driver_timetable( # cần 
+            file_path="data/input/Lenh_Dieu_Xe.xlsx",
+            sheet_name=f"Driver_Timetable_{day}",
+            is_testing=True
+        )
+        copy_driver_data_to_timetable(
+            file_path="data/input/Lenh_Dieu_Xe.xlsx",
+            source_sheet="Tai_Xe",
+            target_sheet=f"Driver_Timetable_{day}",
+            # is_testing=True
+        )
+        driver_excel_2_csv(
+            excel_file="data/input/Lenh_Dieu_Xe.xlsx",
+            sheet_name="Tai_Xe",
+            json_file="data/drivers.json",
+            is_check_driver_availability=True,
+            checkday=day
+        )
+        sort_sheets_by_name(filename="data/input/Lenh_Dieu_Xe.xlsx")
+    return f"File {day} đã được khởi tạo thành công!"
+
 if __name__ == "__main__":
-    csv_file = "data/destinations.csv"
-    # copy_excel_sheet_with_format_and_filter("Lenh_Dieu_Xe.xlsx", "Template", "3.4")
-    copy_excel_sheet_between_files()
-    sync_csv_to_excel(
-        "data/destinations.csv",
-        "Lenh_Dieu_Xe.xlsx",
-        "Dia_Chi",
-        add_drop_down=True,
-        sheet1_name=TODAY,
-        sheet1_range="B5:B55",
-    )
-    initialize_excel_utilities(is_recreate=True)
-    init_staff("Lenh_Dieu_Xe.xlsx", number_of_random_staff=5)
-    # create_dropdowns(range_e="CONFIG!AA1:AA4656", range_ijk="CONFIG!AB1:AB2", range_g="Dia_Chi!C1:C6")
+    # csv_file = "data/destinations.csv"
+    # # copy_excel_sheet_with_format_and_filter("Lenh_Dieu_Xe.xlsx", "Template", "3.4")
+    # copy_excel_sheet_between_files()
+    # sync_csv_to_excel(
+    #     "data/destinations.csv",
+    #     "Lenh_Dieu_Xe.xlsx",
+    #     "Dia_Chi",
+    #     add_drop_down=True,
+    #     sheet1_name=TODAY,
+    #     sheet1_range="B5:B55",
+    # )
+    # initialize_excel_utilities(is_recreate=True)
+    # init_staff("Lenh_Dieu_Xe.xlsx", number_of_random_staff=5)
+    # # create_dropdowns(range_e="CONFIG!AA1:AA4656", range_ijk="CONFIG!AB1:AB2", range_g="Dia_Chi!C1:C6")
 
-    create_dropdowns()
-    initialize_driver_list(is_testing=True)
-    initialize_driver_timetable(is_testing=True)
+    # create_dropdowns()
+    # initialize_driver_list(is_testing=True)
+    # initialize_driver_timetable(is_testing=True)
 
-    sample_drivers()  # Thêm 5 tài xế mẫu
-    copy_driver_data_to_timetable()
-    sort_sheets_by_name()
+    # sample_drivers()  # Thêm 5 tài xế mẫu
+    # copy_driver_data_to_timetable()
+    # sort_sheets_by_name()
+    init_excel(day=config["DATES"][0], is_recreate=True)
+    init_excel(day=config["DATES"][1], is_recreate=False)
+    init_excel(day=config["DATES"][2], is_recreate=False)

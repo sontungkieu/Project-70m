@@ -1,3 +1,4 @@
+import json, os
 from typing import List
 
 from objects.request import Request
@@ -7,117 +8,284 @@ try:
 except ImportError:
     from config import MIN_CAPACITY
 
-
-def split_customers(data):
+def split_requests(requests: List[Request], output_file: str = "data/intermediate/mapping.json"):
     """
-    Tiền xử lý: Nếu demand của một khách hàng (node > 0) vượt quá tải trọng nhỏ nhất,
-    tách khách hàng đó thành nhiều sub-node sao cho mỗi sub-node có demand <= min_capacity.
-
-    Hàm này sẽ cập nhật trực tiếp data (original_data) hiện có, thay đổi các trường:
-      - 'demands'
-      - 'distance_matrix'
-      - 'time_windows'
-    và trả về data cùng với mapping: danh sách mapping từ chỉ số của new node sang chỉ số khách hàng gốc.
+    Chia nhỏ các request nếu vượt quá MIN_CAPACITY và tạo mapping cho các node.
+    Bao gồm validate dữ liệu và in tiến trình xử lý.
+    
+    Args:
+        requests (List[Request]): Danh sách các request cần xử lý.
+        output_file (str): Đường dẫn đến file JSON đầu ra để lưu kết quả.
+    
+    Returns:
+        tuple: (mapped_requests, mapping, inverse_mapping)
+    
+    Raises:
+        ValueError: Nếu dữ liệu đầu vào không hợp lệ.
+        IOError: Nếu có lỗi khi ghi file.
     """
-    NUM_OF_NODES = len(data["demands"])
-    #  2. Áp dụng Floyd-Warshall để đảm bảo không vi phạm bất đẳng thức tam giác
-    matrix = data["distance_matrix"]
-    for k in range(NUM_OF_NODES):
-        for i in range(NUM_OF_NODES):
-            for j in range(NUM_OF_NODES):
-                # Nếu đi qua nút k giúp rút ngắn khoảng cách từ i đến j thì cập nhật
-                if matrix[i][k] + matrix[k][j] < matrix[i][j]:
-                    matrix[i][j] = matrix[i][k] + matrix[k][j]
-    # Tạo danh sách mới để lưu các demand sau khi tách và mapping của các node.
-    data["distance_matrix"] = matrix
-    new_demands = []
-    node_mapping = []  # mapping: new node index -> original customer index
-
-    # Đầu tiên, thêm depot (node 0)
-    new_demands.append(data["demands"][0])
-    node_mapping.append(0)
-
-    # Xác định tải trọng nhỏ nhất
-    min_capacity = min(data["vehicle_capacities"])
-
-    # Duyệt qua các khách hàng (node 1..n)
-    for i in range(1, len(data["demands"])):
-        demand = data["demands"][i]
-        if demand <= min_capacity:
-            new_demands.append(demand)
-            node_mapping.append(i)
-        else:
-            # Tách: số phần = ceil(demand / min_capacity)
-            parts = (demand + min_capacity - 1) // min_capacity
-            for _ in range(parts - 1):
-                new_demands.append(min_capacity)
-                node_mapping.append(i)
-            remainder = demand - min_capacity * (parts - 1)
-            new_demands.append(remainder)
-            node_mapping.append(i)
-
-    # Cập nhật 'demands'
-    data["demands"] = new_demands
-
-    # Xây dựng distance_matrix mới:
-    n_new = len(new_demands)
-    new_distance_matrix = [[0 for _ in range(n_new)] for _ in range(n_new)]
-    for i in range(n_new):
-        for j in range(n_new):
-            orig_i = node_mapping[i]
-            orig_j = node_mapping[j]
-            if orig_i == orig_j and i != j:
-                new_distance_matrix[i][j] = 0
-            else:
-                new_distance_matrix[i][j] = data["distance_matrix"][orig_i][orig_j]
-    data["distance_matrix"] = new_distance_matrix
-
-    # Xây dựng time_windows mới theo mapping (đối với depot và khách hàng gốc)
-    new_time_windows = []
-    for i in range(n_new):
-        orig = node_mapping[i]
-        new_time_windows.append(data["time_windows"][orig])
-    data["time_windows"] = new_time_windows
-
-    # Lưu ý: Các thông số khác như 'vehicle_capacities' và 'num_vehicles' không thay đổi.
-    return data, node_mapping
-
-
-def split_requests(requests: List[Request]):
-    # maping, inverse_mapping
+    # Validate đầu vào
+    if not isinstance(requests, list):
+        raise ValueError(f"Requests must be a list, got {type(requests)}")
+    if not requests:
+        print("Warning: Empty request list provided")
+    
+    print(f"Starting to split {len(requests)} requests...")
+    
+    # Khởi tạo mapping và inverse_mapping
     new_node = 1
     mapping = {0: [0]}
     inverse_mapping = {0: 0}
     new_requests = []
-    for request in requests:
+    node_id_to_request = {}
+    
+    # Chia nhỏ các request nếu cần
+    for i, request in enumerate(requests):
+        if not isinstance(request, Request):
+            raise ValueError(f"Item at index {i} is not a Request object: {type(request)}")
+        if not isinstance(request.weight, (int, float)) or request.weight < 0:
+            raise ValueError(f"Invalid weight for request at index {i}: {request.weight}")
+        if not isinstance(request.end_place, list):
+            raise ValueError(f"end_place must be a list for request at index {i}")
+        
+        # print(f"Processing request {i + 1} with weight {request.weight}")
+        split_count = 1
         while request.weight > MIN_CAPACITY:
+            # print(f"  Splitting request with weight {request.weight}")
             new_request = Request(
-                request.start_place,
-                request.end_place,
-                MIN_CAPACITY,
-                request.date,
-                request.timeframe,
-                split_id=1,
+                name=request.name,
+                start_place=request.start_place,
+                end_place=request.end_place.copy(),  # Sao chép để tránh thay đổi gốc
+                weight=MIN_CAPACITY,
+                date=request.date,
+                note=request.note,
+                timeframe=request.timeframe,
+                staff_id=request.staff_id,
+                split_id=request.split_id+split_count,
             )
+            new_request.gen_id()
             new_requests.append(new_request)
             request.weight -= MIN_CAPACITY
+            split_count += 1
         new_requests.append(request)
+        if split_count > 1:
+            # print(f"  Split into {split_count + 1} requests")
+            pass
+    
+    print(f"Total requests after splitting: {len(new_requests)}")
+    
+    # Tạo mapped_requests và cập nhật mapping
     mapped_requests = []
-    for request in new_requests:
-        if request.end_place[0] not in mapping:
-            mapping[request.end_place[0]] = [new_node]
+    for i, request in enumerate(new_requests):
+        end_place_id = request.end_place[0]
+        if not isinstance(end_place_id, (int, str)):
+            raise ValueError(f"Invalid end_place[0] type at request {i}: {type(end_place_id)}")
+        
+        if end_place_id not in mapping:
+            mapping[end_place_id] = [new_node]
+            # print(f"New mapping created: {end_place_id} -> {new_node}")
         else:
-            mapping[request.end_place[0]].append(new_node)
-        inverse_mapping[new_node] = request.end_place[0]
+            mapping[end_place_id].append(new_node)
+            # print(f"Added to mapping: {end_place_id} -> {new_node}")
+        
+        inverse_mapping[new_node] = end_place_id
         request.end_place[0] = new_node
-        new_node += 1
+        node_id_to_request[request.end_place[0]] = request.to_dict()
         mapped_requests.append(request)
-        json_data = {
-            "mapped_requests": mapped_requests,
-            "mapping": mapping,
-            "inverse_mapping": inverse_mapping,
-        }
-        import json
+        new_node += 1
+    
+    print(f"Mapping size: {len(mapping)}")
+    print(f"Inverse mapping size: {len(inverse_mapping)}")
+    
+    # Tạo dữ liệu JSON
+    json_data = {
+        "mapped_requests": [vars(req) for req in mapped_requests],  # Chuyển Request thành dict
+        "mapping": mapping,
+        "inverse_mapping": inverse_mapping,
+        "node_id_to_request": node_id_to_request,
+    }
+    
+    # Ghi ra file nếu output_file được cung cấp
+    if output_file is not None:
+        output_dir = os.path.dirname(output_file)
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+            print(f"Created output directory: {output_dir}")
+        
+        print(f"Writing results to: {output_file}")
+        try:
+            with open(output_file, 'w') as f:
+                json.dump(json_data, f, indent=4)
+            print("File written successfully")
+        except Exception as e:
+            raise IOError(f"Error writing to output file: {e}")
+    
+    print("Request splitting and mapping completed successfully")
+    return mapped_requests, mapping, inverse_mapping, node_id_to_request
+import json
+import os
 
-        json.dump(json_data, "data/intermediate/mapping.json")
-    return mapped_requests, mapping, inverse_mapping
+def read_mapping(file_path: str = "data/intermediate/mapping.json"):
+    """
+    Đọc file mapping JSON và trả về mapped_requests, mapping và inverse_mapping.
+    Bao gồm validate dữ liệu và in tiến trình xử lý.
+    
+    Args:
+        file_path (str): Đường dẫn đến file mapping JSON.
+    
+    Returns:
+        tuple: (mapped_requests, mapping, inverse_mapping) từ dữ liệu JSON.
+    
+    Raises:
+        FileNotFoundError: Nếu file không tồn tại.
+        ValueError: Nếu dữ liệu JSON không hợp lệ hoặc thiếu key cần thiết.
+    """
+    # Validate file existence
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Mapping file not found: {file_path}")
+    
+    print(f"Starting to read mapping file: {file_path}")
+    
+    # Đọc file JSON
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        print("Successfully loaded JSON data")
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON format in mapping file: {e}")
+    except Exception as e:
+        raise IOError(f"Error reading file {file_path}: {e}")
+    
+    # Validate cấu trúc dữ liệu
+    if not isinstance(data, dict):
+        raise ValueError(f"Mapping data must be a dictionary, got {type(data)}")
+    
+    required_keys = ["mapped_requests", "mapping", "inverse_mapping"]
+    missing_keys = [key for key in required_keys if key not in data]
+    if missing_keys:
+        raise ValueError(f"Missing required keys in mapping data: {missing_keys}")
+    
+    # Validate kiểu dữ liệu của từng thành phần
+    mapped_requests = data["mapped_requests"]
+    mapping = data["mapping"]
+    inverse_mapping = data["inverse_mapping"]
+    node_id_to_request = data.get("node_id_to_request", {})
+    if not isinstance(mapped_requests, list):
+        raise ValueError(f"'mapped_requests' must be a list, got {type(mapped_requests)}")
+    if not isinstance(mapping, dict):
+        raise ValueError(f"'mapping' must be a dictionary, got {type(mapping)}")
+    if not isinstance(inverse_mapping, dict):
+        raise ValueError(f"'inverse_mapping' must be a dictionary, got {type(inverse_mapping)}")
+    
+    # In thông tin cơ bản về dữ liệu
+    print(f"Found {len(mapped_requests)} mapped requests")
+    print(f"Mapping contains {len(mapping)} entries")
+    print(f"Inverse mapping contains {len(inverse_mapping)} entries")
+    
+    # Kiểm tra tính nhất quán giữa mapping và inverse_mapping (tùy chọn)
+    if len(mapping) != len(inverse_mapping):
+        print(f"Warning: Mapping size ({len(mapping)}) does not match inverse mapping size ({len(inverse_mapping)})")
+    
+    print("Mapping file processing completed successfully")
+    return mapped_requests, mapping, inverse_mapping, node_id_to_request
+
+def postprocess_output(output_file: str = "data/test/output_2025-03-20_15-19-42.json", 
+                      mapping_file: str = "data/intermediate/mapping.json",
+                      processed_output_file: str = "data/test/processed_output_2025-03-20_15-19-42.json"):
+    """
+    Hàm xử lý hậu kỳ: Đọc file output và inverse mapping, ánh xạ các node trong output về chỉ số gốc,
+    sau đó dump kết quả ra file JSON. Bao gồm validate dữ liệu và in tiến trình xử lý.
+    
+    Args:
+        output_file (str): Đường dẫn đến file output JSON.
+        mapping_file (str): Đường dẫn đến file mapping JSON.
+        processed_output_file (str): Đường dẫn đến file JSON đầu ra sau khi xử lý.
+    
+    Returns:
+        dict: Output đã được ánh xạ lại với các node gốc.
+    """
+    # Validate file existence
+    if not os.path.exists(output_file):
+        raise FileNotFoundError(f"Output file not found: {output_file}")
+    if not os.path.exists(mapping_file):
+        raise FileNotFoundError(f"Mapping file not found: {mapping_file}")
+
+    print(f"Starting postprocessing...")
+    print(f"Reading output file: {output_file}")
+    
+    # Đọc file output
+    try:
+        with open(output_file, 'r') as f:
+            output_data = json.load(f)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in output file: {e}")
+    
+    print(f"Reading mapping file: {mapping_file}")
+    # Đọc inverse mapping từ file mapping
+    try:
+        _, _, inverse_mapping = read_mapping(mapping_file)
+    except Exception as e:
+        raise ValueError(f"Error reading mapping file: {e}")
+    
+    # Validate output_data structure
+    if not isinstance(output_data, list):
+        raise ValueError("Output data must be a list of day data")
+    
+    print(f"Found {len(output_data)} days in output data")
+    
+    # Hàm phụ để ánh xạ lại danh sách tuyến đường
+    def remap_route(route_list):
+        if not isinstance(route_list, list):
+            raise ValueError(f"Route list must be a list, got {type(route_list)}")
+        
+        for stop in route_list:
+            if not isinstance(stop, dict) or "node" not in stop:
+                raise ValueError(f"Invalid stop format: {stop}")
+            node = stop["node"]
+            if node in inverse_mapping:
+                stop["node"] = inverse_mapping[node]
+            else:
+                print(f"Warning: Node {node} not found in inverse mapping")
+        return route_list
+    
+    # Xử lý từng ngày và từng xe trong output
+    for i, day_data in enumerate(output_data):
+        if not isinstance(day_data, dict):
+            raise ValueError(f"Day data at index {i} must be a dictionary")
+        
+        if "vehicles" in day_data:
+            print(f"Processing day {i + 1}: {len(day_data['vehicles'])} vehicles found")
+            for vehicle_id, vehicle_data in day_data["vehicles"].items():
+                if not isinstance(vehicle_data, dict) or "list_of_route" not in vehicle_data:
+                    raise ValueError(f"Invalid vehicle data for vehicle {vehicle_id}")
+                
+                print(f"Remapping route for vehicle {vehicle_id}")
+                vehicle_data["list_of_route"] = remap_route(vehicle_data["list_of_route"])
+    
+    # Tạo thư mục đầu ra nếu chưa tồn tại
+    output_dir = os.path.dirname(processed_output_file)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"Created output directory: {output_dir}")
+    
+    # Ghi kết quả ra file JSON
+    print(f"Writing processed data to: {processed_output_file}")
+    try:
+        with open(processed_output_file, 'w') as f:
+            json.dump(output_data, f, indent=4)
+    except Exception as e:
+        raise IOError(f"Error writing to processed output file: {e}")
+    
+    print("Postprocessing completed successfully")
+    return output_data
+
+def split_driver():
+    """
+    chia driver rảnh nhiều khoảng ra làm nhiều driver
+    """
+    pass
+
+# Ví dụ sử dụng
+if __name__ == "__main__":
+    processed_output = postprocess_output()
+    print(f"Processed output has been saved to 'data/test/processed_output.json'")

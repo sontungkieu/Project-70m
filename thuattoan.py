@@ -6,7 +6,7 @@ from datetime import datetime
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 import utilities.generator2depots as generator
-import utilities.load_requests as load_requests
+import utilities.loader as loader
 from config import *  # Import các hằng số từ config.py
 from objects.driver import Driver
 from objects.request import Request
@@ -40,7 +40,7 @@ def load_data(distance_file="data/distance.json",
         vehicle_capacities = [int(u * CAPACITY_SCALE) for u in json.load(f)]
     num_vehicles = len(vehicle_capacities)
 
-    requests_data = load_requests.load_requests(request_file)
+    requests_data = loader.load_requests(request_file)
     if real_mode:
         divided_mapped_requests, mapping, inverse_mapping = split_requests(requests_data)
         distance_matrix = update_map(divided_mapped_requests, mapping, inverse_mapping)

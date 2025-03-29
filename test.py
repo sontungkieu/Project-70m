@@ -4,17 +4,19 @@ import os
 import subprocess
 from datetime import datetime
 from time import perf_counter
-
 import psutil
 
+import post_process as post_process
+from utilities.split_data import postprocess_output
 from objects.request import Request
+from sync_staff import initialize_driver_list,initialize_driver_timetable,sample_drivers,copy_driver_data_to_timetable,driver_excel_2_csv
 
 config = []
 NUM_OF_DAY_REPETION = None
 DATES = None
 
 
-def run_test_bo_doi_cong_nghiep(re_run=False):
+def run_engine1(re_run=False):
     # Kiểm tra và tạo thư mục "data", "data/output", "data/log" nếu chưa tồn tại
     if not os.path.exists("data"):
         os.makedirs("data")
@@ -46,7 +48,7 @@ def run_test_bo_doi_cong_nghiep(re_run=False):
         config_filename, "wb"
     ) as config_file:
         process = subprocess.Popen(
-            ["python", "test_bo_doi_cong_nghiep.py"],
+            ["python", "engine1_lean.py"],
             stdout=stdout_file,
             stderr=config_file,
         )
@@ -91,9 +93,8 @@ def read_config(config_filename):
 
 
 def read_output(output_filename):
-    import utilities.read_output as read_output
 
-    return read_output.read_and_save_json_output(filename=output_filename)
+    return post_process.read_and_save_json_output(filename=output_filename)
 
 
 def read_requests(config):
@@ -105,7 +106,7 @@ def read_requests(config):
                 # Load JSON data from file
                 data = json.load(file)
                 # Convert data to list of Request objects
-                requests = [Request.from_list(u) for u in data]
+                requests = [Request.from_dict(u) for u in data]
                 requests_files.append(requests)
         except FileNotFoundError:
             print(f"Lỗi: Không tìm thấy file {request_filename}!")
@@ -192,26 +193,56 @@ def check(outputs, queries, config):
 
 
 if __name__ == "__main__":
+    # init excel
+    from config import DATES
+    # from initExcel import init_excel
+    # print(DATES[0])
+    # init_excel(day=DATES[0], is_recreate=True)
+    # init_excel(day=DATES[1], is_recreate=False)
+    # init_excel(day=DATES[2], is_recreate=False)
+
+    # điền dữ liệu vào 
+
+    # read excel
+    from read_excel import excel_to_requests_and_save
+    # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[0])
+    # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[1])
+    # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[2])
+    # for day in DATES:
+    #     driver_excel_2_csv(
+    #         excel_file="data/input/Lenh_Dieu_Xe.xlsx",
+    #         sheet_name="Tai_Xe",
+    #         json_file="data/drivers.json",
+    #         is_check_driver_availability=True,
+    #         checkday=day,
+    #     )
+    # recompute map
+    # process_destinations(r"data\destinations.csv", r"data\distance_matrix.csv")
+
     (
         run_time,
         memory_usage,
         stdout_filename,
         config_filename,
-    ) = run_test_bo_doi_cong_nghiep(re_run=True)
+    ) = run_engine1(re_run=True)
+    print(stdout_filename)
+    read_output(output_filename=stdout_filename)
 
-    # sau khi chạy
-    config_data = read_config(config_filename)
-    output_data = read_output(stdout_filename)
-    requests_data = read_requests(config_data)
+    # processed_filename = processed_output_file=stdout_filename.split(".")[0] + "_processed.json"
+    # # sau khi chạy
+    # config_data = read_config(config_filename)
+    # postprocess_output(output_file=stdout_filename, processed_output_file=processed_filename)
+    # output_data = read_output(processed_filename)
+    # requests_data = read_requests(config_data)
 
-    check(output_data, requests_data, config_data)
+    # check(output_data, requests_data, config_data)
 
-    print(f"""ORTools run in {run_time:.2f}s, with config: \n{config_data}""")
-    print(f"Peak memory usage: {memory_usage / (1024 * 1024):.2f} MB")
-    print(f"Output saved to: {stdout_filename}")
-    print(f"Config saved to: {config_filename}")
+    # print(f"""ORTools run in {run_time:.2f}s, with config: \n{config_data}""")
+    # print(f"Peak memory usage: {memory_usage / (1024 * 1024):.2f} MB")
+    # print(f"Output saved to: {stdout_filename}")
+    # print(f"Config saved to: {config_filename}")
 
-    # Kiểm tra
+    # # Kiểm tra
 
 
 """

@@ -1,4 +1,4 @@
-import csv
+import csv,json
 import os
 from typing import List
 
@@ -41,7 +41,7 @@ def read_dropdown_info(
                 address_map[c.value] = address_cell.value or "Không có địa chỉ"
 
     target = ws1[target_cell]
-    current_value = target.value
+    current_value = target.value.strip() if isinstance(target.value, str) else target.value
     if current_value in dropdown_values:
         index = dropdown_values.index(current_value)
         address = address_map.get(current_value, "Không có địa chỉ")
@@ -84,7 +84,7 @@ def read_excel_file(file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name=TODA
         "KHÁCH HÀNG": DROP_DOWN_RANGE_DIA_CHI,
         "LOẠI XE": "CONFIG!F1:F6",
         "THỜI GIAN GIAO HÀNG": "CONFIG!AA1:AA5",
-        "NV KẾ HOẠCH": "CONFIG!B3:B7",
+        "NV KẾ HOẠCH": "CONFIG!B3:B100",
         "THU TIỀN LUÔN": "CONFIG!AB1:AB2",
         "XUÁT HÓA ĐƠN": "CONFIG!AB1:AB2",
         "ĐÃ GIAO": "CONFIG!AB1:AB2",
@@ -133,7 +133,7 @@ def read_excel_file(file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name=TODA
     return df
 
 
-def convert_to_object(df: pd.DataFrame, day: str) -> List[Request]:
+def convert_to_object_request(df: pd.DataFrame, day: str) -> List[Request]:
     DROP_DOWN_EXT = "_DROP_DOWN_ID"
     dropdown_columns = [
         "KHÁCH HÀNG",
@@ -246,15 +246,42 @@ def convert_to_object(df: pd.DataFrame, day: str) -> List[Request]:
 
 def excel_to_requests(file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name=TODAY):
     df = read_excel_file(file_path=file_path, sheet_name=sheet_name)
-    return convert_to_object(df=df, day=sheet_name)
+    return convert_to_object_request(df=df, day=sheet_name)
+
+def excel_to_requests_and_save(file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), sheet_name=datetime.now().strftime("%d%m%Y")):
+    """
+    Đọc file Excel, chuyển thành danh sách các Request objects và lưu vào file JSON.
+    Args:
+        file_path (str): Đường dẫn đến file Excel
+        sheet_name (str): Tên sheet cần đọc (mặc định là ngày hiện tại dạng ddmmyyyy)
+    Returns:
+        list: Danh sách các Request objects
+    """
+    # Đọc file Excel và chuyển thành danh sách Request objects
+    df = read_excel_file(file_path=file_path, sheet_name=sheet_name)
+    requests = convert_to_object_request(df=df, day=sheet_name)
+    
+    # Chuẩn bị đường dẫn file JSON
+    output_dir = "data/intermediate"
+    os.makedirs(output_dir, exist_ok=True)  # Tạo thư mục nếu chưa tồn tại
+    output_file = os.path.join(output_dir, f"{sheet_name}.json")
+    
+    # Chuyển các Request objects thành định dạng có thể lưu JSON
+    requests_data = [request.to_dict() for request in requests]
+    
+    # Lưu vào file JSON
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(requests_data, f, ensure_ascii=False, indent=4)
+    
+    return requests
 
 
 if __name__ == "__main__":
     try:
-        df = read_excel_file()
-        requests = convert_to_object(df)
+        df = read_excel_file(file_path="data/input/Lenh_Dieu_Xe.xlsx",sheet_name=DATES[0])
+        requests = convert_to_object_request(df, DATES[0])
         print("\nDanh sách các đối tượng Request:")
-        for i, req in enumerate(requests[:5]):
+        for i, req in enumerate(requests[:]):
             print(f"Request {i + 1}:")
             print(f"  Name: {req.name}")
             print(f"  Start Place: {req.start_place}")

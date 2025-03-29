@@ -1,10 +1,16 @@
 import os
 import random
 import string
-
+import json
 import openpyxl
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import PatternFill
+import pandas as pd
+from faker import Faker
+
+from config import *
+from objects.driver import Driver
+
 
 
 def initialize_driver_timetable(
@@ -97,7 +103,7 @@ def initialize_driver_timetable(
 def initialize_driver_list(
     filename="Lenh_Dieu_Xe.xlsx", sheet_name="Tai_Xe", is_testing=False
 ):
-    # Danh sách cột theo thứ tự
+    # Danh sách cột theo thứ tự (đã bỏ cột "available")
     columns = [
         "stt",
         "name",
@@ -105,10 +111,9 @@ def initialize_driver_list(
         "vehicle_id",
         "phone_number",
         "vehicle_load",
-        "available",
     ]
 
-    # Thiết lập độ rộng cho từng cột (đơn vị inches)
+    # Thiết lập độ rộng cho từng cột (đơn vị inches, bỏ "available")
     width_settings = {
         "stt": 3.5,
         "name": 20,
@@ -116,12 +121,11 @@ def initialize_driver_list(
         "vehicle_id": 15,
         "phone_number": 15,
         "vehicle_load": 12,
-        "available": 8,
     }
 
     # Kiểm tra file, nếu không tồn tại thì tạo mới workbook
     if os.path.exists(filename):
-        wb = openpyxl.load_workbook(filename)
+        wb = load_workbook(filename)
     else:
         wb = Workbook()
         # Xóa sheet mặc định nếu có
@@ -138,24 +142,16 @@ def initialize_driver_list(
     else:
         ws = wb[sheet_name]
 
-    # Gộp ô A1:G1
-    ws.merge_cells("A1:G1")
+    # Gộp ô A1:F1 (điều chỉnh từ G1 thành F1 vì bỏ cột "available")
+    ws.merge_cells("A1:F1")
     ws["A1"] = "Thông tin tài xế"  # Có thể thay đổi tiêu đề theo ý muốn
 
     # Đặt header ở dòng 2
     for col_idx, col_name in enumerate(columns, 1):
         ws.cell(row=2, column=col_idx).value = col_name
 
-    # # Thêm checkbox vào cột "available" ở dòng 3 (dòng đầu tiên của dữ liệu)
-    # if ws.max_row < 3:
-    #     ws.append([""] * (len(columns) - 1) + ["☐"])
-    # else:
-    #     # Đảm bảo cột available ở dòng 3 có checkbox nếu chưa có
-    #     if ws.cell(row=3, column=len(columns)).value is None:
-    #         ws.cell(row=3, column=len(columns)).value = "☐"
-
     # Đặt độ rộng cho từng cột
-    col_letters = ["A", "B", "C", "D", "E", "F", "G"]
+    col_letters = ["A", "B", "C", "D", "E", "F"]  # Điều chỉnh từ 7 cột thành 6 cột
     for letter, field in zip(col_letters, width_settings):
         ws.column_dimensions[letter].width = width_settings[field]
 
@@ -167,19 +163,13 @@ def initialize_driver_list(
         )
     else:
         print(
-            f"Đã tạo/cập nhật sheet '{sheet_name}' trong file '{filename}' với header ở dòng 2 và checkbox ở dòng 3, cột 'available'."
+            f"Đã tạo/cập nhật sheet '{sheet_name}' trong file '{filename}' với header ở dòng 2."
         )
 
-
-def sample_drivers(filename="Lenh_Dieu_Xe.xlsx", sheet_name="Tai_Xe"):
-    # Danh sách tên mẫu
-    sample_names = [
-        "Nguyễn Văn A",
-        "Trần Thị B",
-        "Lê Văn C",
-        "Phạm Thị D",
-        "Hoàng Văn E",
-    ]
+def sample_drivers(filename="Lenh_Dieu_Xe.xlsx", sheet_name="Tai_Xe", number_of_drivers=5):
+    # Khởi tạo Faker với locale tiếng Việt và seed cố định để kết quả không đổi
+    fake = Faker("vi_VN")
+    Faker.seed(42)  # Seed cố định để đảm bảo kết quả nhất quán
 
     # Kiểm tra file tồn tại
     if not os.path.exists(filename):
@@ -187,6 +177,16 @@ def sample_drivers(filename="Lenh_Dieu_Xe.xlsx", sheet_name="Tai_Xe"):
             f"File '{filename}' không tồn tại. Vui lòng chạy initialize_driver_schedule trước."
         )
         return
+
+    # Đọc danh sách tải trọng xe từ file vehicle.json
+    vehicle_file = "data/vehicle.json"
+    if not os.path.exists(vehicle_file):
+        print(f"File '{vehicle_file}' không tồn tại. Tạo danh sách mặc định.")
+        vehicle_loads = [1.5, 2.0, 3.5, 5.0, 10.0]  # Mặc định nếu file không tồn tại
+    else:
+        with open(vehicle_file, "r", encoding="utf-8") as f:
+            vehicle_loads = json.load(f)
+        print(f"Đã đọc danh sách tải trọng xe từ {vehicle_file}: {vehicle_loads}")
 
     # Mở workbook
     wb = openpyxl.load_workbook(filename)
@@ -207,28 +207,51 @@ def sample_drivers(filename="Lenh_Dieu_Xe.xlsx", sheet_name="Tai_Xe"):
     if ws.max_row >= start_row:
         start_row = ws.max_row + 1
 
-    # Tạo 5 tài xế mẫu
-    for i in range(5):
+    # Tạo danh sách tài xế
+    for i in range(number_of_drivers):
         row = start_row + i
         # STT
-        ws[f"A{row}"] = i + 1
-        # Tên
-        ws[f"B{row}"] = sample_names[i]
-        # CCCD (12 chữ số ngẫu nhiên)
-        ws[f"C{row}"] = "".join(random.choices(string.digits, k=12))
-        # Vehicle ID (biển số xe ngẫu nhiên, ví dụ: 29A-12345)
-        ws[f"D{row}"] = f"29A-{random.randint(10000, 99999)}"
+        cell_a = ws[f"A{row}"]
+        cell_a.value = str(i + 1)  # Chuyển thành chuỗi để đảm bảo kiểu text
+        cell_a.number_format = '@'  # Định dạng text
+
+        # Tên tài xế (sử dụng Faker)
+        cell_b = ws[f"B{row}"]
+        cell_b.value = fake.name()
+        cell_b.number_format = '@'  # Định dạng text
+
+        # CCCD (12 chữ số ngẫu nhiên từ Faker)
+        cell_c = ws[f"C{row}"]
+        cell_c.value = str(fake.unique.random_number(digits=12, fix_len=True))
+        cell_c.number_format = '@'  # Định dạng text
+
+        # Vehicle ID (biển số xe, ví dụ: 29A-12345)
+        cell_d = ws[f"D{row}"]
+        cell_d.value = f"29A-{fake.unique.random_int(min=10000, max=99999):05d}"
+        cell_d.number_format = '@'  # Định dạng text
+
         # Số điện thoại (10 chữ số, bắt đầu bằng 0)
-        ws[f"E{row}"] = f"0{random.randint(100000000, 999999999)}"
-        # Tải trọng xe (ngẫu nhiên từ 1.5 đến 10 tấn)
-        ws[f"F{row}"] = round(random.uniform(1.5, 10), 1)
-        # Available (checkbox ngẫu nhiên: ☐ hoặc ☑)
-        ws[f"G{row}"] = random.choice(["☐", "☑"])
+        cell_e = ws[f"E{row}"]
+        cell_e.value = fake.phone_number()
+        cell_e.number_format = '@'  # Định dạng text
+
+        # Tải trọng xe (lấy từ danh sách vehicle_loads)
+        vehicle_load = vehicle_loads[i % len(vehicle_loads)] if vehicle_loads else 1.5
+        cell_f = ws[f"F{row}"]
+        cell_f.value = str(vehicle_load)  # Chuyển thành chuỗi để đảm bảo kiểu text
+        cell_f.number_format = '@'  # Định dạng text
+
+    # Định dạng lại header (dòng 2) thành text nếu cần
+    headers = ["A2", "B2", "C2", "D2", "E2", "F2"]
+    for cell_ref in headers:
+        cell = ws[cell_ref]
+        if cell.value:  # Nếu ô header đã có giá trị
+            cell.number_format = '@'
 
     # Lưu file
     wb.save(filename)
     print(
-        f"Đã thêm 5 tài xế mẫu vào sheet '{sheet_name}' trong file '{filename}' bắt đầu từ dòng {start_row}."
+        f"Đã thêm {number_of_drivers} tài xế vào sheet '{sheet_name}' trong file '{filename}' bắt đầu từ dòng {start_row}. Tất cả ô được định dạng kiểu Text."
     )
 
 
@@ -315,7 +338,7 @@ def check_driver_availability(
         col_letters.append(col_letter)
 
     # Màu rảnh: không tô màu (None), vàng (FFFFFF00), cam (FFFFA500)
-    free_colors = [None, "FFFFFF00", "FFFFA500"]
+    free_colors = [None, "FFFF00", "FFA500"]
 
     # Danh sách kết quả
     driver_availability = {}
@@ -323,8 +346,12 @@ def check_driver_availability(
     # Duyệt qua các dòng từ 3 trở đi (dòng dữ liệu tài xế)
     for row in range(3, ws.max_row + 1):
         driver_name = ws[f"B{row}"].value  # Cột B: Tên tài xế
-        if not driver_name:  # Nếu không có tên tài xế, bỏ qua dòng này
+        phone_number = ws[f"C{row}"].value  # Cột C: Số điện thoại
+        if not driver_name or not phone_number:  # Nếu thiếu tên hoặc số điện thoại, bỏ qua
             continue
+
+        # Kết hợp tên và số điện thoại làm key
+        driver_key = f"{driver_name} - {phone_number}"
 
         # Danh sách trạng thái rảnh cho từng khung giờ
         free_slots = []
@@ -335,6 +362,10 @@ def check_driver_availability(
                 if cell.fill.patternType == "solid"
                 else None
             )
+            # print(fill_color if fill_color is None else fill_color[2:],type(fill_color))
+            fill_color = fill_color if fill_color is None else fill_color[2:]
+            if fill_color not in free_colors:
+                print(f"Cell {col_letter}{row} is not free with color {fill_color}")
             is_free = fill_color in free_colors
             free_slots.append(is_free)
 
@@ -352,8 +383,8 @@ def check_driver_availability(
             if i == len(free_slots) - 1 and start_time is not None:
                 availability.append((start_time, 24.0))
 
-        # Thêm vào kết quả
-        driver_availability[driver_name] = availability
+        # Thêm vào kết quả với key là tên + số điện thoại
+        driver_availability[driver_key] = availability
 
     # Đóng workbook
     wb.close()
@@ -362,20 +393,141 @@ def check_driver_availability(
     print(f"Thời gian rảnh của các tài xế trong sheet '{sheet_name}':")
     for driver, times in driver_availability.items():
         print(f"- {driver}: {times}")
-
+    print(driver_availability)
     return driver_availability
 
-
-# đọc sheet driver, staff, chuyển thành driver object và staff object
-
+def driver_excel_2_csv(excel_file = "data/input/Lenh_Dieu_Xe.xlsx",sheet_name = "Tai_Xe",json_file = "data/drivers.json",is_check_driver_availability=False, checkday = TODAY):    
+    wb = openpyxl.load_workbook(excel_file)
+    if sheet_name not in wb.sheetnames:
+        print(f"Sheet '{sheet_name}' không tồn tại trong file '{excel_file}'.")
+        return
+    
+    ws = wb[sheet_name]
+    
+    drivers = []
+    for row in range(3, ws.max_row + 1):
+        name = ws[f"B{row}"].value
+        cccd = ws[f"C{row}"].value
+        vehicle_id = ws[f"D{row}"].value
+        phone_number = ws[f"E{row}"].value
+        vehicle_load = ws[f"F{row}"].value
+        
+        if name and cccd and vehicle_id and phone_number and vehicle_load:
+            driver = Driver(
+                name=str(name),
+                cccd=str(cccd),
+                vehicle_id=str(vehicle_id),
+                phone_number=str(phone_number),
+                vehicle_load=float(vehicle_load)
+            )
+            drivers.append(driver)
+    
+    if is_check_driver_availability:
+        availability = check_driver_availability(file_path=excel_file,sheet_name=f"Driver_Timetable_{checkday}")
+        if availability:
+            for driver in drivers:
+                driver_key = f"{driver.name} - {driver.phone_number}"
+                if driver_key in availability:
+                    driver.update_available_times(checkday, availability[driver_key])
+    print(drivers[0].available_times, "()"*100)
+    
+    if os.path.exists(json_file):
+        with open(json_file, "r", encoding="utf-8") as f:
+            existing_drivers = json.load(f)
+            existing_cccds = {driver["cccd"] for driver in existing_drivers}
+        
+        updated_drivers = existing_drivers[:]
+        for driver in drivers:
+            if driver.cccd not in existing_cccds:
+                print(f"Tài xế mới: {driver.name} (CCCD: {driver.cccd}) được thêm vào danh sách.")
+                updated_drivers.append(driver.to_dict())
+            #cập nhật update_available_times cho updated_drivers
+        # ✅ BỔ SUNG: cập nhật available_times
+        if is_check_driver_availability and availability:
+            for i,driver_dict in enumerate(updated_drivers):
+                driver_key = f"{driver_dict['name']} - {driver_dict['phone_number']}"
+                if driver_key in availability:
+                    driver = Driver.from_dict(driver_dict)
+                    driver.update_available_times(checkday, availability[driver_key])
+                    driver_dict =driver.to_dict()
+                    updated_drivers[i] = driver_dict
+        
+        with open(json_file, "w", encoding="utf-8") as f:
+            json.dump(updated_drivers, f, ensure_ascii=False, indent=4)
+        
+        for row_idx, driver_dict in enumerate(updated_drivers, start=3):
+            cell_b = ws[f"B{row_idx}"]
+            cell_c = ws[f"C{row_idx}"]
+            cell_d = ws[f"D{row_idx}"]
+            cell_e = ws[f"E{row_idx}"]
+            cell_f = ws[f"F{row_idx}"]
+            
+            cell_b.value = driver_dict["name"]
+            cell_c.value = driver_dict["cccd"]
+            cell_d.value = driver_dict["vehicle_id"]
+            cell_e.value = driver_dict["phone_number"]
+            cell_f.value = driver_dict["vehicle_load"]
+            
+            # Định dạng các ô có số 0 ở đầu thành chuỗi
+            cell_c.number_format = "@"  # Định dạng cccd thành text
+            cell_e.number_format = "@"  # Định dạng phone_number thành text
+    
+    else:
+        seen_cccds = {}
+        seen_vehicle_ids = {}
+        unique_drivers = []
+        
+        for driver in drivers:
+            if driver.cccd not in seen_cccds:
+                seen_cccds[driver.cccd] = driver
+            if driver.vehicle_id not in seen_vehicle_ids:
+                seen_vehicle_ids[driver.vehicle_id] = driver
+                unique_drivers.append(driver)
+            else:
+                print(f"Trùng vehicle_id {driver.vehicle_id}, chỉ giữ tài xế đầu tiên.")
+        
+        driver_dicts = [d.to_dict() for d in unique_drivers]
+        with open(json_file, "w", encoding="utf-8") as f:
+            json.dump(driver_dicts, f, ensure_ascii=False, indent=4)
+        
+        for row_idx, driver_dict in enumerate(driver_dicts, start=3):
+            cell_b = ws[f"B{row_idx}"]
+            cell_c = ws[f"C{row_idx}"]
+            cell_d = ws[f"D{row_idx}"]
+            cell_e = ws[f"E{row_idx}"]
+            cell_f = ws[f"F{row_idx}"]
+            
+            cell_b.value = driver_dict["name"]
+            cell_c.value = driver_dict["cccd"]
+            cell_d.value = driver_dict["vehicle_id"]
+            cell_e.value = driver_dict["phone_number"]
+            cell_f.value = driver_dict["vehicle_load"]
+            
+            # Định dạng các ô có số 0 ở đầu thành chuỗi
+            cell_c.number_format = "@"  # Định dạng cccd thành text
+            cell_e.number_format = "@"  # Định dạng phone_number thành text
+    
+    wb.save(excel_file)
+    wb.close()
+    
+    print(f"Đã xử lý dữ liệu tài xế từ '{excel_file}' và lưu vào '{json_file}'.")
+    if is_check_driver_availability:
+        print("Đã kiểm tra và cập nhật thời gian rảnh cho các tài xế.")
 
 # Gọi hàm để thực thi
 if __name__ == "__main__":
-    # Chạy bình thường
-    # initialize_driver_schedule()
-    # Chạy ở chế độ testing (xóa sheet Tai_Xe nếu có và tạo lại)
-    # initialize_driver_schedule(is_testing=True)
+    # # Chạy bình thường
+    # # Chạy ở chế độ testing (xóa sheet Tai_Xe nếu có và tạo lại)
+    # initialize_driver_list(is_testing=True)
     # initialize_driver_timetable(is_testing=True)
-    # sample_drivers()  # Thêm 5 tài xế mẫu
+    # sample_drivers(number_of_drivers=41)  # Thêm tài xế mẫu
     # copy_driver_data_to_timetable()
-    check_driver_availability()
+    # # check_driver_availability()
+    # driver_excel_2_csv(is_check_driver_availability=True)
+    driver_excel_2_csv(
+        excel_file="data/input/Lenh_Dieu_Xe.xlsx",
+        sheet_name="Tai_Xe",
+        json_file="data/drivers.json",
+        is_check_driver_availability=True,
+        checkday=DATES[0]
+    )
