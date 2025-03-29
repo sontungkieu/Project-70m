@@ -110,27 +110,43 @@ def send_notification():
 
 # 5) HÀM: LƯU KẾT QUẢ VÀO FIRESTORE
 # ---------------------------------------------------------------------------
-def save_to_firestore(job_id, vehicles_data):
+def save_to_firestore(job_id, requests_list):
     """
-    Lưu kết quả tối ưu hóa vào Firestore với collection "Routes" và cập nhật thông tin "Drivers".
+    Lưu kết quả tối ưu hóa (danh sách các request) vào Firestore.
+    - Mỗi request được lưu vào collection "Requests" với document id là request_id.
+    - Các request được nhóm theo staff_id và cập nhật vào collection "Drivers" dưới trường "route_by_day".
     """
-    for vehicle_id, driver_data in vehicles_data.items():
-        route_doc_id = f"{vehicle_id}_{job_id}"
-        db.collection("Routes").document(route_doc_id).set(
-            {
-                "vehicle_id": vehicle_id,
-                "distance_of_route": driver_data.get("distance_of_route", 0),
-                "list_of_route": driver_data.get("list_of_route", []),
-                "finished_at": datetime.now(timezone.utc).isoformat(),
-            }
-        )
-        driver_ref = db.collection("Drivers").document(str(vehicle_id))
-        driver_ref.set(
-            {"route_by_day": {job_id: driver_data.get("list_of_route", [])}}, merge=True
-        )
-        driver_ref.update(
-            {"available": True, "last_update": datetime.now(timezone.utc).isoformat()}
-        )
+    finished_at = datetime.now(timezone.utc).isoformat()
+    # Dictionary để gom các request_id theo từng driver (staff_id)
+    driver_routes = {}
+    
+    for req in requests_list:
+        # Thêm thông tin job_id và finished_at vào mỗi request
+        req["job_id"] = job_id
+        req["finished_at"] = finished_at
+
+        # Lưu request vào collection "Requests" (dùng request_id làm document id)
+        request_id = req.get("request_id")
+        if not request_id:
+            raise ValueError("Mỗi request phải có trường 'request_id'")
+        db.collection("Requests").document(request_id).set(req)
+
+        # Gom nhóm các request theo driver (staff_id)
+        staff_id = req.get("staff_id")
+        if staff_id is not None:
+            # Chuyển staff_id sang chuỗi để dùng làm document id
+            driver_routes.setdefault(str(staff_id), []).append(request_id)
+    
+    # Cập nhật thông tin cho từng driver trong collection "Drivers"
+    for staff_id, request_ids in driver_routes.items():
+        driver_ref = db.collection("Drivers").document(staff_id)
+        # Sử dụng set với merge=True để cập nhật hoặc tạo mới
+        driver_ref.set({
+            "route_by_day": { job_id: request_ids },
+            "available": True,
+            "last_update": finished_at
+        }, merge=True)
+
 
 
 # ---------------------------------------------------------------------------
@@ -139,11 +155,18 @@ def save_to_firestore(job_id, vehicles_data):
 def run_pipeline(job_id):
     """
     Pipeline thực hiện các bước:
+    
       1. Tải file Excel xuống (script Get_data_from_storage.py sẽ đọc file data/excel_info.json)
       2. Chuyển Excel thành JSON qua read_excel.py.
-      3. Chạy thuật toán OR-Tools qua test_bo_doi_cong_nghiep.py.
+      3. Chạy thuật toán OR-Tools qua engine1_lean.py.
       4. Định dạng lại output, bổ sung execution_time và finished_at.
-      5. Tạo dict vehicles_data từ full_results và lưu vào Firestore.
+      5. Chuyển json thành file excel
+      6. Đẩy lên storage
+      7. Lấy file excel đã sửa bởi nhân viên điều xe
+      8. chuyển file excel sang json
+      9a. accept_accumulated_distance
+      9b. lưu vào firestore
+    
     """
     # Bước 1: Tải file Excel xuống
     subprocess.run(["python", "Get_data_from_storage.py"], check=True)
@@ -156,7 +179,7 @@ def run_pipeline(job_id):
     output_file = f"data/output_{job_id}.json"
     with open(output_file, "w", encoding="utf-8") as out_f:
         process = subprocess.Popen(
-            ["python", "test_bo_doi_cong_nghiep.py"], stdout=out_f
+            ["python", "engine1_lean.py"], stdout=out_f
         )
         memory_usage = 0
         while process.poll() is None:
@@ -310,6 +333,60 @@ def update_delivery_status():
     )
 
     return jsonify({"message": "Delivery status updated"}), 200
+# ---------------------------------------------------------------------------
+# 9) API: TẠO FILE EXCEL (GỌI HÀM init_excel từ initexcel.py)
+# ---------------------------------------------------------------------------
+from config import DATES
+from initExcel import init_excel
+def push_excel_to_storage(file_name):
+    """Đẩy file Excel lên Firebase Storage."""
+    # Đường dẫn tới file Excel
+    local_file_path = os.path.join("data", file_name)
+
+    # Đường dẫn tới Firebase Storage
+    bucket = firebase_admin.storage.bucket()
+    blob = bucket.blob(f"excel/{file_name}")
+
+    # Đẩy file lên Firebase Storage
+    blob.upload_from_filename(local_file_path, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    print(f"File {file_name} uploaded to Firebase Storage.")
+@app.route("/create_excel", methods=["POST", "OPTIONS"])
+def create_excel():
+    # Xử lý preflight request cho CORS
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add(
+            "Access-Control-Allow-Headers", "Content-Type,Authorization"
+        )
+        response.headers.add("Access-Control-Allow-Methods", "POST,OPTIONS")
+        return response, 200
+
+    # (Tùy chọn) Xác thực người dùng
+    user = verify_firebase_token(request)
+    if not user:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.json or {}
+    # Lấy các tham số nếu có: day và is_recreate
+    
+    day = data.get("day")  # nếu không cung cấp, init_excel sẽ dùng giá trị mặc định
+    is_recreate = data.get("is_recreate", False)
+
+    try:
+        # Gọi hàm init_excel để tạo file Excel
+        if day:
+            result_message = init_excel(day=day, is_recreate=is_recreate)
+        else:
+            for i in range(len(DATES)):
+                result_message = init_excel(day=DATES[i], is_recreate= bool(i==0))
+            push_excel_to_storage("data\input\Lenh_Dieu_xe.xlsx")
+        return jsonify({"message": result_message}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+ 
+
+    
 
 
 # ---------------------------------------------------------------------------
