@@ -49,13 +49,5 @@ def update_map(requests, mapping, inverse_mapping):
         for j in range(n_new):
             orig_i = inverse_mapping[nodes[i]]
             orig_j = inverse_mapping[nodes[j]]
-            new_distance_matrix[i][j] = float(orig_distance_matrix[orig_i][orig_j] if orig_i != orig_j else 0.1)
-    # for i in range(n_new):
-        
-            # if i == orig_i and j == orig_j:
-            #     new_distance_matrix[i][j] = float(orig_distance_matrix[orig_i][orig_j])
-            # elif i == orig_j or j == orig_i:
-            #     new_distance_matrix[i][j] = 0
-            # else:
-            #     new_distance_matrix[i][j] = INFINITY
+            new_distance_matrix[i][j] = float(orig_distance_matrix[orig_i][orig_j] if orig_i != orig_j else 9999)
     return new_distance_matrix
