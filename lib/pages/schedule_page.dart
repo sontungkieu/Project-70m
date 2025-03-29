@@ -316,7 +316,7 @@ class _SchedulePageState extends State<SchedulePage>
     final String jobId = DateTime.now().millisecondsSinceEpoch.toString();
     try {
       final response = await http.post(
-        Uri.parse('https://602f-202-191-58-161.ngrok-free.app/optimize'),
+        Uri.parse('https://38a8-123-18-225-103.ngrok-free.app/optimize'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "job_id": jobId,
@@ -384,45 +384,44 @@ class _SchedulePageState extends State<SchedulePage>
     );
   }
 
-  // ==================== Nút 4: Upload Edited JSON ====================
-  Future<void> _uploadEditedJson() async {
-    // Chọn file JSON đã chỉnh sửa
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
+  // ==================== Nút 4: Upload Excel ====================
+Future<void>  _uploadEditedJson() async {
+  // Chọn file Excel (chỉ cho phép .xlsx và .xls)
+  final result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['xlsx', 'xls'],
+  );
+  if (result == null || result.files.isEmpty) return;
+
+  final Uint8List? fileBytes = result.files.single.bytes;
+  final String fileName = result.files.single.name;
+  if (fileBytes == null) return;
+
+  try {
+    // Upload file Excel lên Firebase Storage (ví dụ: trong thư mục "final_schedule")
+    final firebase_storage.Reference storageRef = customStorage.ref('final_schedule/$fileName');
+
+    await storageRef.putData(
+      fileBytes,
+      firebase_storage.SettableMetadata(
+        contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      ),
     );
-    if (result == null || result.files.isEmpty) return;
-
-    final Uint8List? fileBytes = result.files.single.bytes;
-    final String fileName = result.files.single.name;
-    if (fileBytes == null) return;
-
-    try {
-      // Upload file JSON lên Firebase Storage (ví dụ: 'requests_xlsx/outputs/edited_result.json')
-      final firebase_storage.Reference storageRef = firebase_storage
-          .FirebaseStorage.instance
-          .ref('requests_xlsx/outputs/edited_result.json');
-      await storageRef.putData(
-        fileBytes,
-        firebase_storage.SettableMetadata(
-          contentType: 'application/json',
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Edited JSON uploaded successfully"),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Failed to upload edited JSON: $e"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Excel uploaded successfully"),
+        backgroundColor: Colors.green,
+      ),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Failed to upload Excel: $e"),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
 
   // ------------------ UI Build ------------------
   @override
@@ -544,7 +543,7 @@ class _SchedulePageState extends State<SchedulePage>
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: const Text("Upload Edited JSON"),
+                              child: const Text("Upload Edited Schedule"),
                             ),
                           ),
                         ),
@@ -565,12 +564,16 @@ Expanded(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            "Các lịch chạy xe dự kiến do thuật toán đưa ra gần đây:",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
+  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  child: Text(
+    "Các lịch chạy xe dự kiến do thuật toán đưa ra gần đây:",
+    style: TextStyle( // Bạn có thể thay đổi thành Theme.of(context).textTheme.headline6 nếu trong build context
+      fontSize: 24,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
+
         const Expanded(
           child: ExcelFileList(),
         ),
