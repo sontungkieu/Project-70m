@@ -11,8 +11,8 @@ def load_requests(file_path):
     try:
         with open(file_path, "r", encoding="utf-8") as file:
             # The file contains a JSON array (list) of requests
-            requests_list = json.load(file)
-            print(f"loader.py:load_requests: len {len(requests_list)} :{requests_list}")
+            requests_list = json.load(file)[:45]
+            # print(f"loader.py:load_requests: len {len(requests_list)} :{requests_list}")
             requests_list = [Request.from_dict(req) for req in requests_list]
             requests_list.sort(key=lambda x: x.request_id)
             for i in range(len(requests_list)):
@@ -39,13 +39,13 @@ def load_drivers(file_path="data/drivers.json", is_converted_to_dict=False):
         If is_converted_to_dict=False: list of Driver objects
         If is_converted_to_dict=True: tuple of (drivers_list, vehicle_loads, available_times_s)
     """
-    logging.info(f"loader.py:load_drivers:file_path: {file_path}")
-    logging.info(f"loader.py:load_drivers:is_converted_to_dict: {is_converted_to_dict}")
+    # logging.info(f"loader.py:load_drivers:file_path: {file_path}")
+    # logging.info(f"loader.py:load_drivers:is_converted_to_dict: {is_converted_to_dict}")
     global NUM_OF_VEHICLES
 
     # Log absolute file path for debugging
     abs_path = os.path.abspath(file_path)
-    logging.info(f"loader.py:load_drivers:absolute_path: {abs_path}")
+    # logging.info(f"loader.py:load_drivers:absolute_path: {abs_path}")
 
     # Check if file exists
     if not os.path.exists(file_path):
@@ -54,11 +54,11 @@ def load_drivers(file_path="data/drivers.json", is_converted_to_dict=False):
 
     try:
         with open(file_path, "r", encoding="utf-8") as file:
-            logging.info(f"loader.py:load_drivers:open file {file_path}")
+            # logging.info(f"loader.py:load_drivers:open file {file_path}")
             
             # Read and log raw content
             raw_content = file.read().strip()
-            logging.info(f"loader.py:load_drivers:raw_content: '{raw_content}'")
+            # logging.info(f"loader.py:load_drivers:raw_content: '{raw_content}'")
             
             if not raw_content:
                 logging.error(f"File {file_path} is empty")
@@ -67,7 +67,7 @@ def load_drivers(file_path="data/drivers.json", is_converted_to_dict=False):
             # Reset file pointer and parse JSON
             file.seek(0)
             drivers_list = json.load(file)
-            logging.info(f"loader.py:load_drivers:parsed_json: {drivers_list}")
+            # logging.info(f"loader.py:load_drivers:parsed_json: {drivers_list}")
             
             # Validate JSON structure
             if not isinstance(drivers_list, list):
@@ -98,8 +98,8 @@ def load_drivers(file_path="data/drivers.json", is_converted_to_dict=False):
                 vehicle_loads = [driver.vehicle_load for driver in drivers_list]
                 available_times_s = [driver.available_times for driver in drivers_list]
                 
-                logging.info(f"loader.py:load_drivers:vehicle_loads: {vehicle_loads}")
-                logging.info(f"loader.py:load_drivers:available_times_s: {available_times_s}")
+                # logging.info(f"loader.py:load_drivers:vehicle_loads: {vehicle_loads}")
+                # logging.info(f"loader.py:load_drivers:available_times_s: {available_times_s}")
                 return drivers_list, vehicle_loads, available_times_s
             else:
                 return drivers_list

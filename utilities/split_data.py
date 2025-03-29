@@ -47,11 +47,11 @@ def split_requests(requests: List[Request], output_file: str = "data/intermediat
         if not isinstance(request.end_place, list):
             raise ValueError(f"end_place must be a list for request at index {i}")
         
-        print(f"Processing request {i + 1} with weight {request.weight}")
+        # print(f"Processing request {i + 1} with weight {request.weight}")
         split_count = 0
         
         while request.weight > MIN_CAPACITY:
-            print(f"  Splitting request with weight {request.weight}")
+            # print(f"  Splitting request with weight {request.weight}")
             new_request = Request(
                 name=request.name,
                 start_place=request.start_place,
@@ -64,14 +64,14 @@ def split_requests(requests: List[Request], output_file: str = "data/intermediat
                 split_id=1,
             )
             new_request.gen_id()
-            print(new_request)
+            # print(new_request)
             new_requests.append(new_request)
             request.weight -= MIN_CAPACITY
-            request.weight = 0
             split_count += 1
         new_requests.append(request)
         if split_count > 0:
-            print(f"  Split into {split_count + 1} requests")
+            # print(f"  Split into {split_count + 1} requests")
+            pass
     
     print(f"Total requests after splitting: {len(new_requests)}")
     
@@ -84,10 +84,10 @@ def split_requests(requests: List[Request], output_file: str = "data/intermediat
         
         if end_place_id not in mapping:
             mapping[end_place_id] = [new_node]
-            print(f"New mapping created: {end_place_id} -> {new_node}")
+            # print(f"New mapping created: {end_place_id} -> {new_node}")
         else:
             mapping[end_place_id].append(new_node)
-            print(f"Added to mapping: {end_place_id} -> {new_node}")
+            # print(f"Added to mapping: {end_place_id} -> {new_node}")
         
         inverse_mapping[new_node] = end_place_id
         request.end_place[0] = new_node

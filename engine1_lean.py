@@ -37,17 +37,17 @@ def load_data_real(
 
     # Đọc danh sách vehicle từ JSON
     drivers_list, vehicle_capacities, available_times_s = loader.load_drivers(file_path=driver_file,is_converted_to_dict=True)
-    print(f"available_times_s: {available_times_s}")
+    # print(f"available_times_s: {available_times_s}")
     NUM_OF_VEHICLES = len(vehicle_capacities)
 
     # Đọc danh sách requests từ JSON
     requests_data = loader.load_requests(file_path=request_file)
-    print(f"requests_data: {requests_data}")
+    # print(f"requests_data: {requests_data}")
     divided_mapped_requests, mapping, inverse_mapping = split_requests(requests_data,)
-    print(f"divided_mapped_requests: {divided_mapped_requests}")
-    print(f"mapping: {mapping}")
-    print(f"inverse_mapping: {inverse_mapping}")
-    print(f"requests_data: {requests_data}")
+    # print(f"divided_mapped_requests: {divided_mapped_requests}")
+    # print(f"mapping: {mapping}")
+    # print(f"inverse_mapping: {inverse_mapping}")
+    # print(f"requests_data: {requests_data}")
     # exit(0)
 
     # update map
@@ -71,7 +71,6 @@ def load_data_real(
     return distance_matrix, demands, vehicle_capacities, time_windows, available_times_s,requests_data,divided_mapped_requests, mapping, inverse_mapping
 
 def create_data_model(*, distance_matrix=None, demands=None, vehicles=None, time_window=None, available_times_s=None,requests_data = None,divided_mapped_requests = None, mapping = None, inverse_mapping= None):
-
     """Tạo dữ liệu cho bài toán giao hàng với split delivery.
 
     Trong bài toán này:
