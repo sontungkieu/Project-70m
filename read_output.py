@@ -81,3 +81,11 @@ def read_and_save_json_output(
         ) as jsonfile:
             json.dump(output, jsonfile, indent=4)
     return output
+
+
+if __name__ == "__main__":
+    # filename = r"data\stdout_output_2025-02-19_00-00-00.txt"
+    # output = read_output(filename=filename)
+    # print(output)
+    read_output()
+    # read_and_save_json_output()

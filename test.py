@@ -15,7 +15,7 @@ NUM_OF_DAY_REPETION = None
 DATES = None
 
 
-def run_test_bo_doi_cong_nghiep(re_run=False):
+def run_engine1(re_run=False):
     # Kiểm tra và tạo thư mục "data", "data/output", "data/log" nếu chưa tồn tại
     if not os.path.exists("data"):
         os.makedirs("data")
@@ -47,7 +47,7 @@ def run_test_bo_doi_cong_nghiep(re_run=False):
         config_filename, "wb"
     ) as config_file:
         process = subprocess.Popen(
-            ["python", "test_bo_doi_cong_nghiep.py"],
+            ["python", "engine1_lean.py"],
             stdout=stdout_file,
             stderr=config_file,
         )
@@ -92,7 +92,7 @@ def read_config(config_filename):
 
 
 def read_output(output_filename):
-    import utilities.read_output as read_output
+    import read_output as read_output
 
     return read_output.read_and_save_json_output(filename=output_filename)
 
@@ -205,9 +205,9 @@ if __name__ == "__main__":
 
     # read excel
     from read_excel import excel_to_requests_and_save
-    requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[0])
-    requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[1])
-    requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[2])
+    # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[0])
+    # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[1])
+    # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[2])
     # for day in DATES:
     #     driver_excel_2_csv(
     #         excel_file="data/input/Lenh_Dieu_Xe.xlsx",
@@ -219,12 +219,14 @@ if __name__ == "__main__":
     # recompute map
     # process_destinations(r"data\destinations.csv", r"data\distance_matrix.csv")
 
-    # (
-    #     run_time,
-    #     memory_usage,
-    #     stdout_filename,
-    #     config_filename,
-    # ) = run_test_bo_doi_cong_nghiep(re_run=True)
+    (
+        run_time,
+        memory_usage,
+        stdout_filename,
+        config_filename,
+    ) = run_engine1(re_run=True)
+    print(stdout_filename)
+    read_output(output_filename=stdout_filename)
 
     # processed_filename = processed_output_file=stdout_filename.split(".")[0] + "_processed.json"
     # # sau khi chạy

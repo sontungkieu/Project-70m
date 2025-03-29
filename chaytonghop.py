@@ -8,7 +8,7 @@ import subprocess
 import psutil
 
 from objects.request import Request
-from utilities.read_output import read_and_save_json_output
+from read_output import read_and_save_json_output
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
