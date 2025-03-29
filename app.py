@@ -338,18 +338,27 @@ def update_delivery_status():
 # ---------------------------------------------------------------------------
 from config import DATES
 from initExcel import init_excel
-def push_excel_to_storage(file_name):
-    """Đẩy file Excel lên Firebase Storage."""
-    # Đường dẫn tới file Excel
-    local_file_path = os.path.join("data", file_name)
 
-    # Đường dẫn tới Firebase Storage
+def push_excel_to_storage(file_path):
+    """
+    Đẩy file Excel lên Firebase Storage, vào thư mục 'initexcel'.
+    """
+    # Lấy tên file từ đường dẫn
+    file_name = os.path.basename(file_path)
+
+    # Lấy bucket mặc định
     bucket = firebase_admin.storage.bucket()
-    blob = bucket.blob(f"excel/{file_name}")
 
-    # Đẩy file lên Firebase Storage
-    blob.upload_from_filename(local_file_path, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    print(f"File {file_name} uploaded to Firebase Storage.")
+    # Tạo blob với đường dẫn: initexcel/ + tên file
+    blob = bucket.blob(f"initexcel/{file_name}")
+
+    # Upload file
+    blob.upload_from_filename(
+        file_path,
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    print(f"✅ Đã upload '{file_name}' lên thư mục 'initexcel' trong Firebase Storage.")
+
 @app.route("/create_excel", methods=["POST", "OPTIONS"])
 def create_excel():
     # Xử lý preflight request cho CORS
