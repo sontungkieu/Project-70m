@@ -8,12 +8,24 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:http/http.dart' as http;
 import '../widgets/side_drawer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'dart:convert';
+import 'dart:html' as html; // Dành cho web
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 /// Khởi tạo custom FirebaseStorage cho đúng bucket (nếu cần)
-final firebase_storage.FirebaseStorage customStorage =
-    firebase_storage.FirebaseStorage.instanceFor(
+final firebase_storage.FirebaseStorage customStorage = firebase_storage
+    .FirebaseStorage.instanceFor(
   bucket: 'gs://logistic-project-30dcd.firebasestorage.app',
 );
+
+final String ngrok =
+    'https://b32a-123-18-225-103.ngrok-free.app/'; // Địa chỉ API của bạn
+
 class ExcelFileList extends StatefulWidget {
   const ExcelFileList({Key? key}) : super(key: key);
 
@@ -48,15 +60,14 @@ class _ExcelFileListState extends State<ExcelFileList>
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.1),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     // Lấy danh sách file ngay khi initState
     _fetchExcelFiles();
@@ -67,7 +78,6 @@ class _ExcelFileListState extends State<ExcelFileList>
     _controller.dispose();
     super.dispose();
   }
-
 
   /// Hàm lấy danh sách file trong thư mục "expect_schedule"
   /// - Chỉ lấy các file có tên bắt đầu "output_" và kết thúc ".xlsx"
@@ -117,8 +127,6 @@ class _ExcelFileListState extends State<ExcelFileList>
     }
   }
 
-
-
   /// Tạo widget cho từng file
   Widget _buildFileItem(int index, firebase_storage.Reference fileRef) {
     return FadeTransition(
@@ -141,15 +149,16 @@ class _ExcelFileListState extends State<ExcelFileList>
               decoration: BoxDecoration(
                 color: _hoverIndex == index ? Colors.grey[200] : Colors.white,
                 borderRadius: BorderRadius.circular(8),
-                boxShadow: _hoverIndex == index
-                    ? [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : [],
+                boxShadow:
+                    _hoverIndex == index
+                        ? [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                        : [],
               ),
               child: Row(
                 children: [
@@ -191,9 +200,6 @@ class _ExcelFileListState extends State<ExcelFileList>
   }
 }
 
-
-
-
 // ------------------ Trang SchedulePage gốc, đã chỉnh để chia đôi màn hình ------------------
 class SchedulePage extends StatefulWidget {
   const SchedulePage({Key? key}) : super(key: key);
@@ -222,15 +228,14 @@ class _SchedulePageState extends State<SchedulePage>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.1),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _controller.forward();
   }
@@ -257,10 +262,10 @@ class _SchedulePageState extends State<SchedulePage>
 
     try {
       // Upload file lên Firebase Storage (thư mục "requests_xlsx")
-      final firebase_storage.Reference storageRef = firebase_storage
-          .FirebaseStorage.instance
-          .ref(
-              'gs://logistic-project-30dcd.firebasestorage.app/requests_xlsx/$fileName');
+      final firebase_storage.Reference
+      storageRef = firebase_storage.FirebaseStorage.instance.ref(
+        'gs://logistic-project-30dcd.firebasestorage.app/requests_xlsx/$fileName',
+      );
       await storageRef.putData(
         fileBytes,
         firebase_storage.SettableMetadata(
@@ -316,12 +321,9 @@ class _SchedulePageState extends State<SchedulePage>
     final String jobId = DateTime.now().millisecondsSinceEpoch.toString();
     try {
       final response = await http.post(
-        Uri.parse('https://38a8-123-18-225-103.ngrok-free.app/optimize'),
+        Uri.parse(ngrok + '/optimize'),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "job_id": jobId,
-          "excel_url": uploadedExcelUrl,
-        }),
+        body: jsonEncode({"job_id": jobId, "excel_url": uploadedExcelUrl}),
       );
 
       if (response.statusCode == 200) {
@@ -332,7 +334,8 @@ class _SchedulePageState extends State<SchedulePage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-                "Algorithm triggered successfully. Job ID: ${responseData['job_id']}"),
+              "Algorithm triggered successfully. Job ID: ${responseData['job_id']}",
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -355,73 +358,127 @@ class _SchedulePageState extends State<SchedulePage>
     }
   }
 
-  // ==================== Nút 3: Generate Schedule Result ====================
-  Future<void> _generateSchedule() async {
-    if (!isAlgorithmSuccess) {
+  // ==================== Nút 3: Dowload schedule ====================
+
+  Future<void> _downloadTodaySchedule() async {
+    try {
+      // Tham chiếu đến file trong bucket tùy chỉnh
+      final fileRef = customStorage.ref().child(
+        'requests_xlsx/Lenh_Dieu_Xe.xlsx',
+      );
+
+      // Lấy URL tải file
+      final downloadUrl = await fileRef.getDownloadURL();
+
+      // Tạo đối tượng AnchorElement để tải file
+      final anchor =
+          html.AnchorElement(href: downloadUrl)
+            ..target = 'blank'
+            ..download = 'Lenh_Dieu_Xe.xlsx';
+      html.document.body!.append(anchor);
+      anchor.click();
+      anchor.remove();
+
+      print('File download initiated.');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Algorithm not successful yet."),
-          backgroundColor: Colors.red,
+          content: Text('Đã tải file Lenh_Dieu_Xe.xlsx về thành công!'),
         ),
       );
-      return;
+    } catch (e) {
+      print('❌ Lỗi khi tải file: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Lỗi khi tải file: $e')));
     }
+  }
 
-    setState(() {
-      isProcessing = true;
-    });
-    // Giả lập gọi backend để tạo schedule
-    await Future.delayed(const Duration(seconds: 2));
-    setState(() {
-      isProcessing = false;
-      isGenerated = true;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Schedule generated successfully!"),
-        backgroundColor: Colors.green,
-      ),
-    );
+  Future<void> _downloadTomorrowRequests(BuildContext context) async {
+    try {
+      // Gọi endpoint của backend để tạo file Excel và đẩy lên Firebase Storage
+      final response = await http.post(
+        Uri.parse(ngrok + '/create_excel'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "day": "tomorrow", // hoặc định dạng ngày bạn muốn
+          "is_recreate": true,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final downloadUrl = responseData['download_url'];
+        // Tạo AnchorElement để tải file trên trình duyệt web
+        final anchor =
+            html.AnchorElement(href: downloadUrl)
+              ..target = 'blank'
+              ..download = 'Lenh_Dieu_xe.xlsx';
+        html.document.body!.append(anchor);
+        anchor.click();
+        anchor.remove();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã tải file thành công!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error creating excel: ${response.body}")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+      );
+      print('Error: $e');
+    }
   }
 
   // ==================== Nút 4: Upload Excel ====================
-Future<void>  _uploadEditedJson() async {
-  // Chọn file Excel (chỉ cho phép .xlsx và .xls)
-  final result = await FilePicker.platform.pickFiles(
-    type: FileType.custom,
-    allowedExtensions: ['xlsx', 'xls'],
-  );
-  if (result == null || result.files.isEmpty) return;
-
-  final Uint8List? fileBytes = result.files.single.bytes;
-  final String fileName = result.files.single.name;
-  if (fileBytes == null) return;
-
-  try {
-    // Upload file Excel lên Firebase Storage (ví dụ: trong thư mục "final_schedule")
-    final firebase_storage.Reference storageRef = customStorage.ref('final_schedule/$fileName');
-
-    await storageRef.putData(
-      fileBytes,
-      firebase_storage.SettableMetadata(
-        contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      ),
+  Future<void> _uploadEditedJson() async {
+    // Chọn tệp Excel (chỉ cho phép .xlsx và .xls)
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['xlsx', 'xls'],
     );
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Excel uploaded successfully"),
-        backgroundColor: Colors.green,
-      ),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Failed to upload Excel: $e"),
-        backgroundColor: Colors.red,
-      ),
-    );
+    if (result == null || result.files.isEmpty) return;
+
+    final Uint8List? fileBytes = result.files.single.bytes;
+    String fileName = result.files.single.name;
+    if (fileBytes == null) return;
+
+    // Đổi tên tệp nếu cần thiết
+    if (fileName.startsWith('output_')) {
+      fileName = 'final_output_${fileName.substring(7)}';
+    }
+
+    try {
+      // Tải tệp Excel lên Firebase Storage trong thư mục "final_schedule"
+      final firebase_storage.Reference storageRef = customStorage.ref(
+        'final_schedule/$fileName',
+      );
+
+      await storageRef.putData(
+        fileBytes,
+        firebase_storage.SettableMetadata(
+          contentType:
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Tệp Excel đã được tải lên thành công"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Tải lên tệp Excel thất bại: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
-}
 
   // ------------------ UI Build ------------------
   @override
@@ -465,7 +522,9 @@ Future<void>  _uploadEditedJson() async {
                                     backgroundColor: Colors.black,
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 24, vertical: 16),
+                                      horizontal: 24,
+                                      vertical: 16,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -475,14 +534,17 @@ Future<void>  _uploadEditedJson() async {
                                 const SizedBox(height: 16),
                                 // Nút trigger thuật toán
                                 ElevatedButton(
-                                  onPressed: (uploadedExcelUrl != null)
-                                      ? _triggerAlgorithm
-                                      : null,
+                                  onPressed:
+                                      (uploadedExcelUrl != null)
+                                          ? _triggerAlgorithm
+                                          : null,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.black,
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 24, vertical: 16),
+                                      horizontal: 24,
+                                      vertical: 16,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -496,34 +558,62 @@ Future<void>  _uploadEditedJson() async {
                       ),
                       const SizedBox(height: 16),
 
-                      // Card Generate Schedule
+                      // Card mới thay thế Generate Schedule
                       _buildCard(
-                        title: "Generate Schedule",
+                        title: "Download Schedules",
                         child: SizedBox(
-                          height: 100,
+                          height: 150,
                           child: Center(
-                            child: ElevatedButton.icon(
-                              onPressed:
-                                  (!isAlgorithmSuccess || isProcessing)
-                                      ? null
-                                      : _generateSchedule,
-                              icon: const Icon(Icons.schedule),
-                              label: isProcessing
-                                  ? const Text("Processing...")
-                                  : const Text("Generate Schedule"),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 24, vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Nút tải về file Excel đơn giao hàng hiện tại
+                                ElevatedButton(
+                                  onPressed:
+                                      _downloadTodaySchedule, // TODO: define function
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.black,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 16,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Tải về file Excel đơn giao hàng hiện tại",
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(height: 16),
+                                // Nút tải file request đơn giao hàng ngày mai
+                                ElevatedButton(
+                                  onPressed:
+                                      () => _downloadTomorrowRequests(
+                                        context,
+                                      ), // TODO: define function
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.black,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 16,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Tải file request đơn giao hàng mới ngày mai",
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
+
                       const SizedBox(height: 16),
 
                       // Khu vực Upload Edited JSON
@@ -538,7 +628,9 @@ Future<void>  _uploadEditedJson() async {
                                 backgroundColor: Colors.black,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 24, vertical: 16),
+                                  horizontal: 24,
+                                  vertical: 16,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -556,32 +648,30 @@ Future<void>  _uploadEditedJson() async {
           ),
 
           // Nửa màn hình phải: Danh sách file Excel với tiêu đề
-Expanded(
-  flex: 1,
-  child: Container(
-    color: Colors.grey.shade50,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-  child: Text(
-    "Các lịch chạy xe dự kiến do thuật toán đưa ra gần đây:",
-    style: TextStyle( // Bạn có thể thay đổi thành Theme.of(context).textTheme.headline6 nếu trong build context
-      fontSize: 24,
-      fontWeight: FontWeight.bold,
-    ),
-  ),
-),
+          Expanded(
+            flex: 1,
+            child: Container(
+              color: Colors.grey.shade50,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Text(
+                      "Các lịch chạy xe dự kiến do thuật toán đưa ra gần đây:",
+                      style: TextStyle(
+                        // Bạn có thể thay đổi thành Theme.of(context).textTheme.headline6 nếu trong build context
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
 
-        const Expanded(
-          child: ExcelFileList(),
-        ),
-      ],
-    ),
-  ),
-),
-
+                  const Expanded(child: ExcelFileList()),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -599,8 +689,7 @@ Expanded(
           children: [
             Text(
               title,
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 8),
             child,
