@@ -19,7 +19,7 @@ class Request:
 
     def gen_id(self):
         # Tạo ID dựa trên date, timeframe, start_place, end_place, weight,...
-        return f"{self.date}-FF{self.timeframe[0]:02d}-FT{self.timeframe[1]:02d}-S{self.start_place[0]:03d}-E{self.end_place[0]:03d}-W{int(self.weight):03d}-{self.staff_id:02d}-{self.split_id:02d}"
+        return f"{self.date}-F{self.timeframe[0]:02d}-T{self.timeframe[1]:02d}-S{self.start_place[0]:03d}-E{self.end_place[0]:03d}-W{int(self.weight):03d}-{self.staff_id:02d}-{self.split_id:02d}"
 
     def to_dict(self):
         return {

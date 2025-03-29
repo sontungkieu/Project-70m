@@ -43,7 +43,7 @@ def load_data_real(
     # Đọc danh sách requests từ JSON
     requests_data = loader.load_requests(file_path=request_file)
     # print(f"requests_data: {requests_data}")
-    divided_mapped_requests, mapping, inverse_mapping = split_requests(requests_data,)
+    divided_mapped_requests, mapping, inverse_mapping, node_id_to_request = split_requests(requests_data,)
     # print(f"divided_mapped_requests: {divided_mapped_requests}")
     # print(f"mapping: {mapping}")
     # print(f"inverse_mapping: {inverse_mapping}")

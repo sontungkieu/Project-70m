@@ -20,7 +20,7 @@ from flask import Flask, jsonify, make_response, request
 from flask_cors import CORS
 
 # Import hàm read_output từ file read_output.py để định dạng lại output
-from utilities.read_output import read_output
+from post_process import read_output
 
 app = Flask(__name__)
 

@@ -6,6 +6,7 @@ from datetime import datetime
 from time import perf_counter
 import psutil
 
+import post_process as post_process
 from utilities.split_data import postprocess_output
 from objects.request import Request
 from sync_staff import initialize_driver_list,initialize_driver_timetable,sample_drivers,copy_driver_data_to_timetable,driver_excel_2_csv
@@ -92,9 +93,8 @@ def read_config(config_filename):
 
 
 def read_output(output_filename):
-    import read_output as read_output
 
-    return read_output.read_and_save_json_output(filename=output_filename)
+    return post_process.read_and_save_json_output(filename=output_filename)
 
 
 def read_requests(config):

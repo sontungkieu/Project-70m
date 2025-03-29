@@ -37,6 +37,7 @@ def split_requests(requests: List[Request], output_file: str = "data/intermediat
     mapping = {0: [0]}
     inverse_mapping = {0: 0}
     new_requests = []
+    node_id_to_request = {}
     
     # Chia nhỏ các request nếu cần
     for i, request in enumerate(requests):
@@ -48,8 +49,7 @@ def split_requests(requests: List[Request], output_file: str = "data/intermediat
             raise ValueError(f"end_place must be a list for request at index {i}")
         
         # print(f"Processing request {i + 1} with weight {request.weight}")
-        split_count = 0
-        
+        split_count = 1
         while request.weight > MIN_CAPACITY:
             # print(f"  Splitting request with weight {request.weight}")
             new_request = Request(
@@ -61,15 +61,14 @@ def split_requests(requests: List[Request], output_file: str = "data/intermediat
                 note=request.note,
                 timeframe=request.timeframe,
                 staff_id=request.staff_id,
-                split_id=1,
+                split_id=request.split_id+split_count,
             )
             new_request.gen_id()
-            # print(new_request)
             new_requests.append(new_request)
             request.weight -= MIN_CAPACITY
             split_count += 1
         new_requests.append(request)
-        if split_count > 0:
+        if split_count > 1:
             # print(f"  Split into {split_count + 1} requests")
             pass
     
@@ -91,6 +90,7 @@ def split_requests(requests: List[Request], output_file: str = "data/intermediat
         
         inverse_mapping[new_node] = end_place_id
         request.end_place[0] = new_node
+        node_id_to_request[request.end_place[0]] = request.to_dict()
         mapped_requests.append(request)
         new_node += 1
     
@@ -102,6 +102,7 @@ def split_requests(requests: List[Request], output_file: str = "data/intermediat
         "mapped_requests": [vars(req) for req in mapped_requests],  # Chuyển Request thành dict
         "mapping": mapping,
         "inverse_mapping": inverse_mapping,
+        "node_id_to_request": node_id_to_request,
     }
     
     # Ghi ra file nếu output_file được cung cấp
@@ -120,7 +121,7 @@ def split_requests(requests: List[Request], output_file: str = "data/intermediat
             raise IOError(f"Error writing to output file: {e}")
     
     print("Request splitting and mapping completed successfully")
-    return mapped_requests, mapping, inverse_mapping
+    return mapped_requests, mapping, inverse_mapping, node_id_to_request
 import json
 import os
 
@@ -168,7 +169,7 @@ def read_mapping(file_path: str = "data/intermediate/mapping.json"):
     mapped_requests = data["mapped_requests"]
     mapping = data["mapping"]
     inverse_mapping = data["inverse_mapping"]
-    
+    node_id_to_request = data.get("node_id_to_request", {})
     if not isinstance(mapped_requests, list):
         raise ValueError(f"'mapped_requests' must be a list, got {type(mapped_requests)}")
     if not isinstance(mapping, dict):
@@ -186,7 +187,7 @@ def read_mapping(file_path: str = "data/intermediate/mapping.json"):
         print(f"Warning: Mapping size ({len(mapping)}) does not match inverse mapping size ({len(inverse_mapping)})")
     
     print("Mapping file processing completed successfully")
-    return mapped_requests, mapping, inverse_mapping
+    return mapped_requests, mapping, inverse_mapping, node_id_to_request
 
 def postprocess_output(output_file: str = "data/test/output_2025-03-20_15-19-42.json", 
                       mapping_file: str = "data/intermediate/mapping.json",
