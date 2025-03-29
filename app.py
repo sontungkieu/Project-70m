@@ -339,60 +339,55 @@ def update_delivery_status():
 from config import DATES
 from initExcel import init_excel
 
-def push_excel_to_storage(file_path):
-    """
-    Đẩy file Excel lên Firebase Storage, vào thư mục 'initexcel'.
-    """
-    # Lấy tên file từ đường dẫn
-    file_name = os.path.basename(file_path)
+# def push_excel_to_storage(file_path):
+#     """
+#     Đẩy file Excel lên Firebase Storage, vào thư mục 'initexcel'.
+#     """
+#     # Lấy tên file từ đường dẫn
+#     file_name = os.path.basename(file_path)
 
-    # Lấy bucket mặc định
-    bucket = firebase_admin.storage.bucket()
+#     # Lấy bucket mặc định
+#     bucket = firebase_admin.storage.bucket()
 
-    # Tạo blob với đường dẫn: initexcel/ + tên file
-    blob = bucket.blob(f"initexcel/{file_name}")
+#     # Tạo blob với đường dẫn: initexcel/ + tên file
+#     blob = bucket.blob(f"initexcel/{file_name}")
 
-    # Upload file
-    blob.upload_from_filename(
-        file_path,
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-    print(f"✅ Đã upload '{file_name}' lên thư mục 'initexcel' trong Firebase Storage.")
+#     # Upload file
+#     blob.upload_from_filename(
+#         file_path,
+#         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+#     )
+#     print(f"✅ Đã upload '{file_name}' lên thư mục 'initexcel' trong Firebase Storage.")
 
-@app.route("/create_excel", methods=["POST", "OPTIONS"])
-def create_excel():
-    # Xử lý preflight request cho CORS
-    if request.method == "OPTIONS":
-        response = make_response()
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add(
-            "Access-Control-Allow-Headers", "Content-Type,Authorization"
-        )
-        response.headers.add("Access-Control-Allow-Methods", "POST,OPTIONS")
-        return response, 200
+# @app.route("/create_excel", methods=["POST", "OPTIONS"])
+# def create_excel():
+#     # Xử lý preflight request cho CORS
+#     if request.method == "OPTIONS":
+#         response = make_response()
+#         response.headers.add("Access-Control-Allow-Origin", "*")
+#         response.headers.add(
+#             "Access-Control-Allow-Headers", "Content-Type,Authorization"
+#         )
+#         response.headers.add("Access-Control-Allow-Methods", "POST,OPTIONS")
+#         return response, 200
 
-    # (Tùy chọn) Xác thực người dùng
-    user = verify_firebase_token(request)
-    if not user:
-        return jsonify({"error": "Unauthorized"}), 401
-
-    data = request.json or {}
-    # Lấy các tham số nếu có: day và is_recreate
+#     data = request.json or {}
+#     # Lấy các tham số nếu có: day và is_recreate
     
-    day = data.get("day")  # nếu không cung cấp, init_excel sẽ dùng giá trị mặc định
-    is_recreate = data.get("is_recreate", False)
+#     day = data.get("day")  # nếu không cung cấp, init_excel sẽ dùng giá trị mặc định
+#     is_recreate = data.get("is_recreate", False)
 
-    try:
-        # Gọi hàm init_excel để tạo file Excel
-        if day:
-            result_message = init_excel(day=day, is_recreate=is_recreate)
-        else:
-            for i in range(len(DATES)):
-                result_message = init_excel(day=DATES[i], is_recreate= bool(i==0))
-            push_excel_to_storage("data\input\Lenh_Dieu_xe.xlsx")
-        return jsonify({"message": result_message}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+#     try:
+#         # Gọi hàm init_excel để tạo file Excel
+#         if day:
+#             result_message = init_excel(day=day, is_recreate=is_recreate)
+#         else:
+#             for i in range(len(DATES)):
+#                 result_message = init_excel(day=DATES[i], is_recreate= bool(i==0))
+#             push_excel_to_storage("data\input\Lenh_Dieu_xe.xlsx")
+#         return jsonify({"message": result_message}), 200
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
  
 
     
@@ -404,7 +399,67 @@ def create_excel():
 @app.route("/")
 def index():
     return "API is running", 200
+import os
+import datetime
+import firebase_admin
+from firebase_admin import storage
+from flask import request, jsonify, make_response
 
+# Ví dụ: file local là "data/input/Lenh_Dieu_xe.xlsx"
+def push_excel_to_storage(file_name):
+    """
+    Đẩy file Excel lên Firebase Storage và trả về download URL.
+    Tham số file_name nên là phần đường dẫn bên trong thư mục "data", ví dụ "input/Lenh_Dieu_xe.xlsx".
+    """
+    # Tạo đường dẫn file local: "data/input/Lenh_Dieu_xe.xlsx"
+    local_file_path = os.path.join("data", file_name)
+    
+    # Lấy bucket mặc định (đã khởi tạo Firebase Admin)
+    bucket = firebase_admin.storage.bucket()
+    
+    # Lấy tên file cơ bản để lưu trong Storage, ví dụ "Lenh_Dieu_xe.xlsx"
+    blob = bucket.blob(f"excel/{os.path.basename(file_name)}")
+    
+    # Upload file lên Firebase Storage
+    blob.upload_from_filename(
+        local_file_path,
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    print(f"File {file_name} uploaded to Firebase Storage.")
+    
+    # Tạo download URL có hiệu lực 1 giờ
+    download_url = blob.generate_signed_url(datetime.timedelta(hours=1))
+    return download_url
+
+@app.route("/create_excel", methods=["POST", "OPTIONS"])
+def create_excel():
+    # Xử lý preflight request cho CORS
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "POST,OPTIONS")
+        return response, 200
+
+
+    data = request.json or {}
+    day = data.get("day")  # nếu có, dùng để tạo file theo ngày
+    is_recreate = data.get("is_recreate", False)
+
+    try:
+        # Gọi hàm tạo file Excel
+        if day:
+            result_message = init_excel(day=day, is_recreate=is_recreate)
+        else:
+            for i in range(len(DATES)):
+                result_message = init_excel(day=DATES[i], is_recreate=(i==0))
+        
+        # Upload file lên Firebase Storage và nhận download URL
+        # Lưu ý: Vì file local là "data/input/Lenh_Dieu_xe.xlsx", nên gọi push_excel_to_storage với "input/Lenh_Dieu_xe.xlsx"
+        download_url = push_excel_to_storage("input/Lenh_Dieu_Xe.xlsx")
+        return jsonify({"message": result_message, "download_url": download_url}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/robots.txt")
 def robots_txt():
