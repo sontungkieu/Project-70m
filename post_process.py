@@ -160,7 +160,7 @@ def read_json_output_file(filename, output_dir="data/output_excel"):
         filename: đường dẫn file JSON đầu vào.
         output_dir: đường dẫn thư mục để lưu file Excel đầu ra. Nếu không truyền vào, sẽ dùng thư mục mặc định.
     """
-    script_dir = os.path.dirname(_file_)
+    script_dir = os.path.dirname(__file__)
     print(f"[DEBUG] Bắt đầu đọc file JSON: {filename}")
 
     with open(filename, 'r', encoding='utf-8') as f:

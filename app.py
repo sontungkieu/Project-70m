@@ -10,7 +10,7 @@ import psutil
 from firebase_admin import auth, credentials, firestore, messaging, storage
 from flask import Flask, jsonify, make_response, request
 from flask_cors import CORS
-from post_process import read_and_save_json_output, read_output
+from post_process import read_and_save_json_output, read_json_output_file
 
 app = Flask(__name__)
 # ---------------------------------------------------------------------------
@@ -284,7 +284,7 @@ def run_pipeline(job_id):
 
     # Bước 3: Chạy thuật toán OR-Tools và ghi kết quả vào file output_{job_id}.json
     tstart = perf_counter()
-    output_file = f"data/output_{job_id}.json"
+    output_file = f"data/output/output_{job_id}.txt"
     with open(output_file, "w", encoding="utf-8") as out_f:
         process = subprocess.Popen(["python", "engine1_lean.py"], stdout=out_f)
         memory_usage = 0
@@ -298,18 +298,17 @@ def run_pipeline(job_id):
     run_time = perf_counter() - tstart
 
     # Bước 4: Định dạng lại output, bổ sung execution_time và finished_at
-    full_results = read_output(output_file)
+    full_results = read_and_save_json_output(output_file)
     if full_results is None:
         raise Exception("Failed to parse output file using read_output.")
-    finished_at = datetime.now(timezone.utc).isoformat()
+    # finished_at = datetime.now(timezone.utc).isoformat()
     # Vì full_results là một dict với key là ngày, ta duyệt theo items:
-    for date, vehicles in full_results.items():
-        for vehicle in vehicles:
-            vehicle["execution_time"] = f"{run_time:.2f} s"
-            vehicle["finished_at"] = finished_at
+    # for date, vehicles in full_results.items():
+    #     for vehicle in vehicles:
+    #         vehicle["execution_time"] = f"{run_time:.2f} s"
+    #         vehicle["finished_at"] = finished_at
 
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(full_results, f, ensure_ascii=False, indent=2)
+
 
     # --- BẮC 5: Lưu JSON output vào Firestore ---
     # Chuyển full_results (cấu trúc theo ngày) thành danh sách các request tuyến đường
@@ -323,7 +322,7 @@ def run_pipeline(job_id):
     # File Excel sẽ được lưu vào thư mục "data/output_excel"
     output_excel_dir = "data/output_excel"
     os.makedirs(output_excel_dir, exist_ok=True)
-    read_and_save_json_output(filename=output_file)
+    read_json_output_file(filename=output_file)
 
     # --- BẮC 7: Đẩy file Excel lên Firebase Storage ---
     # Lấy danh sách tất cả file Excel vừa được tạo
