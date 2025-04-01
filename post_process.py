@@ -68,7 +68,6 @@ def read_output(filename):
             })
 
         json_data[day] = json_day
-
     return json_data
 
 def read_and_save_json_output(
@@ -98,5 +97,5 @@ if __name__ == "__main__":
     # output = read_output(filename=filename)
     # print(output)
     # read_output(filename="data/output/2025-03-29_22-01-18.txt")
-    # read_and_save_json_output(filename="data/output/2025-03-29_22-01-18.txt")
     read_output(filename = r"data\output\2025-03-30_00-52-50.txt")
+    read_and_save_json_output(filename=r"data\output\2025-03-30_00-52-50.txt")
