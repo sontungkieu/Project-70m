@@ -312,10 +312,10 @@ def run_pipeline(job_id):
 
     # --- BẮC 5: Lưu JSON output vào Firestore ---
     # Chuyển full_results (cấu trúc theo ngày) thành danh sách các request tuyến đường
-    requests_list = flatten_output_json(full_results)
-    print("DEBUG requests_list =", requests_list)
+    # requests_list = flatten_output_json(full_results)
+    # print("DEBUG requests_list =", requests_list)
     # Hàm save_to_firestore đã được định nghĩa sẵn (tham khảo code của bạn)
-    save_to_firestore(job_id, requests_list)    
+    # save_to_firestore(job_id, requests_list)    
 
     # --- BẮC 6: Chuyển JSON thành file Excel ---
     # Sử dụng hàm read_json_output_file từ post_process để xuất file Excel theo cấu trúc mong muốn
