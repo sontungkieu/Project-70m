@@ -204,7 +204,7 @@ def process_destinations(input_csv, output_csv):
 def update_map_helper(origin_ids, destination_ids):
     matrix = []
     with open(
-        r"data\distance_matrix.csv",
+        os.path.join("data","distance_matrix.csv"),
         mode="r",
         encoding="utf-8",
         errors="replace",
@@ -227,4 +227,4 @@ def update_map_helper(origin_ids, destination_ids):
 # update_map_helper(None,None)
 
 
-# process_destinations(r"data\destinations.csv", r"data\distance_matrix.csv")
+process_destinations(r"data/destinations.csv", r"data/distance_matrix.csv")
