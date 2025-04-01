@@ -15,7 +15,7 @@ def read_output(filename):
     output = output.split("\n---")  # tách các ngày
     days = []
     json_data = {}
-    for day_info in output[1:-2]:
+    for day_info in output[1:]:
         print("*"*20)
         day = day_info[:100].split()[1]
         print("*"*20)
