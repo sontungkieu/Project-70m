@@ -10,7 +10,7 @@ import psutil
 from firebase_admin import auth, credentials, firestore, messaging, storage
 from flask import Flask, jsonify, make_response, request
 from flask_cors import CORS
-from post_process import read_and_save_json_output, read_json_output_file
+from post_process import *
 
 app = Flask(__name__)
 # ---------------------------------------------------------------------------
@@ -315,14 +315,14 @@ def run_pipeline(job_id):
     requests_list = flatten_output_json(full_results)
     print("DEBUG requests_list =", requests_list)
     # Hàm save_to_firestore đã được định nghĩa sẵn (tham khảo code của bạn)
-    save_to_firestore(job_id, requests_list)
+    save_to_firestore(job_id, requests_list)    
 
     # --- BẮC 6: Chuyển JSON thành file Excel ---
     # Sử dụng hàm read_json_output_file từ post_process để xuất file Excel theo cấu trúc mong muốn
     # File Excel sẽ được lưu vào thư mục "data/output_excel"
     output_excel_dir = "data/output_excel"
     os.makedirs(output_excel_dir, exist_ok=True)
-    read_json_output_file(filename=output_file)
+    read_json_output_file(filename=r"D:\Project 70\Project-70m\data\test\2025-02-19_00-00-00.json")
 
     # --- BẮC 7: Đẩy file Excel lên Firebase Storage ---
     # Lấy danh sách tất cả file Excel vừa được tạo
