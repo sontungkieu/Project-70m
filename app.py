@@ -10,7 +10,7 @@ import psutil
 from firebase_admin import auth, credentials, firestore, messaging, storage
 from flask import Flask, jsonify, make_response, request
 from flask_cors import CORS
-from post_process import read_json_output_file, read_output
+from post_process import read_and_save_json_output, read_output
 
 app = Flask(__name__)
 # ---------------------------------------------------------------------------
@@ -136,40 +136,36 @@ def save_to_firestore(job_id, requests_list):
         }, merge=True)
 
 def flatten_output_json(output_data):
-    """
-    Chuyển cấu trúc JSON gốc từ engine -> danh sách các request tuyến đường.
-    Mỗi request trong list có đầy đủ request_id, staff_id, date, vehicle_id...
-    """
     requests_list = []
-    for date, vehicles in output_data.items():
-        # Kiểm tra vehicles có phải list không
-        if not isinstance(vehicles, list):
-            print(f"[WARNING] Giá trị cho ngày {date} không phải là list: {vehicles}")
-            continue
+    # output_data là dict: {"27.03.2025": [vehicle, vehicle, ...], "28.03.2025": [...], ...}
+    for date_str, vehicles in output_data.items():
         for vehicle in vehicles:
-            # Chỉ xử lý nếu vehicle là dict
-            if not isinstance(vehicle, dict):
-                print(f"[WARNING] Bỏ qua vehicle không phải dict: {vehicle}")
-                continue
-            # Lấy danh sách tuyến từ key "list_of_route"
-            routes = vehicle.get("list_of_route", [])
-            # Nếu routes không phải list, chuyển về list rỗng
-            if not isinstance(routes, list):
-                print(f"[WARNING] routes của vehicle {vehicle.get('vehicle_id')} không phải list: {routes}")
-                routes = []
-            for route in routes:
-                if not isinstance(route, dict):
-                    print(f"[WARNING] Bỏ qua route không phải dict: {route}")
+            routes = vehicle.get("routes", [])
+            for rt in routes:
+                request_info = rt.get("request")
+                if not request_info:
+                    # route không có trường 'request' => bỏ qua
                     continue
-                if "request_id" not in route:
-                    continue  # Bỏ qua nếu không có request_id
-                # Gán ngày vào route
-                route["date"] = date
-                # Nếu cần bổ sung thông tin vehicle_id, có thể làm ở đây:
-                if "vehicle_id" not in route and "vehicle_id" in vehicle:
-                    route["vehicle_id"] = vehicle["vehicle_id"]
-                requests_list.append(route)
+                request_id = request_info.get("request_id")
+                if not request_id:
+                    # request_info không có request_id => bỏ qua
+                    continue
+
+                # Chép request_id lên top-level
+                rt["request_id"] = request_id  
+                # staff_id, weight, timeframe, v.v. tùy bạn muốn copy field nào
+                rt["staff_id"] = request_info.get("staff_id")
+                # ... (copy thêm những gì bạn cần)
+
+                # Thêm ngày
+                rt["date"] = date_str
+                # Thêm vehicle_id nếu cần:
+                rt["vehicle_id"] = vehicle.get("vehicle_id", None)
+
+                requests_list.append(rt)
+
     return requests_list
+
 
 
 
@@ -318,6 +314,7 @@ def run_pipeline(job_id):
     # --- BẮC 5: Lưu JSON output vào Firestore ---
     # Chuyển full_results (cấu trúc theo ngày) thành danh sách các request tuyến đường
     requests_list = flatten_output_json(full_results)
+    print("DEBUG requests_list =", requests_list)
     # Hàm save_to_firestore đã được định nghĩa sẵn (tham khảo code của bạn)
     save_to_firestore(job_id, requests_list)
 
@@ -326,7 +323,7 @@ def run_pipeline(job_id):
     # File Excel sẽ được lưu vào thư mục "data/output_excel"
     output_excel_dir = "data/output_excel"
     os.makedirs(output_excel_dir, exist_ok=True)
-    read_json_output_file(filename=output_file, output_dir=output_excel_dir)
+    read_and_save_json_output(filename=output_file)
 
     # --- BẮC 7: Đẩy file Excel lên Firebase Storage ---
     # Lấy danh sách tất cả file Excel vừa được tạo
