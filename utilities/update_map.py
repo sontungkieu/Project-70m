@@ -62,3 +62,5 @@ def update_map(requests, mapping, inverse_mapping):
             new_distance_matrix[i][j] = int(float(orig_distance_matrix[orig_i][orig_j])*DISTANCE_SCALE) if orig_i != orig_j else 0
     # print(f"update_map:new_distance_matrix: {new_distance_matrix}")
     return new_distance_matrix
+
+
