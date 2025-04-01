@@ -2,7 +2,7 @@ import json
 import os
 import subprocess
 import urllib.parse
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta  
 import glob
 from time import perf_counter
 import firebase_admin
@@ -141,17 +141,36 @@ def flatten_output_json(output_data):
     Mỗi request trong list có đầy đủ request_id, staff_id, date, vehicle_id...
     """
     requests_list = []
-    for day in output_data:
-        date = day.get("date")
-        vehicles = day.get("vehicles", {})
-        for vehicle_id, vehicle_data in vehicles.items():
-            for route in vehicle_data.get("list_of_route", []):
+    for date, vehicles in output_data.items():
+        # Kiểm tra vehicles có phải list không
+        if not isinstance(vehicles, list):
+            print(f"[WARNING] Giá trị cho ngày {date} không phải là list: {vehicles}")
+            continue
+        for vehicle in vehicles:
+            # Chỉ xử lý nếu vehicle là dict
+            if not isinstance(vehicle, dict):
+                print(f"[WARNING] Bỏ qua vehicle không phải dict: {vehicle}")
+                continue
+            # Lấy danh sách tuyến từ key "list_of_route"
+            routes = vehicle.get("list_of_route", [])
+            # Nếu routes không phải list, chuyển về list rỗng
+            if not isinstance(routes, list):
+                print(f"[WARNING] routes của vehicle {vehicle.get('vehicle_id')} không phải list: {routes}")
+                routes = []
+            for route in routes:
+                if not isinstance(route, dict):
+                    print(f"[WARNING] Bỏ qua route không phải dict: {route}")
+                    continue
                 if "request_id" not in route:
                     continue  # Bỏ qua nếu không có request_id
+                # Gán ngày vào route
                 route["date"] = date
-                route["vehicle_id"] = vehicle_id
+                # Nếu cần bổ sung thông tin vehicle_id, có thể làm ở đây:
+                if "vehicle_id" not in route and "vehicle_id" in vehicle:
+                    route["vehicle_id"] = vehicle["vehicle_id"]
                 requests_list.append(route)
     return requests_list
+
 
 
 
@@ -287,9 +306,11 @@ def run_pipeline(job_id):
     if full_results is None:
         raise Exception("Failed to parse output file using read_output.")
     finished_at = datetime.now(timezone.utc).isoformat()
-    for day_result in full_results:
-        day_result["execution_time"] = f"{run_time:.2f} s"
-        day_result["finished_at"] = finished_at
+    # Vì full_results là một dict với key là ngày, ta duyệt theo items:
+    for date, vehicles in full_results.items():
+        for vehicle in vehicles:
+            vehicle["execution_time"] = f"{run_time:.2f} s"
+            vehicle["finished_at"] = finished_at
 
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(full_results, f, ensure_ascii=False, indent=2)
@@ -481,7 +502,7 @@ def push_excel_to_storage2(file_path):
 
 #     except Exception as e:
 #         return jsonify({"error": str(e)}), 500
-import datetime  # Thêm import datetime nếu chưa có
+ # Thêm import datetime nếu chưa có
 
 @app.route("/create_excel", methods=["POST", "OPTIONS"])
 def create_excel():
