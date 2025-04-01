@@ -48,7 +48,7 @@ def run_engine1(re_run=False):
         config_filename, "wb"
     ) as config_file:
         process = subprocess.Popen(
-            ["python", "engine1_lean.py"],
+            ["python3", "engine1_lean.py"],
             stdout=stdout_file,
             stderr=config_file,
         )
@@ -208,15 +208,16 @@ if __name__ == "__main__":
     # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[0])
     # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[1])
     # requests = excel_to_requests_and_save(file_path="data/input/Lenh_Dieu_Xe.xlsx", sheet_name=DATES[2])
-    # for day in DATES:
-    #     driver_excel_2_csv(
-    #         excel_file="data/input/Lenh_Dieu_Xe.xlsx",
-    #         sheet_name="Tai_Xe",
-    #         json_file="data/drivers.json",
-    #         is_check_driver_availability=True,
-    #         checkday=day,
-    #     )
+    for day in DATES:
+        driver_excel_2_csv(
+            excel_file="data/input/Lenh_Dieu_Xe.xlsx",
+            sheet_name="Tai_Xe",
+            json_file="data/drivers.json",
+            is_check_driver_availability=True,
+            checkday=day,
+        )
     # recompute map
+    # from utilities.map.main_get_distances import process_destinations
     # process_destinations(r"data\destinations.csv", r"data\distance_matrix.csv")
 
     (

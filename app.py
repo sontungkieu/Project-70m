@@ -2,37 +2,28 @@ import json
 import os
 import subprocess
 import urllib.parse
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta  
+import glob
 from time import perf_counter
-
 import firebase_admin
 import psutil
-
-# Các import liên quan tới firebase và firestore, FCM, v.v.
-from firebase_admin import auth, credentials, firestore, messaging
-
-# # ---------------------------------------------------------------------------
-# # CHẠY APP
-# # ---------------------------------------------------------------------------
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=8080)
+from firebase_admin import auth, credentials, firestore, messaging, storage
 from flask import Flask, jsonify, make_response, request
 from flask_cors import CORS
-
-# Import hàm read_output từ file read_output.py để định dạng lại output
-from post_process import read_output
+from post_process import read_and_save_json_output, read_output
 
 app = Flask(__name__)
-
 # ---------------------------------------------------------------------------
 # 1) KHỞI ĐỘNG FIREBASE ADMIN
 # ---------------------------------------------------------------------------
 cred = credentials.Certificate("firebase-key.json")
-firebase_admin.initialize_app(cred)
+firebase_admin.initialize_app(cred, {
+    'storageBucket': 'logistic-project-30dcd.firebasestorage.app'
+})
 db = firestore.client()
-CORS(app)  # Cho phép CORS cho tất cả các domain
+CORS(app) 
 
-
+######################################################################################################################################
 # ---------------------------------------------------------------------------
 # 2) XÁC THỰC FIREBASE ID TOKEN (nếu cần)
 # ---------------------------------------------------------------------------
@@ -46,8 +37,6 @@ def verify_firebase_token(req):
         return decoded_token
     except Exception:
         return None
-
-
 # ---------------------------------------------------------------------------
 # 3) API: LƯU THÔNG TIN NGƯỜI DÙNG (ví dụ cho profile)
 # ---------------------------------------------------------------------------
@@ -67,8 +56,6 @@ def save_user_info():
         return jsonify({"message": "User info saved"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
-
 # ---------------------------------------------------------------------------
 # 4) API: GỬI THÔNG BÁO FCM
 # ---------------------------------------------------------------------------
@@ -106,9 +93,10 @@ def send_notification():
         jsonify({"message": f"Notification sent to {response.success_count} drivers"}),
         200,
     )
+########################################################################################################################################
 
-
-# 5) HÀM: LƯU KẾT QUẢ VÀO FIRESTORE
+# ---------------------------------------------------------------------------
+# 5) HÀM: LƯU KẾT QUẢ VÀO FIRESTORE và hàm chuyển đổi flatten
 # ---------------------------------------------------------------------------
 def save_to_firestore(job_id, requests_list):
     """
@@ -147,27 +135,147 @@ def save_to_firestore(job_id, requests_list):
             "last_update": finished_at
         }, merge=True)
 
+def flatten_output_json(output_data):
+    requests_list = []
+    # output_data là dict: {"27.03.2025": [vehicle, vehicle, ...], "28.03.2025": [...], ...}
+    for date_str, vehicles in output_data.items():
+        for vehicle in vehicles:
+            routes = vehicle.get("routes", [])
+            for rt in routes:
+                request_info = rt.get("request")
+                if not request_info:
+                    # route không có trường 'request' => bỏ qua
+                    continue
+                request_id = request_info.get("request_id")
+                if not request_id:
+                    # request_info không có request_id => bỏ qua
+                    continue
+
+                # Chép request_id lên top-level
+                rt["request_id"] = request_id  
+                # staff_id, weight, timeframe, v.v. tùy bạn muốn copy field nào
+                rt["staff_id"] = request_info.get("staff_id")
+                # ... (copy thêm những gì bạn cần)
+
+                # Thêm ngày
+                rt["date"] = date_str
+                # Thêm vehicle_id nếu cần:
+                rt["vehicle_id"] = vehicle.get("vehicle_id", None)
+
+                requests_list.append(rt)
+
+    return requests_list
+
+
+
 
 
 # ---------------------------------------------------------------------------
 # 6) HÀM: CHẠY PIPELINE (tải Excel → chuyển Excel thành JSON → chạy thuật toán)
 # ---------------------------------------------------------------------------
+# def run_pipeline(job_id):
+#     """
+#     Pipeline thực hiện các bước:
+    
+#       1. Tải file Excel xuống (script Get_data_from_storage.py sẽ đọc file data/excel_info.json)
+#       2. Chuyển Excel thành JSON qua read_excel.py.
+#       3. Chạy thuật toán OR-Tools qua engine1_lean.py.
+#       4. Định dạng lại output, bổ sung execution_time và finished_at.
+#       5. Chuyển json thành file excel
+#       6. Đẩy file excel lên storage
+#       7. Lấy file excel đã sửa bởi nhân viên điều xe
+#       8. chuyển file excel sang json
+#       9a. accept_accumulated_distance
+#       9b. lưu vào firestore
+    
+#     """
+#     # Bước 1: Tải file Excel xuống
+#     subprocess.run(["python", "Get_data_from_storage.py"], check=True)
+
+#     # Bước 2: Chuyển đổi Excel sang JSON
+#     subprocess.run(["python", "read_excel.py"], check=True)
+
+#     # Bước 3: Chạy thuật toán OR-Tools và ghi kết quả vào file output_{job_id}.json
+#     tstart = perf_counter()
+#     output_file = f"data/output_{job_id}.json"
+#     with open(output_file, "w", encoding="utf-8") as out_f:
+#         process = subprocess.Popen(
+#             ["python", "engine1_lean.py"], stdout=out_f
+#         )
+#         memory_usage = 0
+#         while process.poll() is None:
+#             try:
+#                 info = psutil.Process(process.pid).memory_info()
+#                 memory_usage = max(memory_usage, info.rss)
+#             except psutil.NoSuchProcess:
+#                 break
+#         process.wait()
+#     run_time = perf_counter() - tstart
+
+#     # Bước 4: Định dạng lại output
+#     full_results = read_output(output_file)
+#     if full_results is None:
+#         raise Exception("Failed to parse output file using read_output.")
+#     finished_at = datetime.now(timezone.utc).isoformat()
+#     for day_result in full_results:
+#         day_result["execution_time"] = f"{run_time:.2f} s"
+#         day_result["finished_at"] = finished_at
+
+#     with open(output_file, "w", encoding="utf-8") as f:
+#         json.dump(full_results, f, ensure_ascii=False, indent=2)
+
+#     # Bước 5: Tạo dict vehicles_data từ full_results
+#     vehicles_data = {}
+#     for day_result in full_results:
+#         vehicles = day_result.get("vehicles", {})
+#         for drv_id, drv_info in vehicles.items():
+#             if drv_id not in vehicles_data:
+#                 vehicles_data[drv_id] = {
+#                     "distance_of_route": drv_info.get("distance_of_route", 0),
+#                     "list_of_route": drv_info.get("list_of_route", []),
+#                 }
+#             else:
+#                 vehicles_data[drv_id]["distance_of_route"] += drv_info.get(
+#                     "distance_of_route", 0
+#                 )
+#                 vehicles_data[drv_id]["list_of_route"].extend(
+#                     drv_info.get("list_of_route", [])
+#                 )
+
+#     # Bước 6: Lưu kết quả vào Firestore
+#     save_to_firestore(job_id, vehicles_data)
+#     return run_time, memory_usage
+def push_excel_to_storage1(file_path):
+    """Đẩy file Excel lên Firebase Storage, vào thư mục 'initexcel'."""
+    # Tên file
+    file_name = os.path.basename(file_path)
+
+    # Lấy bucket mặc định (đã initialize_app ở trên)
+    bucket = storage.bucket()
+
+    # Đường dẫn = initexcel/<tên_file>
+    blob = bucket.blob(f"expect_schedule/{file_name}")
+
+    # Upload file
+    blob.upload_from_filename(
+        file_path,
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    print(f"✅ Đã upload '{file_name}' lên 'initexcel' trong Firebase Storage.")
+
 def run_pipeline(job_id):
     """
     Pipeline thực hiện các bước:
-    
       1. Tải file Excel xuống (script Get_data_from_storage.py sẽ đọc file data/excel_info.json)
       2. Chuyển Excel thành JSON qua read_excel.py.
       3. Chạy thuật toán OR-Tools qua engine1_lean.py.
       4. Định dạng lại output, bổ sung execution_time và finished_at.
-      5. Chuyển json thành file excel
-      6. Đẩy lên storage
-      7. Lấy file excel đã sửa bởi nhân viên điều xe
-      8. chuyển file excel sang json
-      9a. accept_accumulated_distance
-      9b. lưu vào firestore
-    
+      5. Chuyển JSON thành file Excel.
+      6. Đẩy file Excel lên Storage.
+      
+      (Các bước 7,8,9a,9b chưa được thực hiện.)
     """
+
     # Bước 1: Tải file Excel xuống
     subprocess.run(["python", "Get_data_from_storage.py"], check=True)
 
@@ -178,9 +286,7 @@ def run_pipeline(job_id):
     tstart = perf_counter()
     output_file = f"data/output_{job_id}.json"
     with open(output_file, "w", encoding="utf-8") as out_f:
-        process = subprocess.Popen(
-            ["python", "engine1_lean.py"], stdout=out_f
-        )
+        process = subprocess.Popen(["python", "engine1_lean.py"], stdout=out_f)
         memory_usage = 0
         while process.poll() is None:
             try:
@@ -191,40 +297,46 @@ def run_pipeline(job_id):
         process.wait()
     run_time = perf_counter() - tstart
 
-    # Bước 4: Định dạng lại output
+    # Bước 4: Định dạng lại output, bổ sung execution_time và finished_at
     full_results = read_output(output_file)
     if full_results is None:
         raise Exception("Failed to parse output file using read_output.")
     finished_at = datetime.now(timezone.utc).isoformat()
-    for day_result in full_results:
-        day_result["execution_time"] = f"{run_time:.2f} s"
-        day_result["finished_at"] = finished_at
+    # Vì full_results là một dict với key là ngày, ta duyệt theo items:
+    for date, vehicles in full_results.items():
+        for vehicle in vehicles:
+            vehicle["execution_time"] = f"{run_time:.2f} s"
+            vehicle["finished_at"] = finished_at
 
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(full_results, f, ensure_ascii=False, indent=2)
 
-    # Bước 5: Tạo dict vehicles_data từ full_results
-    vehicles_data = {}
-    for day_result in full_results:
-        vehicles = day_result.get("vehicles", {})
-        for drv_id, drv_info in vehicles.items():
-            if drv_id not in vehicles_data:
-                vehicles_data[drv_id] = {
-                    "distance_of_route": drv_info.get("distance_of_route", 0),
-                    "list_of_route": drv_info.get("list_of_route", []),
-                }
-            else:
-                vehicles_data[drv_id]["distance_of_route"] += drv_info.get(
-                    "distance_of_route", 0
-                )
-                vehicles_data[drv_id]["list_of_route"].extend(
-                    drv_info.get("list_of_route", [])
-                )
+    # --- BẮC 5: Lưu JSON output vào Firestore ---
+    # Chuyển full_results (cấu trúc theo ngày) thành danh sách các request tuyến đường
+    requests_list = flatten_output_json(full_results)
+    print("DEBUG requests_list =", requests_list)
+    # Hàm save_to_firestore đã được định nghĩa sẵn (tham khảo code của bạn)
+    save_to_firestore(job_id, requests_list)
 
-    # Bước 6: Lưu kết quả vào Firestore
-    save_to_firestore(job_id, vehicles_data)
+    # --- BẮC 6: Chuyển JSON thành file Excel ---
+    # Sử dụng hàm read_json_output_file từ post_process để xuất file Excel theo cấu trúc mong muốn
+    # File Excel sẽ được lưu vào thư mục "data/output_excel"
+    output_excel_dir = "data/output_excel"
+    os.makedirs(output_excel_dir, exist_ok=True)
+    read_and_save_json_output(filename=output_file)
+
+    # --- BẮC 7: Đẩy file Excel lên Firebase Storage ---
+    # Lấy danh sách tất cả file Excel vừa được tạo
+    excel_files = glob.glob(os.path.join(output_excel_dir, "*.xlsx"))
+    # uploaded_urls = []
+    for file_path in excel_files:
+        # Sử dụng hàm push_excel_to_storage1 đã định nghĩa sẵn (nếu cần, bạn có thể thay bằng push_excel_to_storage2)
+        push_excel_to_storage1(file_path)
+        # Sau khi upload, lấy blob và tạo signed URL (ví dụ 1 giờ hiệu lực)
+        # blob = storage.bucket().blob(f"initexcel/{os.path.basename(file_path)}")
+        # url = blob.generate_signed_url(timedelta(hours=1))
+        # uploaded_urls.append(url)
     return run_time, memory_usage
-
 
 # ---------------------------------------------------------------------------
 # 7) API /optimize: CHẠY PIPELINE, GHI excel_url, GỬI THÔNG BÁO FCM & TRẢ KẾT QUẢ
@@ -339,25 +451,26 @@ def update_delivery_status():
 from config import DATES
 from initExcel import init_excel
 
-# def push_excel_to_storage(file_path):
-#     """
-#     Đẩy file Excel lên Firebase Storage, vào thư mục 'initexcel'.
-#     """
-#     # Lấy tên file từ đường dẫn
-#     file_name = os.path.basename(file_path)
+import os
 
-#     # Lấy bucket mặc định
-#     bucket = firebase_admin.storage.bucket()
+def push_excel_to_storage2(file_path):
+    """Đẩy file Excel lên Firebase Storage, vào thư mục 'initexcel'."""
+    # Tên file
+    file_name = os.path.basename(file_path)
 
-#     # Tạo blob với đường dẫn: initexcel/ + tên file
-#     blob = bucket.blob(f"initexcel/{file_name}")
+    # Lấy bucket mặc định (đã initialize_app ở trên)
+    bucket = storage.bucket()
 
-#     # Upload file
-#     blob.upload_from_filename(
-#         file_path,
-#         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-#     )
-#     print(f"✅ Đã upload '{file_name}' lên thư mục 'initexcel' trong Firebase Storage.")
+    # Đường dẫn = initexcel/<tên_file>
+    blob = bucket.blob(f"initexcel/{file_name}")
+
+    # Upload file
+    blob.upload_from_filename(
+        file_path,
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    print(f"✅ Đã upload '{file_name}' lên 'initexcel' trong Firebase Storage.")
+
 
 # @app.route("/create_excel", methods=["POST", "OPTIONS"])
 # def create_excel():
@@ -379,57 +492,14 @@ from initExcel import init_excel
 
 #     try:
 #         # Gọi hàm init_excel để tạo file Excel
-#         if day:
-#             result_message = init_excel(day=day, is_recreate=is_recreate)
-#         else:
-#             for i in range(len(DATES)):
-#                 result_message = init_excel(day=DATES[i], is_recreate= bool(i==0))
-#             push_excel_to_storage("data\input\Lenh_Dieu_xe.xlsx")
+#         for i in range(len(DATES)):
+#             result_message = init_excel(day=DATES[i], is_recreate= bool(i==0))
+#         push_excel_to_storage("data\input\Lenh_Dieu_Xe.xlsx")
 #         return jsonify({"message": result_message}), 200
+
 #     except Exception as e:
 #         return jsonify({"error": str(e)}), 500
- 
-
-    
-
-
-# ---------------------------------------------------------------------------
-# THÊM ROUTE MẶC ĐỊNH ĐỂ PHỤC VỤ TRUY CẬP
-# ---------------------------------------------------------------------------
-@app.route("/")
-def index():
-    return "API is running", 200
-import os
-import datetime
-import firebase_admin
-from firebase_admin import storage
-from flask import request, jsonify, make_response
-
-# Ví dụ: file local là "data/input/Lenh_Dieu_xe.xlsx"
-def push_excel_to_storage(file_name):
-    """
-    Đẩy file Excel lên Firebase Storage và trả về download URL.
-    Tham số file_name nên là phần đường dẫn bên trong thư mục "data", ví dụ "input/Lenh_Dieu_xe.xlsx".
-    """
-    # Tạo đường dẫn file local: "data/input/Lenh_Dieu_xe.xlsx"
-    local_file_path = os.path.join("data", file_name)
-    
-    # Lấy bucket mặc định (đã khởi tạo Firebase Admin)
-    bucket = firebase_admin.storage.bucket()
-    
-    # Lấy tên file cơ bản để lưu trong Storage, ví dụ "Lenh_Dieu_xe.xlsx"
-    blob = bucket.blob(f"excel/{os.path.basename(file_name)}")
-    
-    # Upload file lên Firebase Storage
-    blob.upload_from_filename(
-        local_file_path,
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-    print(f"File {file_name} uploaded to Firebase Storage.")
-    
-    # Tạo download URL có hiệu lực 1 giờ
-    download_url = blob.generate_signed_url(datetime.timedelta(hours=1))
-    return download_url
+ # Thêm import datetime nếu chưa có
 
 @app.route("/create_excel", methods=["POST", "OPTIONS"])
 def create_excel():
@@ -441,25 +511,101 @@ def create_excel():
         response.headers.add("Access-Control-Allow-Methods", "POST,OPTIONS")
         return response, 200
 
-
     data = request.json or {}
-    day = data.get("day")  # nếu có, dùng để tạo file theo ngày
+    # Lấy các tham số nếu có: day và is_recreate
+    day = data.get("day")  # nếu không cung cấp, init_excel sẽ dùng giá trị mặc định
     is_recreate = data.get("is_recreate", False)
 
     try:
-        # Gọi hàm tạo file Excel
-        if day:
-            result_message = init_excel(day=day, is_recreate=is_recreate)
-        else:
-            for i in range(len(DATES)):
-                result_message = init_excel(day=DATES[i], is_recreate=(i==0))
+        # Gọi hàm init_excel để tạo file Excel
+        for i in range(len(DATES)):
+            result_message = init_excel(day=DATES[i], is_recreate= bool(i==0))
         
-        # Upload file lên Firebase Storage và nhận download URL
-        # Lưu ý: Vì file local là "data/input/Lenh_Dieu_xe.xlsx", nên gọi push_excel_to_storage với "input/Lenh_Dieu_xe.xlsx"
-        download_url = push_excel_to_storage("input/Lenh_Dieu_Xe.xlsx")
+        # Upload file (giữ nguyên logic cũ)
+        push_excel_to_storage2("data\input\Lenh_Dieu_Xe.xlsx")
+        
+        # Sau khi upload, tạo blob tham chiếu đến file vừa upload
+        bucket = storage.bucket()
+        blob = bucket.blob("requests_xlsx/Lenh_Dieu_Xe.xlsx")
+        
+        # Tạo download URL có hiệu lực 1 giờ
+        download_url = blob.generate_signed_url(datetime.timedelta(hours=1))
+        
         return jsonify({"message": result_message, "download_url": download_url}), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+    
+
+
+# # ---------------------------------------------------------------------------
+# # THÊM ROUTE MẶC ĐỊNH ĐỂ PHỤC VỤ TRUY CẬP
+# # ---------------------------------------------------------------------------
+@app.route("/")
+def index():
+    return "API is running", 200
+# # import os
+# # import datetime
+# # import firebase_admin
+# # from firebase_admin import storage
+# # from flask import request, jsonify, make_response
+
+# # # Ví dụ: file local là "data/input/Lenh_Dieu_xe.xlsx"
+# # def push_excel_to_storage(file_name):
+# #     """
+# #     Đẩy file Excel lên Firebase Storage và trả về download URL.
+# #     Tham số file_name nên là phần đường dẫn bên trong thư mục "data", ví dụ "input/Lenh_Dieu_xe.xlsx".
+# #     """
+# #     # Tạo đường dẫn file local: "data/input/Lenh_Dieu_xe.xlsx"
+# #     local_file_path = os.path.join("data", file_name)
+    
+# #     # Lấy bucket mặc định (đã khởi tạo Firebase Admin)
+# #     bucket = firebase_admin.storage.bucket()
+    
+# #     # Lấy tên file cơ bản để lưu trong Storage, ví dụ "Lenh_Dieu_xe.xlsx"
+# #     blob = bucket.blob(f"excel/{os.path.basename(file_name)}")
+    
+# #     # Upload file lên Firebase Storage
+# #     blob.upload_from_filename(
+# #         local_file_path,
+# #         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+# #     )
+# #     print(f"File {file_name} uploaded to Firebase Storage.")
+    
+# #     # Tạo download URL có hiệu lực 1 giờ
+# #     download_url = blob.generate_signed_url(datetime.timedelta(hours=1))
+# #     return download_url
+
+# @app.route("/create_excel", methods=["POST", "OPTIONS"])
+# def create_excel():
+#     # Xử lý preflight request cho CORS
+#     if request.method == "OPTIONS":
+#         response = make_response()
+#         response.headers.add("Access-Control-Allow-Origin", "*")
+#         response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+#         response.headers.add("Access-Control-Allow-Methods", "POST,OPTIONS")
+#         return response, 200
+
+
+#     data = request.json or {}
+#     day = data.get("day")  # nếu có, dùng để tạo file theo ngày
+#     is_recreate = data.get("is_recreate", False)
+
+#     try:
+#         # Gọi hàm tạo file Excel
+#         if day:
+#             result_message = init_excel(day=day, is_recreate=is_recreate)
+#         else:
+#             for i in range(len(DATES)):
+#                 result_message = init_excel(day=DATES[i], is_recreate=(i==0))
+        
+#         # Upload file lên Firebase Storage và nhận download URL
+#         # Lưu ý: Vì file local là "data/input/Lenh_Dieu_xe.xlsx", nên gọi push_excel_to_storage với "input/Lenh_Dieu_xe.xlsx"
+#         download_url = push_excel_to_storage("input/Lenh_Dieu_Xe.xlsx")
+#         return jsonify({"message": result_message, "download_url": download_url}), 200
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
 
 @app.route("/robots.txt")
 def robots_txt():
