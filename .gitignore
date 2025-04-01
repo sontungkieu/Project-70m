@@ -4,6 +4,7 @@
 /data/output/*
 /data/test/*
 .vscode
+/data/output_excel/
 
 /__pycache__/
 /utilities/__pycache__/

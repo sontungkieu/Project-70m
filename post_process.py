@@ -11,10 +11,11 @@ def read_output(filename):
     except FileNotFoundError:
         print(f"Lỗi: Không tìm thấy file {filename}!")
         return None
-    output = output.split("\n---")  # tách các ngày
+    output = output.split("\n---")
+    print(len(output))  # tách các ngày
     days = []
     json_data = {}
-    for day_info in output[1:-2]:
+    for day_info in output[1:]:
         print("*"*20)
         day = day_info[:100].split()[1]
         print("*"*20)
@@ -25,13 +26,14 @@ def read_output(filename):
         #     print(u)
         json_day = []
         for i in range(0,len(day_info),3):
-            vehicle_id = day_info[i] if i+3<len(day_info) else None
-            string_routes = day_info[i+1] if i+3<len(day_info) else None
-            string_max_distance = day_info[i+2] if i+3<len(day_info) else None
-            string_total_distance = day_info[i] if i+3>=len(day_info) else None
-            string_cumulative_historical_km = day_info[i+1] if i+3>=len(day_info) else None
+            vehicle_id = day_info[i] if "Route for vehicle" in day_info[i] else None
+            string_routes = day_info[i+1] if "Node 0 (Arrival Time:" in day_info[i+1] else None
+            string_max_distance = day_info[i+2] if i+2<len(day_info) and "Distance of the route:" in day_info[i+2]  else None
+            string_total_distance = day_info[i] if "Total" in day_info[i] else None
+            string_cumulative_historical_km = day_info[i+1] if "[" in day_info[i+1] and "]" in day_info[i+1] else None
 
-            print(day_info[i],i, len(day_info))
+            # print(day_info[i],i, len(day_info))
+            # print(f"string_max_distance: {string_max_distance}")
             vehicle_id = int(vehicle_id.split(":")[0].split()[-1]) if vehicle_id else None
             max_distance = int(float(string_max_distance.split()[-1])) if string_max_distance else None 
             string_total_distance = int(float(string_total_distance.split()[-1])) if string_total_distance else None
@@ -96,4 +98,5 @@ if __name__ == "__main__":
     # output = read_output(filename=filename)
     # print(output)
     # read_output(filename="data/output/2025-03-29_22-01-18.txt")
-    read_and_save_json_output(filename="data/output/2025-03-29_22-01-18.txt")
+    # read_and_save_json_output(filename="data/output/2025-03-29_22-01-18.txt")
+    read_output(filename = r"data\output\2025-03-30_00-52-50.txt")
