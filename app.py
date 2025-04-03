@@ -98,74 +98,136 @@ def send_notification():
 # ---------------------------------------------------------------------------
 # 5) HÀM: LƯU KẾT QUẢ VÀO FIRESTORE và hàm chuyển đổi flatten
 # ---------------------------------------------------------------------------
-def save_to_firestore(job_id, requests_list):
+def flatten_output_json(full_results):
     """
-    Lưu kết quả tối ưu hóa (danh sách các request) vào Firestore.
-    - Mỗi request được lưu vào collection "Requests" với document id là request_id.
-    - Các request được nhóm theo staff_id và cập nhật vào collection "Drivers" dưới trường "route_by_day".
+    Duyệt qua full_results theo từng ngày, mỗi vehicle, và từng route:
+      - Tạo list request, gắn date, vehicle_id, arrival_time, delivered...
+      - Lưu ý: original_request_id = request_id nếu chưa có.
+    """
+    flattened_requests = []
+    for date_str, vehicles in full_results.items():
+        if not vehicles:
+            continue
+        for vehicle in vehicles:
+            vehicle_id = vehicle.get("vehicle_id")
+            routes = vehicle.get("routes") or []
+            for route in routes:
+                req_info = route.get("request")
+                if not req_info:
+                    continue
+
+                # Gán date và original_request_id
+                req_info["date"] = date_str
+                if not req_info.get("original_request_id"):
+                    req_info["original_request_id"] = req_info.get("request_id", "")
+
+                # Tạo bản ghi flattened
+                flattened = {
+                    "request_id": req_info.get("request_id", ""),
+                    "original_request_id": req_info.get("original_request_id", ""),
+                    "vehicle_id": vehicle_id,
+                    "arrival_time": route.get("arrival_time"),
+                    "capacity": route.get("capacity"),
+                    "delivered": route.get("delivered"),
+                    "destination": route.get("destination"),
+                    "date": date_str,
+                    "status": "scheduled"  # Mặc định, cập nhật sau nếu cần
+                }
+                # Gộp thêm các field còn lại trong req_info
+                flattened.update(req_info)
+
+                flattened_requests.append(flattened)
+
+    print(f"✅ Flattened {len(flattened_requests)} requests.")
+    return flattened_requests
+
+
+# ---------------------------------------------------------------------------
+# 2) Lưu danh sách request vào collection "Requests"
+# ---------------------------------------------------------------------------
+def save_requests_to_firestore(requests_list):
+    """
+    Lưu từng request vào Firestore collection "Requests".
+    Document ID = request_id.
+    """
+    for req in requests_list:
+        request_id = req["request_id"]
+        db.collection("Requests").document(request_id).set(req, merge=True)
+
+    print("✅ Saved all requests to Firestore (Requests collection).")
+
+
+# ---------------------------------------------------------------------------
+# 3) Lưu route của mỗi vehicle (theo ngày) vào collection "Routes"
+# ---------------------------------------------------------------------------
+def save_routes_to_firestore(full_results):
+    """
+    Duyệt full_results theo từng ngày -> từng vehicle:
+      - Tạo doc_id = "{safe_date}_vehicle_{vehicle_id}" trong collection "Routes"
+      - Lưu nguyên danh sách route (vehicle_routes) + total_distance
     """
     finished_at = datetime.now(timezone.utc).isoformat()
-    # Dictionary để gom các request_id theo từng driver (staff_id)
-    driver_routes = {}
-    
-    for req in requests_list:
-        # Thêm thông tin job_id và finished_at vào mỗi request
-        req["job_id"] = job_id
-        req["finished_at"] = finished_at
 
-        # Lưu request vào collection "Requests" (dùng request_id làm document id)
-        request_id = req.get("request_id")
-        if not request_id:
-            raise ValueError("Mỗi request phải có trường 'request_id'")
-        db.collection("Requests").document(request_id).set(req)
-
-        # Gom nhóm các request theo driver (staff_id)
-        staff_id = req.get("staff_id")
-        if staff_id is not None:
-            # Chuyển staff_id sang chuỗi để dùng làm document id
-            driver_routes.setdefault(str(staff_id), []).append(request_id)
-    
-    # Cập nhật thông tin cho từng driver trong collection "Drivers"
-    for staff_id, request_ids in driver_routes.items():
-        driver_ref = db.collection("Drivers").document(staff_id)
-        # Sử dụng set với merge=True để cập nhật hoặc tạo mới
-        driver_ref.set({
-            "route_by_day": { job_id: request_ids },
-            "available": True,
-            "last_update": finished_at
-        }, merge=True)
-
-def flatten_output_json(output_data):
-    requests_list = []
-    # output_data là dict: {"27.03.2025": [vehicle, vehicle, ...], "28.03.2025": [...], ...}
-    for date_str, vehicles in output_data.items():
+    for date_str, vehicles in full_results.items():
+        if not vehicles:
+            continue
         for vehicle in vehicles:
-            routes = vehicle.get("routes", [])
-            for rt in routes:
-                request_info = rt.get("request")
-                if not request_info:
-                    # route không có trường 'request' => bỏ qua
-                    continue
-                request_id = request_info.get("request_id")
-                if not request_id:
-                    # request_info không có request_id => bỏ qua
-                    continue
+            vehicle_id = vehicle.get("vehicle_id")
+            vehicle_routes = vehicle.get("routes", [])
+            max_distance = vehicle.get("max_distance")
 
-                # Chép request_id lên top-level
-                rt["request_id"] = request_id  
-                # staff_id, weight, timeframe, v.v. tùy bạn muốn copy field nào
-                rt["staff_id"] = request_info.get("staff_id")
-                # ... (copy thêm những gì bạn cần)
+            safe_date = date_str.replace(".", "_")
+            doc_id = f"{safe_date}_vehicle_{vehicle_id}"
 
-                # Thêm ngày
-                rt["date"] = date_str
-                # Thêm vehicle_id nếu cần:
-                rt["vehicle_id"] = vehicle.get("vehicle_id", None)
+            route_doc = {
+                "date": date_str,
+                "vehicle_id": vehicle_id,
+                "route": vehicle_routes,
+                "total_distance": max_distance,
+                "last_update": finished_at
+            }
+            db.collection("Routes").document(doc_id).set(route_doc, merge=True)
 
-                requests_list.append(rt)
+    print("✅ Saved vehicle routes to Firestore (Routes collection).")
 
-    return requests_list
 
+# ---------------------------------------------------------------------------
+# 4) Lưu tóm tắt/dữ liệu vào collection "Vehicles"
+#    + Subcollection "init" (hoặc "history") để lưu chi tiết route theo ngày
+# ---------------------------------------------------------------------------
+def save_vehicles_to_firestore(full_results):
+    finished_at = datetime.now(timezone.utc).isoformat()
+    for date_str, vehicles in full_results.items():
+        if not vehicles:
+            continue
+        for vehicle in vehicles:
+            vehicle_id = vehicle.get("vehicle_id")
+            # Cho phép vehicle_id bằng 0, chỉ bỏ qua nếu là None hoặc chuỗi rỗng.
+            if vehicle_id is None or vehicle_id == "":
+                continue
+            vehicle_id_str = str(vehicle_id)
+            vehicle_routes = vehicle.get("routes", [])
+            max_distance = vehicle.get("max_distance", 0)
+            # Tạo một bản ghi lịch sử giao hàng cho xe đó
+            history_record = {
+                "vehicle_id": vehicle_id_str,
+                "date": date_str,
+                "route": vehicle_routes,
+                "total_distance": max_distance,
+                "last_update": finished_at
+            }
+            safe_date = date_str.replace(".", "_")
+            # Lưu vào subcollection "history" của document vehicle_id
+            db.collection("Vehicles").document(vehicle_id_str).collection("history")\
+              .document(safe_date).set(history_record, merge=True)
+            # Cập nhật thông tin tóm tắt vào document Vehicles (các trường mới nhất)
+            db.collection("Vehicles").document(vehicle_id_str).set({
+                "vehicle_id": vehicle_id_str,
+                "last_update": finished_at,
+                "last_date": date_str,
+                "last_distance": max_distance
+            }, merge=True)
+    print("✅ Saved delivery history to Firestore (Vehicles collection with subcollection history).")
 
 
 
@@ -278,6 +340,7 @@ def run_pipeline(job_id):
 
     # Bước 1: Tải file Excel xuống
     subprocess.run(["python", "Get_data_from_storage.py"], check=True)
+    
 
     # Bước 2: Chuyển đổi Excel sang JSON
     subprocess.run(["python", "read_excel.py"], check=True)
@@ -297,25 +360,21 @@ def run_pipeline(job_id):
         process.wait()
     run_time = perf_counter() - tstart
 
-    # Bước 4: Định dạng lại output, bổ sung execution_time và finished_at
-    full_results = read_and_save_json_output(output_file)
-    if full_results is None:
-        raise Exception("Failed to parse output file using read_output.")
-    # finished_at = datetime.now(timezone.utc).isoformat()
-    # Vì full_results là một dict với key là ngày, ta duyệt theo items:
-    # for date, vehicles in full_results.items():
-    #     for vehicle in vehicles:
-    #         vehicle["execution_time"] = f"{run_time:.2f} s"
-    #         vehicle["finished_at"] = finished_at
-
-
-
     # --- BẮC 5: Lưu JSON output vào Firestore ---
     # Chuyển full_results (cấu trúc theo ngày) thành danh sách các request tuyến đường
-    # requests_list = flatten_output_json(full_results)
-    # print("DEBUG requests_list =", requests_list)
-    # Hàm save_to_firestore đã được định nghĩa sẵn (tham khảo code của bạn)
-    # save_to_firestore(job_id, requests_list)    
+    full_results = read_and_save_json_output(output_file)
+    if full_results is None:
+        raise Exception("Failed to parse output file using read_and_save_json_output.")
+
+    # Bước 5: Lưu Requests (flatten)
+    flattened_requests = flatten_output_json(full_results)
+    save_requests_to_firestore(flattened_requests)
+
+    # Bước 6: Lưu Routes (nguyên cấu trúc)
+    save_routes_to_firestore(full_results)
+
+    # Bước 7: Lưu Vehicles (tóm tắt + subcollection init)
+    save_vehicles_to_firestore(full_results)
 
     # --- BẮC 6: Chuyển JSON thành file Excel ---
     # Sử dụng hàm read_json_output_file từ post_process để xuất file Excel theo cấu trúc mong muốn

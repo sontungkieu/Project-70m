@@ -11,7 +11,6 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
 def read_output(filename):
-    print("111111111111111111111111111111111111111111111111111111111111111111111111111111")
     mapped_requests, mapping, inverse_mapping,node_id_to_request = read_mapping()
     df = pd.read_csv("data/destinations.csv")
     try:
@@ -75,15 +74,13 @@ def read_output(filename):
                 "routes": routes,
                 "cumulative_historical_km": cumulative_historical_km,
             })
-
+        
         json_data[day] = json_day
-    print("22222222222222222222222222222222222222222222222222222222222222222222222222222222222222222")
     return json_data
 
 def read_and_save_json_output(
-    filename=r"data\stdout_output_2025-02-19_00-00-00.txt",
+    filename=r"data\output\2025-03-30_00-54-03.txt",
 ):
-    print("33333333333333333333333333333333333333333333333333333333333333333333333333")
     output = read_output(filename=filename)
     if output is not None:
         import json
@@ -99,7 +96,6 @@ def read_and_save_json_output(
             encoding="utf-8",
         ) as jsonfile:
             json.dump(output, jsonfile, indent=4)
-    print("4444444444444444444444444444444444444444444444444444444444444444444444444444444444444")
     return output
 
 # def recalculate_accumulated
@@ -112,7 +108,6 @@ def format_excel_file(file_path):
       - Các ô dữ liệu: căn giữa, border, wrap_text.
       - Cài đặt chiều rộng cột (áp dụng động cho tất cả cột).
     """
-    print("5555555555555555555555555555555555555555555555555555555555555555555555555")
     print(f"[DEBUG] Bắt đầu format file: {file_path}")
     wb = load_workbook(file_path)
     ws = wb.active
@@ -146,7 +141,6 @@ def format_excel_file(file_path):
         ws.column_dimensions[col_letter].width = 25
 
     wb.save(file_path)
-    print("666666666666666666666666666666666666666666666666666666666666666666666666666666")
     print(f"[DEBUG] Đã định dạng file Excel: {file_path}")
 
 def read_json_output_file(filename, output_dir="data/output_excel"):
@@ -166,7 +160,6 @@ def read_json_output_file(filename, output_dir="data/output_excel"):
         filename: đường dẫn file JSON đầu vào.
         output_dir: đường dẫn thư mục để lưu file Excel đầu ra. Nếu không truyền vào, sẽ dùng thư mục mặc định.
     """
-    print("777777777777777777777777777777777777777777777777777777777777777777777777777777777777")
     script_dir = os.path.dirname(__file__)
     print(f"[DEBUG] Bắt đầu đọc file JSON: {filename}")
 
@@ -193,7 +186,6 @@ def read_json_output_file(filename, output_dir="data/output_excel"):
     print(f"[DEBUG] Thư mục output_excel: {output_dir}")
     
     # JSON mới: key là ngày, value là danh sách các xe
-    print("8888888888888888888888888888888888888888888888888888888888888888888888888888")
     for date, vehicles in data.items():
         print(f"\n[DEBUG] Xử lý ngày: {date}, số xe: {len(vehicles)}")
         vehicles_info = []
