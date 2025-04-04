@@ -76,6 +76,8 @@ def read_output(filename):
             })
 
         json_data[day] = json_day
+
+
     return json_data
 
 def read_and_save_json_output(
