@@ -41,28 +41,46 @@ def is_plus_code(address):
     )  # No comma means it's likely a Plus Code
 
 
-def get_coordinates(address, retry=3):
-    """
-    Fetches latitude and longitude using Goong.io Geocoding API.
-    Converts Plus Codes into coordinates if necessary.
-    """
-    url = f"https://rsapi.goong.io/Geocode?address={address}&api_key={GOONG_API_KEY}"
+# def get_coordinates(address, retry=3):
+#     """
+#     Fetches latitude and longitude using Goong.io Geocoding API.
+#     Converts Plus Codes into coordinates if necessary.
+#     """
+#     url = f"https://rsapi.goong.io/Geocode?address={address}&api_key={GOONG_API_KEY}"
 
-    for attempt in range(retry):
-        response = requests.get(url).json()
-        # print(response)
-        if response["status"] == "OK":
-            location = response["results"][0]["geometry"]["location"]
-            return float(location["lat"]), float(location["lng"])
-        if GOONG_DEBUG:
-            print(
-                f" Geocoding failed for '{address}', retrying ({attempt + 1}/{retry})..."
-            )
-        time.sleep(2)  # Wait before retrying
-    if GOONG_DEBUG:
-        print(f"Could not geocode address: {address}")
-    return None  # Return None if geocoding fails after retries
+#     for attempt in range(retry):
+#         response = requests.get(url).json()
+#         # print(response)
+#         if response["status"] == "OK":
+#             location = response["results"][0]["geometry"]["location"]
+#             return float(location["lat"]), float(location["lng"])
+#         if GOONG_DEBUG:
+#             print(
+#                 f" Geocoding failed for '{address}', retrying ({attempt + 1}/{retry})..."
+#             )
+#         time.sleep(2)  # Wait before retrying
+#     if GOONG_DEBUG:
+#         print(f"Could not geocode address: {address}")
+#     return None  # Return None if geocoding fails after retries
 
+def get_coordinates(address):
+    # Gửi request đến API như thường
+    url = f"https://rsapi.goong.io/Geocode?address={address}&api_key=YOUR_API_KEY"
+    response = requests.get(url).json()
+
+    print(f"[DEBUG] Response for address {address}: {response}")
+
+    if "status" not in response:
+        print("[ERROR] Không có trường 'status' trong response!")
+
+        return None
+
+    if response["status"] == "OK":
+        location = response["results"][0]["geometry"]["location"]
+        return location["lat"], location["lng"]
+    else:
+        print(f" Lỗi khi lấy tọa độ: {response.get('error_message', 'Không rõ lỗi')}")
+        return None
 
 def batch_calculate_distance(origins, destinations):
     """

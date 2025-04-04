@@ -74,14 +74,14 @@ def read_output(filename):
                 "routes": routes,
                 "cumulative_historical_km": cumulative_historical_km,
             })
-
+        
         json_data[day] = json_day
 
 
     return json_data
 
 def read_and_save_json_output(
-    filename=r"data\stdout_output_2025-02-19_00-00-00.txt",
+    filename=r"data\output\2025-03-30_00-54-03.txt",
 ):
     output = read_output(filename=filename)
     if output is not None:
@@ -192,7 +192,7 @@ def read_json_output_file(filename, output_dir="data/output_excel"):
         print(f"\n[DEBUG] Xử lý ngày: {date}, số xe: {len(vehicles)}")
         vehicles_info = []
         max_stops = 0
-
+        print(f"[DEBUG] Số xe: {len(vehicles)}")
         for vehicle in vehicles:
             vehicle_id = vehicle.get("vehicle_id")
             # Lấy tổng khoảng cách: dùng total_distance nếu có, nếu không dùng max_distance
@@ -214,6 +214,7 @@ def read_json_output_file(filename, output_dir="data/output_excel"):
             stops = []
                         # Lấy danh sách routes, đảm bảo không bị None
             routes = vehicle.get("routes") or []
+            print("[DEBUG] Số tuyến của xe {vehicle_id}: {len(routes)}")
             for idx, route in enumerate(routes):
                 node = route.get("node")
                 # Lấy giá trị destination có sẵn; nếu cần, tra cứu thêm từ destinations.csv
@@ -300,6 +301,7 @@ def read_json_output_file(filename, output_dir="data/output_excel"):
         print(f"[DEBUG] Đã xuất file Excel cho ngày {date} tại: {output_filename}")
         
         # Format file Excel
+        print("")
         format_excel_file(output_filename)
 
 
@@ -308,5 +310,6 @@ if __name__ == "__main__":
     # output = read_output(filename=filename)
     # print(output)
     # read_output(filename="data/output/2025-03-29_22-01-18.txt")
-    read_output(filename = r"data\output\2025-03-30_00-52-50.txt")
-    read_and_save_json_output(filename=r"data\output\2025-03-30_00-52-50.txt")
+    # read_output(filename = r"data\output\2025-03-30_00-52-50.txt")
+    # read_and_save_json_output(filename=r"data\output\2025-03-30_00-52-50.txt")
+    read_json_output_file(filename=r"data\test\2025-02-19_00-00-00.json")
