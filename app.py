@@ -605,6 +605,7 @@ def create_excel():
         return jsonify({"message": result_message, "download_url": download_url}), 200
 
     except Exception as e:
+        app.logger.error(f"Error creating excel: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
     
