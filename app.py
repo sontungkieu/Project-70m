@@ -55,6 +55,7 @@ def save_user_info():
         )
         return jsonify({"message": "User info saved"}), 200
     except Exception as e:
+        app.logger.error(f"Error saving user info: {str(e)}")
         return jsonify({"error": str(e)}), 400
 # ---------------------------------------------------------------------------
 # 4) API: GỬI THÔNG BÁO FCM
