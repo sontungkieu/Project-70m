@@ -92,34 +92,48 @@ def save_requests_to_firestore(requests_list):
 # 3) Lưu route của mỗi vehicle (theo ngày) vào collection "Routes"
 # ---------------------------------------------------------------------------
 def save_routes_to_firestore(full_results):
-    """
-    Duyệt full_results theo từng ngày -> từng vehicle:
-      - Tạo doc_id = "{safe_date}_vehicle_{vehicle_id}" trong collection "Routes"
-      - Lưu nguyên danh sách route (vehicle_routes) + total_distance
-    """
     finished_at = datetime.now(timezone.utc).isoformat()
 
     for date_str, vehicles in full_results.items():
         if not vehicles:
             continue
+
         for vehicle in vehicles:
             vehicle_id = vehicle.get("vehicle_id")
-            vehicle_routes = vehicle.get("routes", [])
+            if vehicle_id is None or vehicle_id == "":
+                continue
+
+            vehicle_id_str = str(vehicle_id)
             max_distance = vehicle.get("max_distance")
-
             safe_date = date_str.replace(".", "_")
-            doc_id = f"{safe_date}_vehicle_{vehicle_id}"
 
+            # Rút gọn mỗi route trong danh sách
+            raw_routes = vehicle.get("routes", [])
+            simplified_routes = []
+            for r in raw_routes:
+                simplified_route = {
+                    "arrival_time": r.get("arrival_time"),
+                    "capacity": r.get("capacity"),
+                    "delivered": r.get("delivered"),
+                    "destination": r.get("destination"),
+                    "node": r.get("node"),
+                    "request": r.get("request", {}).get("request_id") if r.get("request") else None
+                }
+                simplified_routes.append(simplified_route)
+
+            doc_id = f"{safe_date}_vehicle_{vehicle_id_str}"
             route_doc = {
                 "date": date_str,
-                "vehicle_id": vehicle_id,
-                "route": vehicle_routes,
+                "vehicle_id": vehicle_id_str,
+                "route": simplified_routes,
                 "total_distance": max_distance,
                 "last_update": finished_at
             }
+
             db.collection("Routes").document(doc_id).set(route_doc, merge=True)
 
-    print("✅ Saved vehicle routes to Firestore (Routes collection).")
+    print("✅ Saved vehicle routes to Firestore (Routes collection, simplified format).")
+
 
 
 # ---------------------------------------------------------------------------
