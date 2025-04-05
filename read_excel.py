@@ -218,7 +218,8 @@ def convert_to_object_request(df: pd.DataFrame, day: str) -> List[Request]:
                 if pd.notna(row["NV KẾ HOẠCH"]) and str(row["NV KẾ HOẠCH"]).isdigit()
                 else 0
             )
-            split_id = bool(row["STT"]) if pd.notna(row["STT"]) else True
+            # split_id = bool(row["STT"]) if pd.notna(row["STT"]) else True
+            split_id = 0
             delivery_status = (
                 int(row["ĐÃ GIAO"])
                 if pd.notna(row["ĐÃ GIAO"]) and str(row["ĐÃ GIAO"]).isdigit()

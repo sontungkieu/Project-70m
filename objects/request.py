@@ -1,9 +1,10 @@
 # objects/request.py
 import random
 from datetime import datetime, timedelta
+from typing import List
 
 class Request:
-    def __init__(self, name, start_place, end_place, weight, date, timeframe, note=".", staff_id=0, split_id=0, original_request_id=None):
+    def __init__(self, name:str, start_place:List[int], end_place:List[int], weight:float, date, timeframe, note=".", staff_id=0, split_id=0, original_request_id=None):
         self.name = name
         self.start_place = start_place  # danh sách các điểm khởi đầu (ví dụ: [depot])
         self.end_place = end_place      # danh sách các điểm đến (1 phần tử)
@@ -13,10 +14,11 @@ class Request:
         self.note = note
         self.staff_id = staff_id
         self.split_id = split_id
+        self.request_id = self.gen_id()
+        self.original_request_id = original_request_id if original_request_id is not None else self.request_id
         self.delivery_time = -1
         self.delivery_status = 0
-        self.request_id = self.gen_id()
-        self.original_request_id = original_request_id
+        # Nếu không có original_request_id, sử dụng request_id hiện tại làm ID gốc
 
 
     def gen_id(self):
@@ -35,9 +37,9 @@ class Request:
             "staff_id": self.staff_id,
             "split_id": self.split_id,
             "request_id": self.request_id,
+            "original_request_id": getattr(self, "original_request_id", None),
             "delivery_time": self.delivery_time,
             "delivery_status": self.delivery_status,
-            "original_request_id": getattr(self, "original_request_id", None)
         }
 
 
@@ -53,13 +55,24 @@ class Request:
             timeframe=dict_data["timeframe"],
             note=dict_data["note"],
             staff_id=dict_data["staff_id"],
-            split_id=dict_data["split_id"]
+            split_id=dict_data["split_id"],
         )
+        # Kiểm tra request_id có tồn tại trong dict_data không và có khớp với ID đã tạo không
+        if dict_data.get("request_id",None) != request.request_id:
+            raise ValueError("request_id không khớp với ID đã tạo.")
+        else:
+            request.request_id = dict_data["request_id"]
+        # Nếu có original_request_id trong dict_data, gán cho instance
+        if "original_request_id" in dict_data:
+            request.original_request_id = dict_data["original_request_id"]
+        else:
+            request.original_request_id = request.request_id
         # Gán thêm các thuộc tính không nằm trong __init__
         request.delivery_time = dict_data["delivery_time"]
         request.delivery_status = dict_data["delivery_status"]
         # request_id đã được tạo tự động trong __init__
         return request
+    
     @classmethod
     def generate(cls, NUM_OF_NODES=55, start_from_depot=False, small_weight=True, depots=[0,1], forced_depot=None, split_index=0):
         """
