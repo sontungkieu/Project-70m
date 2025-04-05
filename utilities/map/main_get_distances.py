@@ -41,28 +41,46 @@ def is_plus_code(address):
     )  # No comma means it's likely a Plus Code
 
 
-def get_coordinates(address, retry=3):
-    """
-    Fetches latitude and longitude using Goong.io Geocoding API.
-    Converts Plus Codes into coordinates if necessary.
-    """
-    url = f"https://rsapi.goong.io/Geocode?address={address}&api_key={GOONG_API_KEY}"
+# def get_coordinates(address, retry=3):
+#     """
+#     Fetches latitude and longitude using Goong.io Geocoding API.
+#     Converts Plus Codes into coordinates if necessary.
+#     """
+#     url = f"https://rsapi.goong.io/Geocode?address={address}&api_key={GOONG_API_KEY}"
 
-    for attempt in range(retry):
-        response = requests.get(url).json()
-        # print(response)
-        if response["status"] == "OK":
-            location = response["results"][0]["geometry"]["location"]
-            return float(location["lat"]), float(location["lng"])
-        if GOONG_DEBUG:
-            print(
-                f" Geocoding failed for '{address}', retrying ({attempt + 1}/{retry})..."
-            )
-        time.sleep(2)  # Wait before retrying
-    if GOONG_DEBUG:
-        print(f"Could not geocode address: {address}")
-    return None  # Return None if geocoding fails after retries
+#     for attempt in range(retry):
+#         response = requests.get(url).json()
+#         # print(response)
+#         if response["status"] == "OK":
+#             location = response["results"][0]["geometry"]["location"]
+#             return float(location["lat"]), float(location["lng"])
+#         if GOONG_DEBUG:
+#             print(
+#                 f" Geocoding failed for '{address}', retrying ({attempt + 1}/{retry})..."
+#             )
+#         time.sleep(2)  # Wait before retrying
+#     if GOONG_DEBUG:
+#         print(f"Could not geocode address: {address}")
+#     return None  # Return None if geocoding fails after retries
 
+def get_coordinates(address):
+    # Gửi request đến API như thường
+    url = f"https://rsapi.goong.io/Geocode?address={address}&api_key=YOUR_API_KEY"
+    response = requests.get(url).json()
+
+    print(f"[DEBUG] Response for address {address}: {response}")
+
+    if "status" not in response:
+        print("[ERROR] Không có trường 'status' trong response!")
+
+        return None
+
+    if response["status"] == "OK":
+        location = response["results"][0]["geometry"]["location"]
+        return location["lat"], location["lng"]
+    else:
+        print(f" Lỗi khi lấy tọa độ: {response.get('error_message', 'Không rõ lỗi')}")
+        return None
 
 def batch_calculate_distance(origins, destinations):
     """
@@ -204,7 +222,7 @@ def process_destinations(input_csv, output_csv):
 def update_map_helper(origin_ids, destination_ids):
     matrix = []
     with open(
-        r"data\distance_matrix.csv",
+        os.path.join("data","distance_matrix.csv"),
         mode="r",
         encoding="utf-8",
         errors="replace",
@@ -227,4 +245,4 @@ def update_map_helper(origin_ids, destination_ids):
 # update_map_helper(None,None)
 
 
-# process_destinations(r"data\destinations.csv", r"data\distance_matrix.csv")
+process_destinations(r"data/destinations.csv", r"data/distance_matrix.csv")

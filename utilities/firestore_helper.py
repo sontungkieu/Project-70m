@@ -23,7 +23,7 @@ class Request:
         weight: int,
         date: str,
         timeframe: List[int],
-        split_id: bool = False,
+        split_id: int = 0,
         delivery_time: int = -1,
         delivery_status: int = 0,
     ):
@@ -221,32 +221,35 @@ def save_requests_batch(requests_list):
 
 
 # Danh sách request giả lập
-requests_data = [
-    {
-        "request_id": "req_001",
-        "start_place": [10, 20],
-        "end_place": [30, 40],
-        "weight": 50,
-        "date": "2025-02-20",
-        "timeframe": [8, 18],
-    },
-    {
-        "request_id": "req_002",
-        "start_place": [15, 25],
-        "end_place": [35, 45],
-        "weight": 30,
-        "date": "2025-02-21",
-        "timeframe": [9, 17],
-    },
-    {
-        "request_id": "req_003",
-        "start_place": [12, 22],
-        "end_place": [32, 42],
-        "weight": 40,
-        "date": "2025-02-22",
-        "timeframe": [10, 16],
-    },
-]
 
-# Lưu danh sách đơn hàng
-save_requests_batch(requests_data)
+
+if __name__ == "__main__":
+    # Tạo danh sách đơn hàng mẫu 
+    requests_data = [
+        {
+            "request_id": "req_001",
+            "start_place": [10, 20],
+            "end_place": [30, 40],
+            "weight": 50,
+            "date": "2025-02-20",
+            "timeframe": [8, 18],
+        },
+        {
+            "request_id": "req_002",
+            "start_place": [15, 25],
+            "end_place": [35, 45],
+            "weight": 30,
+            "date": "2025-02-21",
+            "timeframe": [9, 17],
+        },
+        {
+            "request_id": "req_003",
+            "start_place": [12, 22],
+            "end_place": [32, 42],
+            "weight": 40,
+            "date": "2025-02-22",
+            "timeframe": [10, 16],
+        },
+    ]
+    # Lưu danh sách đơn hàng vào Firestore
+    save_requests_batch(requests_data)

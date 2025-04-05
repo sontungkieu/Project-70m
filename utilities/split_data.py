@@ -62,6 +62,7 @@ def split_requests(requests: List[Request], output_file: str = "data/intermediat
                 timeframe=request.timeframe,
                 staff_id=request.staff_id,
                 split_id=request.split_id+split_count,
+                original_request_id=request.original_request_id,
             )
             new_request.gen_id()
             new_requests.append(new_request)

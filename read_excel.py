@@ -218,7 +218,8 @@ def convert_to_object_request(df: pd.DataFrame, day: str) -> List[Request]:
                 if pd.notna(row["NV KẾ HOẠCH"]) and str(row["NV KẾ HOẠCH"]).isdigit()
                 else 0
             )
-            split_id = bool(row["STT"]) if pd.notna(row["STT"]) else True
+            # split_id = bool(row["STT"]) if pd.notna(row["STT"]) else True
+            split_id = 0
             delivery_status = (
                 int(row["ĐÃ GIAO"])
                 if pd.notna(row["ĐÃ GIAO"]) and str(row["ĐÃ GIAO"]).isdigit()
@@ -278,21 +279,22 @@ def excel_to_requests_and_save(file_path=os.path.join("Lenh_Dieu_Xe.xlsx"), shee
 
 if __name__ == "__main__":
     try:
-        df = read_excel_file(file_path="data/input/Lenh_Dieu_Xe.xlsx",sheet_name=DATES[0])
-        requests = convert_to_object_request(df, DATES[0])
-        print("\nDanh sách các đối tượng Request:")
-        for i, req in enumerate(requests[:]):
-            print(f"Request {i + 1}:")
-            print(f"  Name: {req.name}")
-            print(f"  Start Place: {req.start_place}")
-            print(f"  End Place: {req.end_place}")
-            print(f"  Weight: {req.weight}")
-            print(f"  Date: {req.date}")
-            print(f"  Timeframe: {req.timeframe}")
-            print(f"  Note: {req.note}")
-            print(f"  Staff ID: {req.staff_id}")
-            print(f"  Split ID: {req.split_id}")
-            print(f"  Delivery Status: {req.delivery_status}")
-            print(f"  Request ID: {req.request_id}")
+        for i in range(len(DATES)):
+            df = read_excel_file(file_path="data/input/Lenh_Dieu_Xe.xlsx",sheet_name=DATES[i])
+            requests = convert_to_object_request(df, DATES[i])
+            print("\nDanh sách các đối tượng Request:")
+            for i, req in enumerate(requests[:]):
+                print(f"Request {i + 1}:")
+                print(f"  Name: {req.name}")
+                print(f"  Start Place: {req.start_place}")
+                print(f"  End Place: {req.end_place}")
+                print(f"  Weight: {req.weight}")
+                print(f"  Date: {req.date}")
+                print(f"  Timeframe: {req.timeframe}")
+                print(f"  Note: {req.note}")
+                print(f"  Staff ID: {req.staff_id}")
+                print(f"  Split ID: {req.split_id}")
+                print(f"  Delivery Status: {req.delivery_status}")
+                print(f"  Request ID: {req.request_id}")
     except Exception as e:
         print(f"Lỗi: {e}")

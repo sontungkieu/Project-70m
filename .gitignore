@@ -4,14 +4,13 @@
 /data/output/*
 /data/test/*
 .vscode
+/data/output_excel/
 
 /__pycache__/
 /utilities/__pycache__/
 /objects/__pycache__/
 firebase-key.json
-
-
-
+.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
