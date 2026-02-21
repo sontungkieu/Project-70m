@@ -1,7 +1,7 @@
 # 🚚 Optimized Delivery Dispatching System
 
 An intelligent and efficient solution designed to streamline vehicle dispatching, optimize delivery routes, and enhance driver productivity using advanced algorithms and cloud-based technologies.
-
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://github.com/sontungkieu/Project-70m)
 ## 🌟 Key Features
 
 - **Intelligent Route Optimization:** Utilizes Google's OR-Tools to calculate optimal delivery routes, minimizing distance and balancing driver workloads.
